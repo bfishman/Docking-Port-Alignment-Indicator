@@ -96,17 +96,17 @@ namespace NavyFish
         private static Color colorTargetPortHUDicon = new Color(.989f, .329f, .953f);
         private static Color colorGaugeLabels = new Color(.41f, .41f, .41f, 1f);
 
-        public static Texture2D gaugeForegroundTex = new Texture2D(foregroundTextureWidth, foregroundTextureHeight, TextureFormat.ARGB32, false);
-        public static Texture2D gaugeBackgroundTex = new Texture2D(backgroundTextureWidth, backgroundTextureHeight, TextureFormat.ARGB32, false);
-        public static Texture2D rpmBackgroundTex = new Texture2D(317, 317, TextureFormat.ARGB32, false);
-        public static Texture2D alignmentTex = new Texture2D(207, 207, TextureFormat.ARGB32, false);
-        public static Texture2D directionArrowTex = new Texture2D(70, 150, TextureFormat.ARGB32, false);
-        public static Texture2D prograde = new Texture2D(96, 96, TextureFormat.ARGB32, false);
-        public static Texture2D retrograde = new Texture2D(96, 96, TextureFormat.ARGB32, false);
-        public static Texture2D roll = new Texture2D(64, 64, TextureFormat.ARGB32, false);
-        public static Texture2D targetPort = new Texture2D(40, 40, TextureFormat.ARGB32, false);
-        public static Texture2D fontTexture = new Texture2D(256, 256, TextureFormat.ARGB32, false);
-        public static Texture2D appLauncherIcon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
+        public static Texture2D gaugeForegroundTex = null;
+        public static Texture2D gaugeBackgroundTex = null;
+        public static Texture2D rpmBackgroundTex = null;
+        public static Texture2D alignmentTex = null;
+        public static Texture2D directionArrowTex = null;
+        public static Texture2D prograde = null;
+        public static Texture2D retrograde = null;
+        public static Texture2D roll = null;
+        public static Texture2D targetPort = null;
+        public static Texture2D fontTexture = null;
+        public static Texture2D appLauncherIcon = null;
         public static Texture2D customToolbarIcon;
 
         public static BitmapFont bitmapFont;
@@ -769,7 +769,7 @@ namespace NavyFish
         static Rect rpmDrawableRect = new Rect();
         
         static Rect visibleRect = new Rect(40, 44, 319, 319);
-        public static RenderTexture guiRenderTexture = new RenderTexture((int)visibleRect.width, (int)visibleRect.height, 0, RenderTextureFormat.ARGB32);
+        public static RenderTexture guiRenderTexture = null;
         
         public static void drawIndicatorContentsToTexture()
         {
@@ -1553,29 +1553,40 @@ namespace NavyFish
         {
             Byte[] arrBytes;
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("gaugeBackground.png", null);
+            gaugeBackgroundTex = new Texture2D(backgroundTextureWidth, backgroundTextureHeight, TextureFormat.ARGB32, false);
             gaugeBackgroundTex.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("RPM_background.png", null);
+            rpmBackgroundTex = new Texture2D(317, 317, TextureFormat.ARGB32, false);
             rpmBackgroundTex.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("gaugeForeground.png", null);
+            gaugeForegroundTex = new Texture2D(foregroundTextureWidth, foregroundTextureHeight, TextureFormat.ARGB32, false);
             gaugeForegroundTex.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("alignment.png", null);
+            alignmentTex = new Texture2D(207, 207, TextureFormat.ARGB32, false);
             alignmentTex.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("directionArrow.png", null);
+            directionArrowTex = new Texture2D(70, 150, TextureFormat.ARGB32, false);
             directionArrowTex.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("prograde.png", null);
+            prograde = new Texture2D(96, 96, TextureFormat.ARGB32, false);
             prograde.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("retrograde.png", null);
+            retrograde = new Texture2D(96, 96, TextureFormat.ARGB32, false);
             retrograde.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("roll.png", null);
+            roll = new Texture2D(64, 64, TextureFormat.ARGB32, false);
             roll.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("DialogPlain.png", null);
+            fontTexture = new Texture2D(256, 256, TextureFormat.ARGB32, false);
             fontTexture.LoadImage(arrBytes);
             fontTexture.filterMode = FilterMode.Bilinear;
             fontTexture.wrapMode = TextureWrapMode.Clamp;
 
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("targetPort.png", null);
+            targetPort = new Texture2D(40, 40, TextureFormat.ARGB32, false);
             targetPort.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("appLauncherIcon.png", null);
+            appLauncherIcon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
             appLauncherIcon.LoadImage(arrBytes);
             TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("DialogPlain.fnt", null);
             List<string> textStrings = new List<string>();
@@ -1587,6 +1598,7 @@ namespace NavyFish
             tr.Dispose();
 
             bitmapFont = new BitmapFont(fontTexture, textStrings.ToArray());
+            guiRenderTexture = new RenderTexture((int)visibleRect.width, (int)visibleRect.height, 0, RenderTextureFormat.ARGB32);
         }
 
         private void initStyles()
