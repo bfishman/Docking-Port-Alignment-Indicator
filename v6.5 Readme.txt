@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 6.4-----------||
+||----------Version 6.5-----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -36,6 +36,9 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.5:
+[updated] Recompiled to work with KSP 1.2
 
 Version 6.4:
 [added]   New gauge foreground artwork by community member Devric. Sweet!
