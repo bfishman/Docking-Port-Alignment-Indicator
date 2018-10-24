@@ -1,4 +1,4 @@
-﻿/*
+/*
  *    DockingPortAlignment.cs
  * 
  *    Copyright (C) 2014, Bryan Fishman
@@ -198,11 +198,9 @@ namespace NavyFish
             return target.GetTargetingMode() == VesselTargetModes.DirectionVelocityAndOrientation;
         }
 
-        private void addToStockAppLauncher()
-        {
-            if (appLauncherButton == null)
-            {
-                print("DPAI: adding stock appLauncher button");
+        private void addToStockAppLauncher () {
+            if ( appLauncherButton == null ) { 
+                //print("DPAI: adding stock appLauncher button");
                 //RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
                 //RUIToggleButton.OnFalse onFalseDelegate = new RUIToggleButton.OnFalse(onHideGUI);
                 Callback onTrueCallback = new Callback(onShowGUI);
@@ -218,13 +216,13 @@ namespace NavyFish
        
         private void onShowGUI()
         {
-            //print("onShowGUI()");
+            //print("DPAI_DEBUG onShowGUI()");
             gaugeVisiblityToggledOn = true;
         }
 
         private void onHideGUI()
         {
-            //print("onHideGUI");
+            //print("DPAI_DEBUG onHideGUI()");
             gaugeVisiblityToggledOn = false;
         }
 
@@ -234,29 +232,29 @@ namespace NavyFish
 
             LoadConfigFile();
 
+
+        }
+        
+        public void Start()
+        {
+            LoadPrefs();
+
             blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
 
-            if (forceStockAppLauncher || !blizzyToolbarAvailable)
-            {
-                if (ApplicationLauncher.Ready)
-                {
-                    //LauncherReady event has probably already fired, so manually call add function now:
-                    addToStockAppLauncher();
-                }
+            //Debug.Log("DPAI START");
 
-                //Hook into app-launcher ready event.
-                GameEvents.onGUIApplicationLauncherReady.Add(delegate()
-                {
-                    addToStockAppLauncher();
+            if ( forceStockAppLauncher || !blizzyToolbarAvailable ) {
+
+                GameEvents.onGUIApplicationLauncherReady.Add(addToStockAppLauncher);
+                GameEvents.onGUIApplicationLauncherDestroyed.Add(delegate () {
+                    if ( appLauncherButton != null ) {
+                        ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
+                    }
                 });
-
-                GameEvents.onGUIApplicationLauncherDestroyed.Add(delegate()
-                {
-                    //appLauncherButton = null;
-                });
-
-            }
-            else
+            } 
+            
+            else 
+            
             {
                 toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
                 toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
@@ -264,22 +262,14 @@ namespace NavyFish
                 toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
                 toolbarButton.Visible = true;
                 toolbarButton.Enabled = true;
-                toolbarButton.OnClick += (e) =>
-                {
+                toolbarButton.OnClick += (e) => {
                     gaugeVisiblityToggledOn = !gaugeVisiblityToggledOn;
                 };
             }
 
-            if (!hasInitializedStyles) initStyles();
+            if ( !hasInitializedStyles ) initStyles();
 
-            settingsWindowPosition = new Rect(0, 0, 0, 0);
-
-        }
-        
-        public void Start()
-        {
-            LoadPrefs();
-            settingsWindowPosition.y = windowPosition.yMax;
+            settingsWindowPosition = new Rect(0, windowPosition.yMax, 0, 0);
         }
 
         private void OnGUI()
@@ -290,22 +280,36 @@ namespace NavyFish
 
         public void Update()
         {
-            //print("Update: Start");
-           
+            //print("DPAI_DEBUG Update()");
+
+            if ( !HighLogic.LoadedSceneIsFlight ) {
+                //print("DPAI_DEBUG update: returning, lodaed scene is not flight");
+                return;
+            } else {
+                //print("DPAI_DEBUG loadedsceneisflight: " + HighLogic.LoadedSceneIsFlight);
+                //print("DPAI_DEBUG !FlightGlobals.ActiveVessel.isEVA: " + !FlightGlobals.ActiveVessel.isEVA);
+                //print("DPAI_DEBUG !MapView.MapIsEnabled: " + !MapView.MapIsEnabled);
+            }
+            
+
             //if (Input.GetKeyDown(KeyCode.B)){
             //        cycledModuleIndex = dockingModulesListIndex + 1;
             //        cycledModuleIndex %= dockingModulesList.Count;
             //        portWasCycled = true;
             //}
 
-            determineTargetPort();
+            //determineTargetPort();
 
             bool sceneElligibleForIndicator = (HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
-            
+
+            //print("DPAI_DEBUG sceneElligble:" + sceneElligibleForIndicator);
+            //print("DPAI_DEBUG guageVisibility" + gaugeVisiblityToggledOn);
 
             if (sceneElligibleForIndicator && gaugeVisiblityToggledOn)
             {
                 showIndicator = true;
+
+                determineTargetPort();
 
                 //mousePos.Set(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
                 //print(mousePos);
@@ -324,6 +328,7 @@ namespace NavyFish
             else
             {
                 showIndicator = false;
+                
             }
 
             if (showIndicator || (RPMPageActive && isIVA()))

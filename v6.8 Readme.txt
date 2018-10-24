@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.7.0----------||
+||---------Version 6.8.0----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -36,6 +36,13 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.8:
+[updated] Recompiled for KSP 1.4.0
+[fixed] Application Launcher Icon no longer hangs around the main menu... for reals this time
+
+Version 6.7.1:
+[fixed] Application Launcher Icon no longer hangs around the main menu.
 
 Version 6.7.0:
 [fixed] Incremented version and published new .version file for CKAN/AVC compatibility
