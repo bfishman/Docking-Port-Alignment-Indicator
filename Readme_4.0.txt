@@ -1,17 +1,12 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 3.1-----------||
+||----------Version 4.0-----------||
 ||-------Author: NavyFish---------||
-**--------------------------------**
+**-------- Bryan Fishman----------**
 
-Thanks for trying out this mod! Check out the forum thread if you have any questions 
-or would like to make suggestions.
-
-http://forum.kerbalspaceprogram.com/threads/43901-0-23-Docking-Port-Alignment-Indicator-%28Version-3-0-Updated-12-18-13%29
 
 Installation:
-
   
   *************************************IMPORTANT!!********************************************
   ********************************************************************************************
@@ -21,15 +16,33 @@ Installation:
   ********************************************************************************************
   *************************************IMPORTANT!!********************************************
 
-  Extract the included GameData folder into your KSP directory and merge the contents.
-  The included Source directory does not need to be extracted.
+  -Extract the included GameData folder into your KSP directory and merge the contents.
+   (The included Source directory does not need to be extracted.)
+
+  -Module Manager 2.1.5 or newer must be used.
+
+  -It is highly recommended you backup your save game folder prior to installing this mod. Module Manager
+   will also make its own backup before modifying your saves.
 
 
 Changelog:
 
-Version 3.1
-[update] Repackaged to include latest version of Blizzy's Toolbar. *No code changes made to DPAI*
-
+Version 4.0:
+[added]   Ability to cycle between all unoccupied ports on your target vessel. No more need to right-click a port!
+[added]   Ports can now be targeted up to 2.25 Km away!
+[added]   When a vessel is first targeted, the nearest port is automatically targeted.
+[added]   Magenta HUD indicator floats on top of currently targeted port to allow for easy identification.
+[added]   Ability to rename all docking ports using the right-click GUI (in both VAB/SPH and flight). Names persist.
+[added]   Text readout on indicator which displays the name of the targeted port.
+[added]   Closure Distance (CDST) readout on indicator, displays range to target port along the approach axis only.
+[added]   Prograde icon on velocity vector changes to Retrograde icon when CVEL is negative.
+[added]   Support for parts with multiple docking ports, as well as Extraplanetary Launchpads' recycle bins (Thanks taniwha!).
+[changed] New toolbar button icon, easier to identify.
+[changed] Removed hard-dependency on Blizzy's Toolbar
+[changed] Added custom 'toolbar' button if Blizzy's toolbar is not present. Clicking toolbar button will show/hide indicator.
+[changed] Text now drawn using Bitmap Fonts, allowing for higher resolution text rendering particularly when increasing gauge scale.
+[fixed]   Indicator no longer displayed in Map View or while on EVA
+[fixed]   Generalized port orientation logic - all non-stock lateral ports should now work (Thanks taniwha!)
 
 Version 3.0:
 [update] Verified compatibility with KSP v0.23

@@ -1,11 +1,4 @@
-﻿/*	Drawing.cs
-
-	This source file was derived from multiple sources online, none of which provided licensing information.
-	It is not an original work and thus does not fall under the license used for other elements of this plugin.
-
-*/
-
-using System;
+﻿using System;
 using UnityEngine;
 
 public class Drawing
