@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 6.1-----------||
+||----------Version 6.2-----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -68,6 +68,8 @@ KSP Install Directory
 
  
 Changelog:
+Version 6.2:
+[fixed]   Stock toolbar button no longer multiplies like a rabbit!
 
 Version 6.1:
 [fixed]   DPAI *now* preserves the 'Control From Here' reference part when going IVA  

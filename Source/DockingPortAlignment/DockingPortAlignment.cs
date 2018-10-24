@@ -215,7 +215,7 @@ namespace DockingPortAlignment
         
         private void removeFromStockAppLauncher()
         {
-            appLauncherButton = null;
+            //appLauncherButton = null;
         }
 
         private void onShowGUI()
