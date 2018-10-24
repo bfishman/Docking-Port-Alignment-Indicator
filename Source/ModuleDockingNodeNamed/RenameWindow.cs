@@ -28,30 +28,60 @@
 using System;
 using UnityEngine;
 using KSP.IO;
+using DockingPortAlignment;
 
 namespace DockingPortAlignment
 {
-    class RenameWindow
+    public class RenameWindow
     {
         private Rect renameWindowRect = new Rect(0, 0, 250, 80);
         private ModuleDockingNodeNamed portModuleToRename = null;
+        private bool windowOpen = false;
+        private Vessel lastActiveVessel;
+        private string windowTitle = "Rename Docking Port";
 
-        internal void DisplayForNode(ModuleDockingNodeNamed namedNode)
+        public RenameWindow()
         {
-            portModuleToRename = namedNode;
-            RenderingManager.AddToPostDrawQueue(0, DrawRenameDialog);
         }
 
+        public void DisplayForNode(ModuleDockingNodeNamed namedNode)
+        {
+            DisplayForNode(namedNode, "Rename Docking Port");
+        }
+
+        public void DisplayForNode(ModuleDockingNodeNamed namedNode, string windowTitle)
+        {
+            this.windowTitle = windowTitle;
+            //Debug.Log("Rename Window: Display for Node");
+            if (RenderingManager.fetch != null)
+            {
+                if (!windowOpen) RenderingManager.AddToPostDrawQueue(0, DrawRenameDialog);
+                lastActiveVessel = FlightGlobals.ActiveVessel;
+            }
+
+            windowOpen = true;
+            portModuleToRename = namedNode;
+
+        }
         private void DrawRenameDialog()
         {
+            if (!windowOpen) return;
             renameWindowRect.x = .5f * (Screen.width - renameWindowRect.width);
             renameWindowRect.y = .5f * Screen.height - 200;
-            renameWindowRect = GUILayout.Window(1340, renameWindowRect, onRenameDialogDraw, "Rename Docking Port", HighLogic.Skin.window);
+            renameWindowRect = GUILayout.Window(1340, renameWindowRect, onRenameDialogDraw, windowTitle, HighLogic.Skin.window);
         }
 
         private void onRenameDialogDraw(int id)
         {
-            if (portModuleToRename != null && (HighLogic.LoadedSceneIsEditor || portModuleToRename.vessel.loaded))
+            Vessel currentActiveVessel = FlightGlobals.ActiveVessel;
+            bool activeVesselChanged = false;
+            if (lastActiveVessel != currentActiveVessel)
+            {
+                activeVesselChanged = true;
+                lastActiveVessel = currentActiveVessel;
+            }
+
+            if (portModuleToRename != null && (HighLogic.LoadedSceneIsEditor || portModuleToRename.vessel.loaded) && !activeVesselChanged)
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Name:", GUILayout.Width(50));
@@ -63,16 +93,22 @@ namespace DockingPortAlignment
                 GUILayout.EndHorizontal();
                 if (isDone)
                 {
-                    portModuleToRename = null;
-                    RenderingManager.RemoveFromPostDrawQueue(0, DrawRenameDialog);
-                    renameWindowRect.Set(0, 0, 250, 80);
+                    closeWindow();
                 }
             }
             else
             {
-                RenderingManager.RemoveFromPostDrawQueue(0, DrawRenameDialog);
-                renameWindowRect.Set(0, 0, 250, 80);
+                closeWindow();
             }
+        }
+
+        public void closeWindow()
+        {
+            portModuleToRename = null;
+            renameWindowRect.Set(0, 0, 250, 80);
+            windowOpen = false;
+            DockingPortAlignment.setRenameHighlightBoxRPM(DockingPortAlignment.HighlightBox.NONE);
+            RenderingManager.RemoveFromPostDrawQueue(0, DrawRenameDialog);
         }
     }
 }

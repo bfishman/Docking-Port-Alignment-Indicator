@@ -71,6 +71,7 @@ public class Drawing
         GUI.color = savedColor;
     }
 
+    static Rect horizRect1 = new Rect();
     public static void DrawHorizontalLine(float originX, float originY, float length, float width, Color color)
     {
         // Generate a single pixel texture if it doesn't exist
@@ -82,11 +83,18 @@ public class Drawing
         GUI.color = color;
 
         float hW = width/2f;
-        GUI.DrawTexture(new Rect(originX, originY - hW, length, width), lineTex);
+
+        horizRect1.x = originX;
+        horizRect1.y = originY - hW;
+        horizRect1.width = length;
+        horizRect1.height = width;
+
+        GUI.DrawTexture(horizRect1, lineTex);
 
         GUI.color = savedColor;
     }
 
+    static Rect vertRect1 = new Rect();
     public static void DrawVerticalLine(float originX, float originY, float length, float width, Color color)
     {
         // Generate a single pixel texture if it doesn't exist
@@ -98,11 +106,57 @@ public class Drawing
         GUI.color = color;
 
         float hW = width / 2f;
-        GUI.DrawTexture(new Rect(originX - hW, originY, width, length), lineTex);
+
+        vertRect1.x = originX - hW;
+        vertRect1.y = originY;
+        vertRect1.width = width;
+        vertRect1.height = length;
+
+        GUI.DrawTexture(vertRect1, lineTex);
 
         GUI.color = savedColor;
     }
 
+    static Rect horizRect2 = new Rect();
+    public static void DrawHorizontalLineGraphics(float originX, float originY, float longDimension, float shortDimension, Color color)
+    {
+        // Generate a single pixel texture if it doesn't exist
+        if (!lineTex) createLineTexture();
+
+        // Store current GUI color, so we can switch it back later,
+        // and set the GUI color to the color parameter
+        
+        float hW = shortDimension / 2f;
+
+        horizRect2.x = originX;
+        horizRect2.y = originY - hW;
+        horizRect2.width = longDimension;
+        horizRect2.height = shortDimension;
+
+        Graphics.DrawTexture(horizRect2, lineTex, sourceRect, 0, 0, 0, 0, color);
+
+    }
+
+    static Rect vertRect2 = new Rect();
+    public static void DrawVerticalLineGraphics(float originX, float originY, float longDimension, float shortDimension, Color color)
+    {
+        // Generate a single pixel texture if it doesn't exist
+        if (!lineTex) createLineTexture();
+
+        // Store current GUI color, so we can switch it back later,
+        // and set the GUI color to the color parameter
+
+        float hW = shortDimension / 2f;
+
+        vertRect2.x = originX - hW;
+        vertRect2.y = originY;
+        vertRect2.width = shortDimension;
+        vertRect2.height = longDimension;
+
+        Graphics.DrawTexture(vertRect2, lineTex, sourceRect, 0, 0, 0, 0, color);
+    }
+
+    static Rect sourceRect = new Rect(0, 0, 1, 1);
     private static void createLineTexture(){
         lineTex = new Texture2D(1, 1);
         lineTex.SetPixel(1, 1, Color.white);

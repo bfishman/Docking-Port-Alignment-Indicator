@@ -1,4 +1,0 @@
-
-Please note:
-
-If you do not wish to use Module Manager, simply remove it from your GameData folder. DPAI can operate without it, although you will not be able to rename docking ports.

@@ -1,9 +1,29 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 5.1-----------||
+||----------Version 6.1-----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
+
+
+--------------------Disclosures---------------------------------------------------------------
+This mod uses MiniAVC (https://github.com/CYBUTEK/KSPAddonVersionChecker) to provide automatic
+version checking. If you opt-in, it will use the internet to check whether there is a new version 
+available. Data is only read from the internet and no personal information is sent. For a more 
+comprehensive version checking experience, please download the KSP-AVC Plugin.
+
+Also,
+
+This mod integrates with Raster Prop Monitor (https://github.com/Mihara/RasterPropMonitor/) by 
+Mihara. The DPAI installation will overwrite the following file (if RPM is installed): 
+"GameData\JSI\RPMPodPatches\BasicMFD\p0_home40x20.txt". This does not affect RPM's function -
+it simply adds a "DPAI" label to the stock RPM MFD's upper-right navigation button.
+
+Also,
+
+This mod requires the use of Module Manager (https://github.com/sarbian/ModuleManager) to 
+provide renamable docking ports as well as RPM integration.
+----------------------------------------------------------------------------------------------
 
 
 Installation Instructions:
@@ -23,8 +43,9 @@ Installation Instructions:
 
 
   -If Blizzy's toolbar is installed, DPAI will use it by default. If you'd like to force DPAI
-   to use the Stock Application Launcher instead, open "GameData\NavyFish\Plugins\DPAI Settings.cfg"
-   and change 'forceStockAppLauncher = false' to 'forceStockAppLauncher = true'
+   to use the Stock Application Launcher instead, open the following file:
+   "GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DPAI Settings.cfg",
+   and change 'forceStockAppLauncher = false' to 'forceStockAppLauncher = true' (no quotes)
 
 
 
@@ -40,11 +61,30 @@ KSP Install Directory
  |  +NavyFish
  |  |  |...
  |  |
+ |  +JSI
+ |  |  |...
+ |  | 
  |  +ModuleManager.X.Y.Z.dll
 
-
-
+ 
 Changelog:
+
+Version 6.1:
+[fixed]   DPAI *now* preserves the 'Control From Here' reference part when going IVA  
+
+Version 6.0:
+[added]   Raster Prop Monitor (RPM) Integration! (See Below)
+[RPM]	  DPAI now has an RPM Page on the stock RPM MFD. More MFD patches to follow.
+[RPM]     Full DPAI functionality and display while IVA! (RPM Required)
+[RPM]     Display and cycle Target Ports from MDF
+[RPM]     Display and cycle the Docking Reference part from MFD
+[RPM]     Rename target and reference ports from MFD while IVA
+[RPM]     Toggleable info page which displays MFD controls for DPAI
+[added]   DPAI now preserves the 'Control From Here' reference part when going IVA    
+[added]   Option to show/hide target port HUD indicator while IVA
+[added]   Parts with multiple docking ports can now have unique names for each port
+[changed] Appearance of 'point towards' arrow (smaller, higher-resolution)
+[fixed]   Improved CDI line transition to back-hemisphere (no more unintentional flipping)
 
 Version 5.1:
 [changed] Re-enabled support for Blizzy's Toolbar. If present, DPAI will place its button on Blizzy's toolbar.
@@ -112,13 +152,6 @@ Version 2.0:
 [change] Retouched all graphics
 
 Version 1.0: First Release
-
-
---------------------Disclosure-----------------------------------------------------
-
-This mod includes version checking using MiniAVC. If you opt-in, it will use the internet to check 
-whether there is a new version available. Data is only read from the internet and no personal information
-is sent. For a more comprehensive version checking experience, please download the KSP-AVC Plugin.
 
 --------------------License Information--------------------------------------------
  

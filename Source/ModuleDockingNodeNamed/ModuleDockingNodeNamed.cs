@@ -27,12 +27,13 @@
 
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace DockingPortAlignment
 {
     public class ModuleDockingNodeNamed : PartModule
     {
-        static RenameWindow renameWindow = null;
+        public static RenameWindow renameWindow = null;
 
         public ModuleDockingNodeNamed() {}
 
@@ -42,6 +43,9 @@ namespace DockingPortAlignment
         [KSPField(isPersistant = true)]
         public bool initialized;
 
+        [KSPField(isPersistant = true)]
+        public string controlTransformName;
+
         [KSPEvent(guiActive = true, guiActiveEditor = true, guiActiveUnfocused = true, externalToEVAOnly = false, unfocusedRange = 2000f, guiName = "Rename Port")]
         public void renameDockingPort()
         {
@@ -50,20 +54,41 @@ namespace DockingPortAlignment
 
         public override void OnAwake()
         {
+            //Debug.Log("moduleDockingNodeNamed:  OnAwake Begun");
             base.OnAwake();
             if (renameWindow == null)
             {
                 renameWindow = new RenameWindow();
             }
+            //Debug.Log("moduleDockingNodeNamed:  OnAwake Complete");
         }
 
         public override void OnStart(PartModule.StartState state)
         {
+            //Debug.Log("moduleDockingNodeNamed:  OnStart Begun");
             base.OnStart(state);
             if(!initialized){
                 initialized = true;
                 renameModule(part.partInfo.title);
             }
+            if(controlTransformName.Equals("not_initialized")){
+                List<ModuleDockingNode> dockingNodes = this.part.FindModulesImplementing<ModuleDockingNode>();
+                List<ModuleDockingNodeNamed> namedNodes = this.part.FindModulesImplementing<ModuleDockingNodeNamed>();
+
+                if (dockingNodes.Count != namedNodes.Count)
+                {
+                    //Debug.Log("Mismatch between number of ModuleDockingNode and ModuleDockingNodeNamed nodes");
+                }
+
+                int index = 0;
+                foreach (ModuleDockingNodeNamed namedNode in namedNodes)
+                {
+                    ModuleDockingNode dockingNode = dockingNodes[index];
+                    namedNode.controlTransformName = dockingNode.controlTransformName;
+                    index++;
+                }
+            }
+            //Debug.Log("moduleDockingNodeNamed:  OnStart Complete");
         }
 
         internal void renameModule(string newName)

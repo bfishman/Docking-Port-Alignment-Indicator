@@ -108,6 +108,23 @@ namespace DockingPortAlignment
             }
         }
 
+        public void drawStringGraphics(String text, float x, float y, float scale, Color color)
+        {
+            //byte[] ascii = defaultEncoding.GetBytes(text);
+            float cursorX = x;
+            foreach (int id in text)
+            {
+                GlyphData glyph = getGlyphFromID(id);
+                destRect.x = cursorX + glyph.xOffset * scale;
+                destRect.y = y + glyph.yOffset * scale;
+                destRect.width = glyph.width * scale;
+                destRect.height = glyph.height * scale;
+
+                Graphics.DrawTexture(destRect, fontTexture, glyph.srcRect, 0,0,0,0,color);
+                cursorX += glyph.xAdvance * scale;
+            }
+        }
+
         public StringDimensions getStringDimensions(String text, float scale)
         {
             StringDimensions dim = new StringDimensions();
