@@ -240,23 +240,49 @@ namespace NavyFish
         {
             LoadPrefs();
 
+            updateToolBarButton();
+
+            if ( !hasInitializedStyles ) initStyles();
+
+            settingsWindowPosition = new Rect(0, windowPosition.yMax, 0, 0);
+        }
+
+        private void updateToolBarButton()
+        {
             blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
 
             //Debug.Log("DPAI START");
 
-            if ( forceStockAppLauncher || !blizzyToolbarAvailable ) {
+            if (forceStockAppLauncher || !blizzyToolbarAvailable)
+            {
+                if (toolbarButton != null)
+                {
+                    toolbarButton.Destroy();
+                    toolbarButton = null;
+                }
 
                 GameEvents.onGUIApplicationLauncherReady.Add(addToStockAppLauncher);
                 GameEvents.onGUIApplicationLauncherDestroyed.Add(delegate () {
-                    if ( appLauncherButton != null ) {
+                    if (appLauncherButton != null)
+                    {
                         ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
                     }
                 });
-            } 
-            
-            else 
-            
+                if (ApplicationLauncher.Ready)
+                {
+                    addToStockAppLauncher();
+                }
+            }
+
+            else
+
             {
+                if(appLauncherButton != null)
+                {
+                    ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
+                    appLauncherButton = null;
+                }
+
                 toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
                 toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
                 toolbarButton.ToolTip = "Show/Hide Docking Port Alignment Indicator";
@@ -268,9 +294,6 @@ namespace NavyFish
                 };
             }
 
-            if ( !hasInitializedStyles ) initStyles();
-
-            settingsWindowPosition = new Rect(0, windowPosition.yMax, 0, 0);
         }
 
         private void OnGUI()
@@ -1119,8 +1142,17 @@ namespace NavyFish
             if (rollFlipAxis != last) saveConfigSettings();
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-            
 
+
+            GUILayout.BeginHorizontal();
+            last = forceStockAppLauncher;
+            forceStockAppLauncher = GUILayout.Toggle(forceStockAppLauncher, "Always use Stock Toolbar");
+            if (forceStockAppLauncher != last)
+            {
+                saveConfigSettings();
+                updateToolBarButton();
+            }
+            GUILayout.EndHorizontal();
         }
         Rect centeredToggleRect = new Rect(0,0,0,0);
     
@@ -1477,6 +1509,7 @@ namespace NavyFish
             config.SetValue("translationFlipXAxis", translationFlipXAxis);
             config.SetValue("translationFlipYAxis", translationFlipYAxis);
             config.SetValue("rollFlipAxis", rollFlipAxis);
+            config.SetValue("forceStockAppLauncher", forceStockAppLauncher);
             config.save();
         }
 
@@ -1505,6 +1538,7 @@ namespace NavyFish
             translationFlipXAxis = config.GetValue<bool>("translationFlipXAxis", false);
             translationFlipYAxis = config.GetValue<bool>("translationFlipYAxis", false);
             rollFlipAxis = config.GetValue<bool>("rollFlipAxis", false);
+            forceStockAppLauncher = config.GetValue<bool>("forceStockAppLauncher", forceStockAppLauncher);
             saveWindowPosition();
             saveConfigSettings();
             //print("End Load Prefs");
