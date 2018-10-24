@@ -1,0 +1,7 @@
+*.user
+*.suo
+*.bak
+*.cache
+.vs/
+[Bb]in/
+[Oo]bj/
