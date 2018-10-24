@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.5.2----------||
+||---------Version 6.7.0----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -36,6 +36,12 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.7.0:
+[fixed] Incremented version and published new .version file for CKAN/AVC compatibility
+
+Version 6.6.0:
+[updated] Recompiled for KSP 1.3.0
 
 Version 6.5.2:
 [updated] Updated release package for KSP 1.2.2 (No code changes)
