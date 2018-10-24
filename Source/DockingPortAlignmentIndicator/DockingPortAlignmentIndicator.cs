@@ -1119,8 +1119,16 @@ namespace NavyFish
             if (rollFlipAxis != last) saveConfigSettings();
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-            
 
+
+            GUILayout.BeginHorizontal();
+            last = forceStockAppLauncher;
+            forceStockAppLauncher = GUILayout.Toggle(forceStockAppLauncher, "Always use Stock Toolbar (requires restart)");
+            if (forceStockAppLauncher != last)
+            {
+                saveConfigSettings();
+            }
+            GUILayout.EndHorizontal();
         }
         Rect centeredToggleRect = new Rect(0,0,0,0);
     
@@ -1477,6 +1485,7 @@ namespace NavyFish
             config.SetValue("translationFlipXAxis", translationFlipXAxis);
             config.SetValue("translationFlipYAxis", translationFlipYAxis);
             config.SetValue("rollFlipAxis", rollFlipAxis);
+            config.SetValue("forceStockAppLauncher", forceStockAppLauncher);
             config.save();
         }
 
@@ -1505,6 +1514,7 @@ namespace NavyFish
             translationFlipXAxis = config.GetValue<bool>("translationFlipXAxis", false);
             translationFlipYAxis = config.GetValue<bool>("translationFlipYAxis", false);
             rollFlipAxis = config.GetValue<bool>("rollFlipAxis", false);
+            forceStockAppLauncher = config.GetValue<bool>("forceStockAppLauncher", forceStockAppLauncher);
             saveWindowPosition();
             saveConfigSettings();
             //print("End Load Prefs");
