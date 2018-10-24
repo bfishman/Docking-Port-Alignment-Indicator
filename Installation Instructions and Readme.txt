@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 5.0-----------||
+||----------Version 5.1-----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -22,6 +22,11 @@ Installation Instructions:
    (The included Source directory does not need to be extracted.)
 
 
+  -If Blizzy's toolbar is installed, DPAI will use it by default. If you'd like to force DPAI
+   to use the Stock Application Launcher instead, open "GameData\NavyFish\Plugins\DPAI Settings.cfg"
+   and change 'forceStockAppLauncher = false' to 'forceStockAppLauncher = true'
+
+
 
 Installation Directory Structure should look like this:
 
@@ -40,6 +45,10 @@ KSP Install Directory
 
 
 Changelog:
+
+Version 5.1:
+[changed] Re-enabled support for Blizzy's Toolbar. If present, DPAI will place its button on Blizzy's toolbar.
+          DPAI can be forced to place its button on the Stock App Launcher via a config file (see bundled Readme.txt)
 
 Version 5.0:
 [added]   Integration with stock application launcher (removed support for blizzy's toolbar)

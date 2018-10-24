@@ -123,6 +123,9 @@ namespace DockingPortAlignment
         private static bool excludeDockedPorts = true;
         private static bool drawHudIcon = true;
         private static bool resetTarget = false;
+        private static bool blizzyToolbarAvailable = false;
+        private static bool forceStockAppLauncher = false;
+        static IButton toolbarButton;
 
         private static ApplicationLauncherButton appLauncherButton;
 
@@ -176,6 +179,11 @@ namespace DockingPortAlignment
                     appLauncherIcon);
             }
         }
+        
+        private void removeFromStockAppLauncher()
+        {
+            appLauncherButton = null;
+        }
 
         private void onShowGUI()
         {
@@ -193,18 +201,43 @@ namespace DockingPortAlignment
         {
             loadTextures();
 
-            if (!ApplicationLauncher.Ready)
+            LoadConfigFile();
+
+            blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
+
+            if (forceStockAppLauncher || !blizzyToolbarAvailable)
             {
+                if (ApplicationLauncher.Ready)
+                {
+                    //LauncherReady event has probably already fired, so manually call add function now:
+                    addToStockAppLauncher();
+                }
+
+                //Hook into app-launcher ready event.
                 GameEvents.onGUIApplicationLauncherReady.Add(delegate()
                 {
                     addToStockAppLauncher();
                 });
+
+                GameEvents.onGUIApplicationLauncherDestroyed.Add(delegate()
+                {
+                    removeFromStockAppLauncher();
+                });
+
             }
             else
             {
-                addToStockAppLauncher();
+                toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
+                toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcon/toolbarIcon";
+                toolbarButton.ToolTip = "Show/Hide Docking Port Alignment Indicator";
+                toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
+                toolbarButton.Visible = true;
+                toolbarButton.Enabled = true;
+                toolbarButton.OnClick += (e) =>
+                {
+                    gaugeVisiblityToggledOn = !gaugeVisiblityToggledOn;
+                };
             }
-
          
 
             if (!hasInitializedStyles) initStyles();
@@ -1060,7 +1093,31 @@ namespace DockingPortAlignment
             saveWindowPosition();
             saveConfigSettings();
             //print("End Load Prefs");
-        } 
+        }
+
+        private void LoadConfigFile()
+        {
+
+            ConfigNode cfgFile = ConfigNode.Load(KSPUtil.ApplicationRootPath + "GameData/NavyFish/Plugins/DPAI Settings.cfg");
+
+            if (cfgFile == null)
+            {
+                print("DPAI: Failed to load 'DPAI Settings.cfg'");
+            }
+            else
+            {
+                ConfigNode rootNode = cfgFile.GetNode("DockingPortAlignment");
+                if (rootNode != null)
+                {
+                    forceStockAppLauncher = rootNode.GetValue("forceStockAppLauncher") == "true";
+                    print("DPAI: forceStockAppLauncher = " + forceStockAppLauncher.ToString());
+                }
+                else
+                {
+                    print("DPAI: Confic Root Node is null");
+                }
+            }
+        }
         #endregion
 
         #region Resources
@@ -1124,7 +1181,7 @@ namespace DockingPortAlignment
 
         private static void OnDestroy()
         {
-
+            if (toolbarButton != null) toolbarButton.Destroy();
         }
         #endregion
 
