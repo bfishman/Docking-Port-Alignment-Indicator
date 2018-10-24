@@ -60,8 +60,8 @@ namespace DockingPortAlignment
         private static Rect rightButtonRect = new Rect();
 
         private static Rect settingsWindowPosition;
-        private static int settingsWindowWidth = 268;
-        private static int settingsWindowHeight = 120;
+        //private static int settingsWindowWidth = 268;
+        //private static int settingsWindowHeight = 120;
 
         private static Vector3 orientationDeviation = new Vector3();
         private static Vector2 translationDeviation = new Vector3();
@@ -103,6 +103,7 @@ namespace DockingPortAlignment
         public static Texture2D roll = new Texture2D(51, 33, TextureFormat.ARGB32, false);
         public static Texture2D targetPort = new Texture2D(40, 40, TextureFormat.ARGB32, false);
         public static Texture2D fontTexture = new Texture2D(256, 256, TextureFormat.ARGB32, false);
+        public static Texture2D appLauncherIcon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
         public static Texture2D customToolbarIcon;
 
         public static BitmapFont bitmapFont;
@@ -112,18 +113,19 @@ namespace DockingPortAlignment
 
         private static bool showSettings = false;
         private static bool useCDI = true;
-        private static bool drawRollDigits = false;
+        private static bool drawRollDigits = true;
         private static bool showIndicator;
         private static bool portWasCycled = false;
         private static bool currentTargetVesselWasLastSeenLoaded = false;
-        public static bool indicatorIsHidden = false;
-        private static bool toolbarAvailable = false;
+        public static bool gaugeVisiblityToggledOn = false;
+        private static bool targetOutOfRange = false;
+        private static bool allowAutoPortTargeting = true;
+        private static bool excludeDockedPorts = true;
+        private static bool drawHudIcon = true;
+        private static bool resetTarget = false;
 
-        private static IButton toolbarButton;
-        private static CustomButton customButton;
-        
+        private static ApplicationLauncherButton appLauncherButton;
 
-        //static List<ModuleDockingNode> dockingModulesList = new List<ModuleDockingNode>();
         static List<ITargetable> dockingModulesList = new List<ITargetable>();
         static int dockingModulesListIndex = -1;
         
@@ -134,7 +136,6 @@ namespace DockingPortAlignment
         static Vessel lastActiveVessel = null;
         static int cycledModuleIndex = -1;
 
-        //static ModuleDockingNode targetedDockingModule = null;
         static ITargetable targetedDockingModule = null;
 
         static ModuleDockingNodeNamed targetNamedModule
@@ -161,33 +162,50 @@ namespace DockingPortAlignment
             return target.GetTargetingMode() == VesselTargetModes.DirectionVelocityAndOrientation;
         }
 
+        private void addToStockAppLauncher()
+        {
+            if (appLauncherButton == null)
+            {
+                RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
+                RUIToggleButton.OnFalse onFalseDelegate = new RUIToggleButton.OnFalse(onHideGUI);
+                appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
+                    onTrueDelegate,
+                    onFalseDelegate,
+                    null, null, null, null,
+                    ApplicationLauncher.AppScenes.FLIGHT,
+                    appLauncherIcon);
+            }
+        }
+
+        private void onShowGUI()
+        {
+            //print("onShowGUI()");
+            gaugeVisiblityToggledOn = true;
+        }
+
+        private void onHideGUI()
+        {
+            //print("onHideGUI");
+            gaugeVisiblityToggledOn = false;
+        }
+
         public void Awake()
         {
             loadTextures();
 
-            if (ToolbarManager.ToolbarAvailable)
+            if (!ApplicationLauncher.Ready)
             {
-                toolbarAvailable = true;
-                toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
-                toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/toolbarIcon";
-                toolbarButton.ToolTip = "Show/Hide Docking Alignment Indicator";
-                toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
-                toolbarButton.Visible = true;
-                toolbarButton.Enabled = false;
-                toolbarButton.OnClick += (e) =>
+                GameEvents.onGUIApplicationLauncherReady.Add(delegate()
                 {
-                    indicatorIsHidden = !indicatorIsHidden;
-                };
+                    addToStockAppLauncher();
+                });
             }
             else
             {
-                indicatorIsHidden = false;
-                toolbarAvailable = false;
-                Byte[] arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("toolbarIcon.png", null);
-                customToolbarIcon = new Texture2D(24, 24, TextureFormat.ARGB32, false);
-                customToolbarIcon.LoadImage(arrBytes);
-                customButton = new CustomButton();
+                addToStockAppLauncher();
             }
+
+         
 
             if (!hasInitializedStyles) initStyles();
 
@@ -195,16 +213,22 @@ namespace DockingPortAlignment
 
             if (shouldDebug) RenderingManager.AddToPostDrawQueue(2, OnDrawDebug);
 
-            settingsWindowPosition = new Rect((Screen.width - settingsWindowWidth) / 2f, (Screen.height - settingsWindowHeight)/ 2f, settingsWindowWidth, settingsWindowHeight);
+            settingsWindowPosition = new Rect(0, 0, 0, 0);
+            //settingsWindowPosition = new Rect((Screen.width - settingsWindowWidth) / 2f, (Screen.height - settingsWindowHeight)/ 2f, settingsWindowWidth, settingsWindowHeight);
             //print("end of awake");
         }
         
         public void Start()
         {
             LoadPrefs();
+            //settingsWindowPosition.x = windowPosition.x;
+            //settingsWindowPosition.width = windowPosition.width;
+            settingsWindowPosition.y = windowPosition.yMax;
+            //settingsWindowPosition.height = settingsWindowHeight;
             //print("end of start");
         }
 
+        Vector2 mousePos = new Vector2();
         public void Update()
         {
             //print("Update: Start");
@@ -218,43 +242,41 @@ namespace DockingPortAlignment
 
             determineTargetPort();
 
-            bool indicatorAvailable = (targetedDockingModule != null && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
+            bool sceneElligibleForIndicator = (HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
 
-            
-            if (indicatorAvailable)
+            if (sceneElligibleForIndicator && gaugeVisiblityToggledOn)
             {
-                if (toolbarAvailable)
+                showIndicator = true;
+                
+                mousePos.Set(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+                //print(mousePos);
+                if (windowPosition.Contains(mousePos))
                 {
-                    toolbarButton.Enabled = true;
-                } else {
-                    customButton.Enabled = true;
-                }
-            }
-            else
-            {
-                if (toolbarAvailable)
-                {
-                    toolbarButton.Enabled = false;
+                    //print("Contains Mouse");
+                    containsMouse = true;
+                    //InputLockManager.SetControlLock(ControlTypes.All, "DPAI_LOCK");
                 }
                 else
                 {
-                    customButton.Enabled = false;
+                    containsMouse = false;
+                    //InputLockManager.RemoveControlLock("DPAI_LOCK");
                 }
-            }
-            
-
-            if (indicatorAvailable && !indicatorIsHidden)
-            {
-                calculateGaugeData();
-                showIndicator = true;
+                if (targetedDockingModule != null) calculateGaugeData();
             }
             //print("Update: End");
         }
 
         private static void determineTargetPort()
         {
-            if (portWasCycled)
+            if (portWasCycled && dockingModulesList.Count > 1)
             {
+                if (cycledModuleIndex < 0 || cycledModuleIndex > (dockingModulesList.Count - 1))
+                {
+                    //protection from bug when target deselected amidst cycling, resulting in -1 index with portWasCycled == true
+                    //debugAlertFlag = true;
+                    //debugAlertValue = cycledModuleIndex;
+                    cycledModuleIndex = 0;
+                }
                 dockingModulesListIndex = cycledModuleIndex;
                 targetedDockingModule = dockingModulesList[dockingModulesListIndex];
 
@@ -266,8 +288,10 @@ namespace DockingPortAlignment
                 return;
             }
 
-            if (lastActiveVessel != FlightGlobals.ActiveVessel)
+            if (lastActiveVessel != FlightGlobals.ActiveVessel || resetTarget)
             {
+                //print("resetTarget");
+                resetTarget = false;
                 lastActiveVessel = FlightGlobals.ActiveVessel;
                 lastTarget = null;
                 lastTargetVessel = null;
@@ -275,6 +299,7 @@ namespace DockingPortAlignment
                 targetedDockingModule = null;
                 dockingModulesListIndex = -1;
                 portWasCycled = false;
+                dockingModulesList.Clear();
             }
 
             currentTarget = FlightGlobals.fetch.VesselTarget;
@@ -287,75 +312,97 @@ namespace DockingPortAlignment
                 {
                     if (currentTargetVessel.loaded)
                     {
+                        targetOutOfRange = false;
+
                         if (currentTargetVessel != lastTargetVessel || !currentTargetVesselWasLastSeenLoaded)
                         {
                             //Target Vessel has either changed or just become loaded.
-                            
-                            //if (currentTargetVessel != lastTargetVessel) indicatorIsHidden = false;
 
                             lastTargetVessel = currentTargetVessel;
-                            //dockingModulesList = currentTargetVessel.FindPartModulesImplementing<ModuleDockingNode>();
-                             List<ITargetable> ITargetableList = currentTargetVessel.FindPartModulesImplementing<ITargetable>();
-                            dockingModulesList.Clear();
-                            foreach (ITargetable tgt in ITargetableList)
+
+                            if (allowAutoPortTargeting)
                             {
-                                if (tgt is ModuleDockingNode)
+                                //dockingModulesList = currentTargetVessel.FindPartModulesImplementing<ModuleDockingNode>();
+                                //print("list rebuilt");
+                                List<ITargetable> ITargetableList = currentTargetVessel.FindPartModulesImplementing<ITargetable>();
+                                dockingModulesList.Clear();
+                                foreach (ITargetable tgt in ITargetableList)
                                 {
-                                    ModuleDockingNode port = tgt as ModuleDockingNode;
-                                    if (port.state.StartsWith("Docked",StringComparison.OrdinalIgnoreCase)){
-                                        //do not add to list if module is already docked
-                                        continue;
-                                    } else {
+                                    if (tgt is ModuleDockingNode)
+                                    {
+
+                                        ModuleDockingNode port = tgt as ModuleDockingNode;
+                                        if (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) && excludeDockedPorts)
+                                        {
+                                            //print("continue");
+                                            //do not add to list if module is already docked
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            //print("1stAdd");
+                                            dockingModulesList.Add(tgt);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //print("2ndAdd");
                                         dockingModulesList.Add(tgt);
                                     }
-                                } else {
-                                    dockingModulesList.Add(tgt);
                                 }
-                            }
 
-                            if (dockingModulesList.Count > 0)
-                            {
-                                //if (currentTarget is ModuleDockingNode && !currentTargetVessel.packed)
-                                if (isOrientedTarget(currentTarget) && !currentTargetVessel.packed)
+                                if (dockingModulesList.Count > 0)
                                 {
-                                    //targetedDockingModule = currentTarget as ModuleDockingNode;
-                                    targetedDockingModule = currentTarget;
-                                    dockingModulesListIndex = dockingModulesList.FindIndex(m => m.Equals(targetedDockingModule));
-                                    if (dockingModulesListIndex == -1)
+                                    //if (currentTarget is ModuleDockingNode && !currentTargetVessel.packed)
+                                    if (isOrientedTarget(currentTarget) && !currentTargetVessel.packed)
                                     {
-                                        dockingModulesList.Add(targetedDockingModule);
+                                        //targetedDockingModule = currentTarget as ModuleDockingNode;
+                                        targetedDockingModule = currentTarget;
                                         dockingModulesListIndex = dockingModulesList.FindIndex(m => m.Equals(targetedDockingModule));
+                                        if (dockingModulesListIndex == -1)
+                                        {
+                                            //Unneccessary?
+                                            //dockingModulesList.Add(targetedDockingModule);
+                                            //dockingModulesListIndex = dockingModulesList.FindIndex(m => m.Equals(targetedDockingModule));
+                                        }
+                                        lastTarget = targetedDockingModule;
                                     }
-                                    lastTarget = targetedDockingModule;
+                                    else
+                                    {
+                                        // Automatically select closest docking port.
+                                        float shortestDistance = float.MaxValue;
+                                        int shortestDistanceIndex = -1;
+                                        for (int i = 0; i < dockingModulesList.Count; i++)
+                                        {
+                                            //ModuleDockingNode port = dockingModulesList[i];
+                                            //float distance = Vector3.Distance(port.transform.position, FlightGlobals.ActiveVessel.ReferenceTransform.position);
+                                            ITargetable port = dockingModulesList[i];
+                                            float distance = Vector3.Distance(port.GetTransform().position, FlightGlobals.ActiveVessel.ReferenceTransform.position);
+                                            if (distance < shortestDistance)
+                                            {
+                                                shortestDistance = distance;
+                                                shortestDistanceIndex = i;
+                                            }
+                                        }
+
+                                        dockingModulesListIndex = shortestDistanceIndex;
+                                        targetedDockingModule = dockingModulesList[dockingModulesListIndex];
+                                        lastTarget = targetedDockingModule;
+                                    }
                                 }
                                 else
                                 {
-                                    // Automatically select closest docking port.
-                                    float shortestDistance = float.MaxValue;
-                                    int shortestDistanceIndex = -1;
-                                    for (int i = 0; i < dockingModulesList.Count; i++)
-                                    {
-                                        //ModuleDockingNode port = dockingModulesList[i];
-                                        //float distance = Vector3.Distance(port.transform.position, FlightGlobals.ActiveVessel.ReferenceTransform.position);
-                                        ITargetable port = dockingModulesList[i];
-                                        float distance = Vector3.Distance(port.GetTransform().position, FlightGlobals.ActiveVessel.ReferenceTransform.position);
-                                        if (distance < shortestDistance)
-                                        {
-                                            shortestDistance = distance;
-                                            shortestDistanceIndex = i;
-                                        }
-                                    }
-
-                                    dockingModulesListIndex = shortestDistanceIndex;
-                                    targetedDockingModule = dockingModulesList[dockingModulesListIndex];
-                                    lastTarget = targetedDockingModule;
+                                    // Target does not have any docking ports
+                                    targetedDockingModule = null;
+                                    dockingModulesListIndex = -1;
+                                    dockingModulesList.Clear();
                                 }
                             }
                             else
                             {
-                                // Target does not have any docking ports
                                 targetedDockingModule = null;
                                 dockingModulesListIndex = -1;
+                                dockingModulesList.Clear();
                             }
                         }
                         else if (currentTarget != lastTarget)
@@ -396,6 +443,10 @@ namespace DockingPortAlignment
 
                         targetedDockingModule = null;
                         dockingModulesListIndex = -1;
+                        dockingModulesList.Clear();
+
+                        targetOutOfRange = true;
+
                     }
                 }
                 else
@@ -403,6 +454,7 @@ namespace DockingPortAlignment
                     //Current target does not have an associated vessel
                     targetedDockingModule = null;
                     dockingModulesListIndex = -1;
+                    dockingModulesList.Clear();
                 }
             }
             else
@@ -413,6 +465,7 @@ namespace DockingPortAlignment
                 lastTargetVessel = null;
                 targetedDockingModule = null;
                 dockingModulesListIndex = -1;
+                dockingModulesList.Clear();
             }
         }
 
@@ -446,7 +499,6 @@ namespace DockingPortAlignment
             orientationDeviation.x = AngleAroundNormal(-targetPortOutVector, selfTransform.up, selfTransform.forward);
             orientationDeviation.y = AngleAroundNormal(-targetPortOutVector, selfTransform.up, -selfTransform.right);
             orientationDeviation.z = AngleAroundNormal(targetPortRollReferenceVector, selfTransform.forward, selfTransform.up);
-            //orientationDeviation.z = (orientationDeviation.z + 360) % 360;
             orientationDeviation.z = (360 - orientationDeviation.z) % 360;
 
             Vector3 targetToOwnship = selfTransform.position - targetTransform.position;
@@ -489,6 +541,8 @@ namespace DockingPortAlignment
             return Vector3.Angle(v1, v2);
         }
 
+        private bool settingsWindowOverflow = false;
+
         private void onGaugeDraw()
         {
             //print("onGaugeDraw: Start");
@@ -496,6 +550,7 @@ namespace DockingPortAlignment
             {
                 windowPosition.width = foregroundTextureWidth * gaugeScale;
                 windowPosition.height = foregroundTextureHeight * gaugeScale;
+                //windowPosition.yMin = settingsWindowPosition.yMin - windowPosition.height;
                 windowPosition = constrainToScreen(GUI.Window(1337, windowPosition, drawIndicatorContents, "DPAI", labelStyle));
 
                 leftButtonRect.yMin = foregroundRect.height - (57 * gaugeScale);
@@ -508,12 +563,27 @@ namespace DockingPortAlignment
                 rightButtonRect.xMin = foregroundRect.width - (69 * gaugeScale);
                 rightButtonRect.xMax = foregroundRect.width - (18 * gaugeScale);
 
-                drawTargetPortIndicator();
-
                 if (showSettings)
                 {
-                    settingsWindowPosition = constrainToScreen(GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, "Docking Alignment Indicator Settings", windowStyle));
+                    //settingsWindowPosition = constrainToScreen(GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, "Docking Alignment Indicator Settings", windowStyle));
+                    settingsWindowPosition.x = windowPosition.x;
+                    settingsWindowPosition.y = windowPosition.yMax;
+                    if (!settingsWindowOverflow) settingsWindowPosition.width = windowPosition.width;
+                    //settingsWindowPosition.height = settingsWindowHeight;
+                    settingsWindowPosition = GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, "DPAI Settings", windowStyle);
+                    if (settingsWindowPosition.width > windowPosition.width)
+                    {
+                        settingsWindowOverflow = true;
+                    }
+                    else
+                    {
+                        settingsWindowOverflow = false;
+                    }
+                    
+                    //GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, "DPAI Settings", windowStyle);
                 }
+
+                if (drawHudIcon) drawTargetPortHUDIndicator();
             }
             //print("onGaugeDraw: End");
         }
@@ -537,58 +607,64 @@ namespace DockingPortAlignment
 
             GUI.DrawTexture(backgroundRect, gaugeBackgroundTex);
 
-            if (useCDI)
+            if (targetedDockingModule != null)
             {
-                drawCDI(backgroundRect);
-            }
 
-            Matrix4x4 matrixBackup = GUI.matrix;
-            if (Math.Abs(orientationDeviation.x) > alignmentGaugeRange || Math.Abs(orientationDeviation.y) > alignmentGaugeRange)
-            {   
-                Vector2 normDir = new Vector2(orientationDeviation.x, orientationDeviation.y).normalized;
-                float angle = (float)Math.Atan2(normDir.x, -normDir.y) * UnityEngine.Mathf.Rad2Deg;
 
-                float arrowLength = visiblePortion * glassCenter.y;
-                float arrowWidth = arrowLength * directionArrowTex.width / directionArrowTex.height;
-               
-                Rect arrowRect = new Rect(0.5f * (backgroundRect.width - arrowWidth), glassCenter.y - arrowLength, arrowWidth, arrowLength);
+                if (useCDI)
+                {
+                    drawCDI(backgroundRect);
+                }
 
-                GUIUtility.RotateAroundPivot(angle, glassCenter);
+                Matrix4x4 matrixBackup = GUI.matrix;
+                if (Math.Abs(orientationDeviation.x) > alignmentGaugeRange || Math.Abs(orientationDeviation.y) > alignmentGaugeRange)
+                {
+                    Vector2 normDir = new Vector2(orientationDeviation.x, orientationDeviation.y).normalized;
+                    float angle = (float)Math.Atan2(normDir.x, -normDir.y) * UnityEngine.Mathf.Rad2Deg;
 
-                GUI.DrawTexture(arrowRect, directionArrowTex);
+                    float arrowLength = visiblePortion * glassCenter.y;
+                    float arrowWidth = arrowLength * directionArrowTex.width / directionArrowTex.height;
+
+                    Rect arrowRect = new Rect(0.5f * (backgroundRect.width - arrowWidth), glassCenter.y - arrowLength, arrowWidth, arrowLength);
+
+                    GUIUtility.RotateAroundPivot(angle, glassCenter);
+
+                    GUI.DrawTexture(arrowRect, directionArrowTex);
+                    GUI.matrix = matrixBackup;
+                }
+                else
+                {
+                    float displayX = scaleExponentially(orientationDeviation.x / alignmentGaugeRange, alignmentExponent);
+                    float displayY = scaleExponentially(orientationDeviation.y / alignmentGaugeRange, alignmentExponent);
+
+                    float scaledMarkerSize = markerSize * gaugeScale;
+
+                    Rect markerRect = new Rect(glassCenter.x * (1 + displayX * visiblePortion),
+                                            glassCenter.y * (1 + displayY * visiblePortion),
+                                            scaledMarkerSize,
+                                            scaledMarkerSize);
+
+                    GUI.DrawTexture(new Rect(markerRect.x - .5f * markerRect.width, markerRect.y - .5f * markerRect.height, markerRect.width, markerRect.height), alignmentTex);
+
+                    //GUIUtility.RotateAroundPivot(orientationDeviation.z, glassCenter);
+                    GUIUtility.RotateAroundPivot(-orientationDeviation.z, glassCenter);
+
+                    float scaledRollWidth = roll.width * gaugeScale;
+                    float scaledRollHeight = roll.height * gaugeScale;
+
+                    GUI.DrawTexture(new Rect(glassCenter.x - .5f * scaledRollWidth, (roll.height + 20) * gaugeScale, scaledRollWidth, scaledRollHeight), roll);
+                }
+
                 GUI.matrix = matrixBackup;
+
+                if (useCDI)
+                {
+                    drawVelocityVector(backgroundRect);
+                }
+
+                drawGaugeValues();
+
             }
-            else
-            {
-                float displayX = scaleExponentially(orientationDeviation.x / alignmentGaugeRange, alignmentExponent);
-                float displayY = scaleExponentially(orientationDeviation.y / alignmentGaugeRange, alignmentExponent);
-
-                float scaledMarkerSize = markerSize * gaugeScale;
-
-                Rect markerRect = new Rect(glassCenter.x * (1 + displayX * visiblePortion),
-                                        glassCenter.y * (1 + displayY * visiblePortion),
-                                        scaledMarkerSize,
-                                        scaledMarkerSize);
-
-                GUI.DrawTexture(new Rect(markerRect.x - .5f*markerRect.width, markerRect.y - .5f*markerRect.height, markerRect.width, markerRect.height), alignmentTex);
-                    
-                //GUIUtility.RotateAroundPivot(orientationDeviation.z, glassCenter);
-                GUIUtility.RotateAroundPivot(-orientationDeviation.z, glassCenter);
-
-                float scaledRollWidth = roll.width * gaugeScale;
-                float scaledRollHeight = roll.height * gaugeScale;
-
-                GUI.DrawTexture(new Rect(glassCenter.x - .5f * scaledRollWidth, (roll.height + 20) * gaugeScale, scaledRollWidth, scaledRollHeight), roll);
-            }
-
-            GUI.matrix = matrixBackup;
-
-            if (useCDI)
-            {
-                drawVelocityVector(backgroundRect);
-            }
-
-            drawGaugeValues();
 
             GUI.DrawTexture(foregroundRect, gaugeForegroundTex);
 
@@ -604,25 +680,30 @@ namespace DockingPortAlignment
                 GUI.backgroundColor = colorsettingsButtonDeactivated;
             }
 
-            bool settingsButtonClicked = GUI.Button(new Rect(158 * gaugeScale, 370 * gaugeScale, 84 * gaugeScale, 15 * gaugeScale), "", settingsButtonStyle);
-            drawGlyphString("Settings", 176 * gaugeScale, 368 * gaugeScale, gaugeScale * .5f);
+            bool settingsButtonClicked = GUI.Button(new Rect(146 * gaugeScale, 367 * gaugeScale, 110 * gaugeScale, 18 * gaugeScale), "", settingsButtonStyle);
+            drawGlyphString("Settings", 173 * gaugeScale, 364 * gaugeScale, gaugeScale * .62f);
 
             if (settingsButtonClicked) showSettings = !showSettings;
 
-            Event ev = Event.current;
-            if (ev.type == EventType.mouseDown && ev.button == 0)
+            if (allowAutoPortTargeting)
             {
-                if (rightButtonRect.Contains(ev.mousePosition))
+                Event ev = Event.current;
+                if (ev.type == EventType.mouseDown && ev.button == 0)
                 {
-                    cycledModuleIndex = dockingModulesListIndex + 1;
-                    cycledModuleIndex %= dockingModulesList.Count;
-                    portWasCycled = true;
-                }
-                else if (leftButtonRect.Contains(ev.mousePosition))
-                {
-                    cycledModuleIndex = dockingModulesListIndex - 1;
-                    if (cycledModuleIndex < 0) cycledModuleIndex = (dockingModulesList.Count - 1);
-                    portWasCycled = true;
+                    if (rightButtonRect.Contains(ev.mousePosition))
+                    {
+                        cycledModuleIndex = dockingModulesListIndex + 1;
+                        cycledModuleIndex %= dockingModulesList.Count;
+                        portWasCycled = true;
+
+                    }
+                    else if (leftButtonRect.Contains(ev.mousePosition))
+                    {
+                        cycledModuleIndex = dockingModulesListIndex - 1;
+                        if (cycledModuleIndex < 0) cycledModuleIndex = (dockingModulesList.Count - 1);
+                        portWasCycled = true;
+
+                    }
                 }
             }
 
@@ -640,18 +721,70 @@ namespace DockingPortAlignment
 
         private void drawSettingsWindowContents(int id)
         {
+            bool last;
+            float lastFloat;
             //print("drawSettingsWindowContents: Start");
-            GUILayout.BeginHorizontal();
-            bool last = useCDI;
-            useCDI = GUILayout.Toggle(useCDI, "Display CDI Lines");
-            if (useCDI != last) saveConfigSettings();
-            GUILayout.EndHorizontal();
+            //GUILayout.BeginHorizontal();
+            //last = useCDI;
+            //useCDI = GUILayout.Toggle(useCDI, "Display CDI Lines");
+            //if (useCDI != last) saveConfigSettings();
+            //GUILayout.EndHorizontal();
+
+            //GUILayout.BeginHorizontal();
+            //last = drawRollDigits;
+            //drawRollDigits = GUILayout.Toggle(drawRollDigits, "Display Roll Degrees");
+            //if (drawRollDigits != last) saveConfigSettings();
+            //GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            last = drawRollDigits;
-            drawRollDigits = GUILayout.Toggle(drawRollDigits, "Display Roll Degrees");
-            if (drawRollDigits != last) saveConfigSettings();
+            last = drawHudIcon;
+            drawHudIcon = GUILayout.Toggle(drawHudIcon, "Display Target Port HUD Icon");
+            if (drawHudIcon != last)
+            {
+                saveConfigSettings();
+                settingsWindowPosition.height = 0;
+            }
             GUILayout.EndHorizontal();
+
+            if (drawHudIcon)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("HUD Icon Size:");
+                GUILayout.EndHorizontal();
+                GUILayout.BeginHorizontal();
+                lastFloat = targetHUDiconSize;
+                targetHUDiconSize = GUILayout.HorizontalSlider(targetHUDiconSize, 10f, 60f);
+                GUILayout.EndHorizontal();
+                if (targetHUDiconSize != lastFloat)
+                {
+                    saveConfigSettings();
+                }
+            }
+
+            GUILayout.BeginHorizontal();
+            last = allowAutoPortTargeting;
+            allowAutoPortTargeting = GUILayout.Toggle(allowAutoPortTargeting, "Enable Port Cycling");
+            if (allowAutoPortTargeting != last)
+            {
+                saveConfigSettings();
+                settingsWindowPosition.height = 0;
+                resetTarget = true;
+            }
+            GUILayout.EndHorizontal();
+
+            if (allowAutoPortTargeting)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(14f);
+                last = excludeDockedPorts;
+                excludeDockedPorts = GUILayout.Toggle(excludeDockedPorts, "Exclude Docked Ports");
+                if (excludeDockedPorts != last)
+                {
+                    saveConfigSettings();
+                    resetTarget = true;
+                }
+                GUILayout.EndHorizontal();
+            }
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("GUI Scale:");
@@ -659,10 +792,16 @@ namespace DockingPortAlignment
             GUILayout.BeginHorizontal();
             float lastScale = gaugeScale;
             gaugeScale = GUILayout.HorizontalSlider(gaugeScale, 0.4f, 3.0f);
-            if (gaugeScale != lastScale) saveConfigSettings();
             GUILayout.EndHorizontal();
+            if (gaugeScale != lastScale)
+            {
+                windowPosition.width = foregroundTextureWidth * gaugeScale;
+                windowPosition.height = foregroundTextureHeight * gaugeScale;
+                windowPosition.y = settingsWindowPosition.y - windowPosition.height;
+                saveConfigSettings();
+            }
             
-            GUI.DragWindow();
+            //GUI.DragWindow();
 
             //print("drawSettingsWindowContents: Start");
         }
@@ -699,13 +838,25 @@ namespace DockingPortAlignment
 
         private void drawTargetPortName()
         {
-            if (targetedDockingModule == null) return;
-
             String targetDisplayName;
 
-            if (targetNamedModule == null)
+            if (currentTargetVessel == null)
             {
-                //targetDisplayName = targetedDockingModule.part.partInfo.title;
+                targetDisplayName = "No Vessel Targeted";
+            } 
+            else if (targetedDockingModule == null)
+            {
+                if (targetOutOfRange)
+                {
+                    targetDisplayName = "Target Out of Range";
+                }
+                else
+                {
+                    targetDisplayName = "No Port Targeted"; 
+                }
+            } 
+            else if (targetNamedModule == null)
+            {
                 targetDisplayName = (targetedDockingModule as PartModule).part.partInfo.title;
             }
             else
@@ -817,7 +968,7 @@ namespace DockingPortAlignment
         static Vector2 centerVec2 = new Vector2();
         static Color iconColor = new Color(1f, 1f, 1f, 1f);
 
-        private static void drawTargetPortIndicator()
+        private static void drawTargetPortHUDIndicator()
         {
             //print("drawTargetPortIndicator: Start");
 
@@ -876,8 +1027,12 @@ namespace DockingPortAlignment
 
         private static void saveConfigSettings()
         {
-            config.SetValue("show_cdi", useCDI);
-            config.SetValue("show_rolldigits", drawRollDigits);
+            //config.SetValue("show_cdi", useCDI);
+            //config.SetValue("show_rolldigits", drawRollDigits);
+            config.SetValue("drawHudIcon", drawHudIcon);
+            config.SetValue("HudIconSize", targetHUDiconSize);
+            config.SetValue("allowAutoPortTargeting", allowAutoPortTargeting);
+            config.SetValue("excludeDockedPorts", excludeDockedPorts);
             config.SetValue("gui_scale", (double)gaugeScale);
             config.save();
         }
@@ -895,8 +1050,12 @@ namespace DockingPortAlignment
 
             windowPosition = constrainToScreen(windowPosition);
 
-            useCDI = config.GetValue<bool>("show_cdi", true);
-            drawRollDigits = config.GetValue("show_rolldigits", true);
+            //useCDI = config.GetValue<bool>("show_cdi", true);
+            //drawRollDigits = config.GetValue("show_rolldigits", true);
+            drawHudIcon = config.GetValue<bool>("drawHudIcon", true);
+            targetHUDiconSize = config.GetValue("HudIconSize", 22f);
+            allowAutoPortTargeting = config.GetValue<bool>("allowAutoPortTargeting", true);
+            excludeDockedPorts = config.GetValue<bool>("excludeDockedPorts", true);
 
             saveWindowPosition();
             saveConfigSettings();
@@ -926,6 +1085,8 @@ namespace DockingPortAlignment
             fontTexture.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("targetPort.png", null);
             targetPort.LoadImage(arrBytes);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("appLauncherIcon.png", null);
+            appLauncherIcon.LoadImage(arrBytes);
             TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignment>("MS33558.fnt", null);
             List<string> textStrings = new List<string>();
             while (!tr.EndOfStream)
@@ -963,12 +1124,12 @@ namespace DockingPortAlignment
 
         private static void OnDestroy()
         {
-            if(toolbarAvailable) toolbarButton.Destroy();
+
         }
         #endregion
 
         #region Debugging
-        
+
         private static bool shouldDebug = false;
         
         private void OnDrawDebug()
@@ -976,13 +1137,34 @@ namespace DockingPortAlignment
             debugWindowPosition = GUILayout.Window(1338, debugWindowPosition, drawDebugWindowContents, "Debug", GUILayout.MinWidth(400), GUILayout.MaxWidth(800));
         }
 
+        private static bool containsMouse = false;
+
         private void drawDebugWindowContents(int windowID)
         {
             //floatTextField(ref targetTextScale, "textScale:");
             //sliderField(ref textTargetNameScale, "textTargetNameScale:", 0f, 10f);
-            //intTextField(ref lineOffset, "lineOffset");
+            //intTextField(ref buttonWidth, "buttonWidth");
+            //intTextField(ref buttonHeight, "buttonHeight");
+            //intTextField(ref buttonXPos, "buttonXPos");
+            //intTextField(ref buttonYPos, "buttonYPos");
+
+            //floatTextField(ref stringScale, "stringScale");
+            //intTextField(ref stringXPos, "stringXPos");
+            //intTextField(ref stringYPos, "stringYPos");
+            floatTextField(ref transverseVelocityRange, "vRange");
+            floatTextField(ref velocityVectorExponent, "vExpo");
+
             //label<BitmapFont.StringDimensions>(stringDimensions, "dims:");
             //label<float>(textTargetNameScale, "textScale:");
+            label<bool>(containsMouse, "Contains Mouse: ");
+            label<Vector3>(Input.mousePosition, "Mouse Pos: ");
+            //label<bool>(debugAlertFlag, "Alert Flag: ");
+            //label<int>(debugAlertValue, "Alert Value: ");
+            label<bool>(excludeDockedPorts, "Exclude docked: ");
+            foreach (ITargetable t in dockingModulesList)
+            {
+                label<string>(t.ToString() + (t as ModuleDockingNode).name + (t as ModuleDockingNode).state, "");
+            }
             GUI.DragWindow();
         }
 

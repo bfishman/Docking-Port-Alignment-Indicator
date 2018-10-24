@@ -1,12 +1,12 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 4.0-----------||
+||----------Version 5.0-----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
 
-Installation:
+Installation Instructions:
   
   *************************************IMPORTANT!!********************************************
   ********************************************************************************************
@@ -16,33 +16,56 @@ Installation:
   ********************************************************************************************
   *************************************IMPORTANT!!********************************************
 
-  -Extract the included GameData folder into your KSP directory and merge the contents.
+
+
+  -Simply Extract the included GameData folder into your KSP directory and merge the contents.
    (The included Source directory does not need to be extracted.)
 
-  -Module Manager 2.1.5 or newer must be used.
 
-  -It is highly recommended you backup your save game folder prior to installing this mod. Module Manager
-   will also make its own backup before modifying your saves.
+
+Installation Directory Structure should look like this:
+
+
+KSP Install Directory
+ |
+ +GameData
+ |  |
+ |  |...
+ |  |
+ |  +NavyFish
+ |  |  |...
+ |  |
+ |  +ModuleManager.X.Y.Z.dll
+
 
 
 Changelog:
 
+Version 5.0:
+[added]   Integration with stock application launcher (removed support for blizzy's toolbar)
+[changed] DPAI can now be displayed without target selected. Use stock toolbar button to show/hide indicator
+[added]   Setting to enable/disable cycling and automatic targeting of ports on target vessel (default: enabled)
+[added]   Setting to exclude 'already docked' ports when cycling through available targets (default: enabled)
+[added]   Setting to show/hide Target Port HUD Icon and change its size
+[added]   KSP AVC integration (Mini-AVC bundled)
+
 Version 4.0:
-[added]   Ability to cycle between all unoccupied ports on your target vessel. No more need to right-click a port!
-[added]   Ports can now be targeted up to 2.25 Km away!
-[added]   When a vessel is first targeted, the nearest port is automatically targeted.
-[added]   Magenta HUD indicator floats on top of currently targeted port to allow for easy identification.
-[added]   Ability to rename all docking ports using the right-click GUI (in both VAB/SPH and flight). Names persist.
-[added]   Text readout on indicator which displays the name of the targeted port.
-[added]   Closure Distance (CDST) readout on indicator, displays range to target port along the approach axis only.
-[added]   Prograde icon on velocity vector changes to Retrograde icon when CVEL is negative.
-[added]   Support for parts with multiple docking ports, as well as Extraplanetary Launchpads' recycle bins (Thanks taniwha!).
-[changed] New toolbar button icon, easier to identify.
+[added] Ability to cycle through all unoccupied ports on your target. No more need to right-click a port!
+[added] Ports can now be targeted up to 2.25 Km away!
+[added] When a vessel is first targeted, the nearest port is automatically targeted.
+[added] Magenta HUD indicator floats on top of currently targeted port to allow for easy identification.
+[added] Ability to rename all docking ports using the right-click GUI (in both VAB/SPH and flight). 
+[added] Text readout on indicator which displays the name of the targeted port.
+[added] Closure Distance (CDST) readout, displays range to target port along the approach axis only.
+[added] Prograde icon on velocity vector changes to Retrograde icon when CVEL is negative.
+[added] Support for parts with multiple docking ports (Thanks taniwha!)
+[added] Support for Extraplanetary Launchpads' recycle bins (Thanks taniwha!)
+[changed] New toolbar button icon, easier to identify. Button will show/hide indicator.
 [changed] Removed hard-dependency on Blizzy's Toolbar
-[changed] Added custom 'toolbar' button if Blizzy's toolbar is not present. Clicking toolbar button will show/hide indicator.
-[changed] Text now drawn using Bitmap Fonts, allowing for higher resolution text rendering particularly when increasing gauge scale.
-[fixed]   Indicator no longer displayed in Map View or while on EVA
-[fixed]   Generalized port orientation logic - all non-stock lateral ports should now work (Thanks taniwha!)
+[changed] Added custom 'toolbar' button if Blizzy's toolbar is not present.
+[changed] Text now drawn using Bitmap Fonts, allowing for higher resolution text.
+[fixed] Indicator no longer displayed in Map View or while on EVA
+[fixed] Generalized port orientation logic - non-stock lateral ports should now work (Thanks taniwha!)
 
 Version 3.0:
 [update] Verified compatibility with KSP v0.23
@@ -81,6 +104,12 @@ Version 2.0:
 
 Version 1.0: First Release
 
+
+--------------------Disclosure-----------------------------------------------------
+
+This mod includes version checking using MiniAVC. If you opt-in, it will use the internet to check 
+whether there is a new version available. Data is only read from the internet and no personal information
+is sent. For a more comprehensive version checking experience, please download the KSP-AVC Plugin.
 
 --------------------License Information--------------------------------------------
  
