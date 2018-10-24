@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 6.5-----------||
+||---------Version 6.5.1----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -36,6 +36,11 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.5.1:
+[fixed] Fix for Blizzy Toolbar's bug exposed by Contract Configurator
+[fixed] Fixed Reference Port text on RPM gauge (and incremented version text)
+
 
 Version 6.5:
 [updated] Recompiled to work with KSP 1.2

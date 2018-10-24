@@ -111,7 +111,7 @@ namespace NavyFish
         public static BitmapFont bitmapFont;
         private static float textNumberScale = .7f;
         private static float textLabelScale = .52f;
-        private static float textTargetNameScale = .77f;
+        private static float textTargetRefNameScale = .77f;
 
         private static bool showSettings = false;
         private static bool useCDI = true;
@@ -725,26 +725,26 @@ namespace NavyFish
             float widthScale = virtualWidth / stringDimensions.width;
             float virtualHeight = rpmTgtRefTextHeight;
             float heightScale = virtualHeight / (stringDimensions.height);
-            textTargetNameScale = Math.Min(widthScale, heightScale);
+            textTargetRefNameScale = Math.Min(widthScale, heightScale);
             
-            float x = tgtX + rtLabelSpacing + virtualWidth * .5f - (stringDimensions.width * textTargetNameScale / 2f);
-            float y = fullScreenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
+            float x = tgtX + rtLabelSpacing + virtualWidth * .5f - (stringDimensions.width * textTargetRefNameScale / 2f);
+            float y = fullScreenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetRefNameScale;
 
-            drawGlyphStringGraphics(targetDisplayName, x, y, textTargetNameScale, BitmapFont.HorizontalAlignment.LEFT, currentHighlightBox == HighlightBox.LEFT ? Color.yellow : Color.white);
+            drawGlyphStringGraphics(targetDisplayName, x, y, textTargetRefNameScale, BitmapFont.HorizontalAlignment.LEFT, currentHighlightBox == HighlightBox.LEFT ? Color.yellow : Color.white);
 
             String referenceName = getReferencePortName();
 
             stringDimensions = bitmapFont.getStringDimensions(referenceName, 1f);
-            virtualWidth = screenRect.width * .5f - refX - rtLabelSpacing;
+            //virtualWidth = fullScreenRect.width * .5f - refX - rtLabelSpacing;
             widthScale = virtualWidth / stringDimensions.width;
-            virtualHeight = rpmTgtRefTextHeight;
+            //virtualHeight = rpmTgtRefTextHeight;
             heightScale = virtualHeight / (stringDimensions.height);
-            textTargetNameScale = Math.Min(widthScale, heightScale);
-            
-            x = screenRect.center.x + refX + rtLabelSpacing + virtualWidth * .5f - (stringDimensions.width * textTargetNameScale / 2f);
-            y = screenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
+            textTargetRefNameScale = Math.Min(widthScale, heightScale);
 
-            drawGlyphStringGraphics(referenceName, x, y, textTargetNameScale, BitmapFont.HorizontalAlignment.LEFT, currentHighlightBox == HighlightBox.RIGHT ? Color.yellow : Color.white);
+            x = fullScreenRect.center.x + refX + rtLabelSpacing + virtualWidth * .5f - (stringDimensions.width * textTargetRefNameScale / 2f);
+            y = fullScreenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetRefNameScale;
+
+            drawGlyphStringGraphics(referenceName, x, y, textTargetRefNameScale, BitmapFont.HorizontalAlignment.LEFT, currentHighlightBox == HighlightBox.RIGHT ? Color.yellow : Color.white);
         }
 
         private static Rect constrainToScreen(Rect r)
@@ -1124,11 +1124,11 @@ namespace NavyFish
             BitmapFont.StringDimensions stringDimensions = bitmapFont.getStringDimensions(targetDisplayName, 1f);
             float widthScale = targetNameBoxWidth * gaugeScale / stringDimensions.width;
             float heightScale = targetNameBoxHeight * gaugeScale / (stringDimensions.height);
-            textTargetNameScale = Math.Min(widthScale, heightScale);
-            float x = positionRect.center.x - stringDimensions.width * textTargetNameScale / 2f;
-            float y = positionRect.yMax - (targetNameBoxYOffset * gaugeScale) - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
+            textTargetRefNameScale = Math.Min(widthScale, heightScale);
+            float x = positionRect.center.x - stringDimensions.width * textTargetRefNameScale / 2f;
+            float y = positionRect.yMax - (targetNameBoxYOffset * gaugeScale) - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetRefNameScale;
             
-            drawGlyphStringGUI(targetDisplayName, x, y, textTargetNameScale, BitmapFont.HorizontalAlignment.LEFT);
+            drawGlyphStringGUI(targetDisplayName, x, y, textTargetRefNameScale, BitmapFont.HorizontalAlignment.LEFT);
         }
                 
         //private static List<ModuleDockingNodeNamed> refNamedModules = new List<ModuleDockingNodeNamed>();
@@ -1710,6 +1710,9 @@ namespace NavyFish
         private void drawDebugWindowContents(int windowID)
         {
             //stuff here
+
+            //intTextField(ref tgtX, "tgtX");
+            //intTextField(ref refX, "refX");
 
             GUI.DragWindow();
         }

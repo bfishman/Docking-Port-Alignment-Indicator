@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModuleDockingNodeNamed", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DPAI_RPM", "DPAI_RPM\DPAI_RPM.csproj", "{EBBA27C3-03DE-4EA1-9699-D6597E744669}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomaticSaveLauncher", "..\AutomaticSaveLauncher\AutomaticSaveLauncher.csproj", "{C578D7C7-88F2-4C15-AA25-EB5D6D74BA43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{EBBA27C3-03DE-4EA1-9699-D6597E744669}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBBA27C3-03DE-4EA1-9699-D6597E744669}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBBA27C3-03DE-4EA1-9699-D6597E744669}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C578D7C7-88F2-4C15-AA25-EB5D6D74BA43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C578D7C7-88F2-4C15-AA25-EB5D6D74BA43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C578D7C7-88F2-4C15-AA25-EB5D6D74BA43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C578D7C7-88F2-4C15-AA25-EB5D6D74BA43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
