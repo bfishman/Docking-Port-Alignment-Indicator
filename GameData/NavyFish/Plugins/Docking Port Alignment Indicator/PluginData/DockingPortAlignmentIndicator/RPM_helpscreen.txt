@@ -1,0 +1,19 @@
+[#01DF01][@x20]Docking Port Alignment Indicator v6.5.1
+[#01DF01][sup][hw] ------------------MFD Controls (funcitonal on both MFD pages)------------------
+[#FFFF00][@y9]-RETURN[@x179][#FFFFFF]Cycle Reference Point-
+
+
+
+[@x179]       Cycle Reference Point-
+
+
+[@y17]-Cycle Targeted Port
+
+
+
+[@y6]-Cycle Targeted Port
+ 
+ 
+ 
+[@y-5][@x196]        Rename Tgt/Ref Port- 
+ 

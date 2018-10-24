@@ -1,0 +1,3 @@
+[#01DF01][hw][@y-15][sub]DPAI v6.5.1
+
+[#FFFFFF][hw][sup][@y16]-INFO
