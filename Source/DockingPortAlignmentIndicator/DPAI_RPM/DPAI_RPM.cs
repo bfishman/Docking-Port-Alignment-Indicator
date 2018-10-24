@@ -1,12 +1,12 @@
 ﻿using System;
 using UnityEngine;
 using KSP;
-using DockingPortAlignment;
+using NavyFish;
 using KSP.IO;
 using System.Collections.Generic;
 
 
-namespace DockingPortAlignment
+namespace NavyFish
 {
     public class DPAI_RPM : InternalModule
     {
@@ -43,7 +43,7 @@ namespace DockingPortAlignment
         public override void OnAwake()
         {
             //Debug.Log("DPAI: DPAI_RPM OA");
-            TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignment>("RPM_helpscreen.txt", null);
+            TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("RPM_helpscreen.txt", null);
             List<string> textStrings = new List<string>();
             while (!tr.EndOfStream)
             {
@@ -60,7 +60,7 @@ namespace DockingPortAlignment
                 helpString += Environment.NewLine;
             }
 
-            tr = KSP.IO.TextReader.CreateForType<DockingPortAlignment>("RPM_mainscreen.txt", null);
+            tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("RPM_mainscreen.txt", null);
             textStrings.Clear();
             while (!tr.EndOfStream)
             {
@@ -83,12 +83,12 @@ namespace DockingPortAlignment
             //Debug.Log("page active = " + pageActive);
             if (pageActive)
             {
-                DockingPortAlignment.RPMPageActive = true;
+                DockingPortAlignmentIndicator.RPMPageActive = true;
                 showHelp = false;
             }
             else
             {
-                DockingPortAlignment.RPMPageActive = false;
+                DockingPortAlignmentIndicator.RPMPageActive = false;
             }
         }
 
@@ -110,7 +110,7 @@ namespace DockingPortAlignment
             //drawRPMtest(screen, DockingPortAlignment.mat_background);
             RenderTexture lastRT = RenderTexture.active;
             RenderTexture.active = screen;
-            DockingPortAlignment.drawIndicatorContentsRPM(screen.width, screen.height);
+            DockingPortAlignmentIndicator.drawIndicatorContentsRPM(screen.width, screen.height);
             RenderTexture.active = lastRT;
 
             GL.PopMatrix();
@@ -134,12 +134,12 @@ namespace DockingPortAlignment
                     case 0:
                         //Debug.Log("buttonUp");
                         ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        DockingPortAlignment.cycleReferencePoint(-1);
+                        DockingPortAlignmentIndicator.cycleReferencePoint(-1);
                         break;
                     case 1:
                         //Debug.Log("buttonDown");
                         ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        DockingPortAlignment.cycleReferencePoint(1);
+                        DockingPortAlignmentIndicator.cycleReferencePoint(1);
                         break;
                     case 2:
                         //Debug.Log("buttonEnter");
@@ -197,12 +197,12 @@ namespace DockingPortAlignment
                     case 7:
                         //Debug.Log("buttonNext");
                         ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        DockingPortAlignment.cyclePortLeft();
+                        DockingPortAlignmentIndicator.cyclePortLeft();
                         break;
                     case 8:
                         //Debug.Log("buttonPrev");
                         ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        DockingPortAlignment.cyclePortRight();
+                        DockingPortAlignmentIndicator.cyclePortRight();
                         break;
                 }
             }
@@ -214,10 +214,10 @@ namespace DockingPortAlignment
         private bool renameTarget()
         {
             //Rename the target
-            ModuleDockingNodeNamed toRename = DockingPortAlignment.targetNamedModule;
+            ModuleDockingNodeNamed toRename = DockingPortAlignmentIndicator.targetNamedModule;
             if (toRename != null)
             {
-                DockingPortAlignment.setRenameHighlightBoxRPM(DockingPortAlignment.HighlightBox.LEFT);
+                DockingPortAlignmentIndicator.setRenameHighlightBoxRPM(DockingPortAlignmentIndicator.HighlightBox.LEFT);
                 ModuleDockingNodeNamed.renameWindow.DisplayForNode(toRename, "Rename Target Port");
                 return true;
             }
@@ -230,10 +230,10 @@ namespace DockingPortAlignment
         private bool renameReference()
         {
             //Rename the reference
-            ModuleDockingNodeNamed toRename = DockingPortAlignment.referencePartNamed;
+            ModuleDockingNodeNamed toRename = DockingPortAlignmentIndicator.referencePartNamed;
             if (toRename != null)
             {
-                DockingPortAlignment.setRenameHighlightBoxRPM(DockingPortAlignment.HighlightBox.RIGHT);
+                DockingPortAlignmentIndicator.setRenameHighlightBoxRPM(DockingPortAlignmentIndicator.HighlightBox.RIGHT);
                 ModuleDockingNodeNamed.renameWindow.DisplayForNode(toRename, "Rename Reference Port");
                 return true;
             }

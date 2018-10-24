@@ -29,13 +29,13 @@ using System;
 using UnityEngine;
 using KSP.IO;
 using System.Collections.Generic;
-using DockingPortAlignment;
+using NavyFish;
+using KSP.UI.Screens;
 
-
-namespace DockingPortAlignment
+namespace NavyFish
 {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
-    public class DockingPortAlignment : MonoBehaviour
+    public class DockingPortAlignmentIndicator : MonoBehaviour
     {
         private static PluginConfiguration config;
         private static bool hasInitializedStyles = false;
@@ -131,7 +131,7 @@ namespace DockingPortAlignment
 
         public static bool RPMPageActive = false;
         
-        static IButton toolbarButton;
+        //static IButton toolbarButton;
 
         private static ApplicationLauncherButton appLauncherButton;
 
@@ -146,6 +146,7 @@ namespace DockingPortAlignment
         static int cycledModuleIndex = -1;
         static bool showHUDIconWhileIva = false;
         static bool wasLastIVA = false;
+        static bool wasLastMap = false;
 
         public static List<PartModule> referencePoints = new List<PartModule>();
         public static Part referencePart;
@@ -202,11 +203,14 @@ namespace DockingPortAlignment
         {
             if (appLauncherButton == null)
             {
-                RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
-                RUIToggleButton.OnFalse onFalseDelegate = new RUIToggleButton.OnFalse(onHideGUI);
+                print("DPAI: adding stock appLauncher button");
+                //RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
+                //RUIToggleButton.OnFalse onFalseDelegate = new RUIToggleButton.OnFalse(onHideGUI);
+                Callback onTrueCallback = new Callback(onShowGUI);
+                Callback onFalseCallback = new Callback(onHideGUI);
                 appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
-                    onTrueDelegate,
-                    onFalseDelegate,
+                    onTrueCallback,
+                    onFalseCallback,
                     null, null, null, null,
                     ApplicationLauncher.AppScenes.FLIGHT,
                     appLauncherIcon);
@@ -236,9 +240,11 @@ namespace DockingPortAlignment
 
             LoadConfigFile();
 
-            blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
+            blizzyToolbarAvailable = false;
+            //blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
 
-            if (forceStockAppLauncher || !blizzyToolbarAvailable)
+            //if (forceStockAppLauncher || !blizzyToolbarAvailable)
+            if (true)
             {
                 if (ApplicationLauncher.Ready)
                 {
@@ -260,24 +266,24 @@ namespace DockingPortAlignment
             }
             else
             {
-                toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
-                toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
-                toolbarButton.ToolTip = "Show/Hide Docking Port Alignment Indicator";
-                toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
-                toolbarButton.Visible = true;
-                toolbarButton.Enabled = true;
-                toolbarButton.OnClick += (e) =>
-                {
-                    gaugeVisiblityToggledOn = !gaugeVisiblityToggledOn;
-                };
+                //toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
+                //toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
+                //toolbarButton.ToolTip = "Show/Hide Docking Port Alignment Indicator";
+                //toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
+                //toolbarButton.Visible = true;
+                //toolbarButton.Enabled = true;
+                //toolbarButton.OnClick += (e) =>
+                //{
+                //    gaugeVisiblityToggledOn = !gaugeVisiblityToggledOn;
+                //};
             }
-         
+
 
             if (!hasInitializedStyles) initStyles();
 
-            RenderingManager.AddToPostDrawQueue(2, onGaugeDraw);
+            //RenderingManager.AddToPostDrawQueue(2, onGaugeDraw);
 
-            if (shouldDebug) RenderingManager.AddToPostDrawQueue(2, OnDrawDebug);
+            //if (shouldDebug) RenderingManager.AddToPostDrawQueue(2, OnDrawDebug);
 
             settingsWindowPosition = new Rect(0, 0, 0, 0);
             //settingsWindowPosition = new Rect((Screen.width - settingsWindowWidth) / 2f, (Screen.height - settingsWindowHeight)/ 2f, settingsWindowWidth, settingsWindowHeight);
@@ -292,6 +298,19 @@ namespace DockingPortAlignment
             settingsWindowPosition.y = windowPosition.yMax;
             //settingsWindowPosition.height = settingsWindowHeight;
             //print("end of start");
+        }
+
+        private void OnGUI()
+        {
+            //if (Event.current.type == EventType.Repaint || Event.current.isMouse)
+            //{
+            //myPreDrawQueue(); // Your current on preDrawQueue code
+            //}
+
+            // Your current on postDrawQueue code
+            onGaugeDraw();
+            if (shouldDebug) OnDrawDebug();
+
         }
 
         public void Update()
@@ -387,10 +406,27 @@ namespace DockingPortAlignment
                 lastReferencePart = null;
                 findReferencePoints();
                 wasLastIVA = isIVA();
+                wasLastMap = MapView.MapIsEnabled;
             }
 
             determineReferencePoint();
             tickCount++;
+
+            bool isInMap = MapView.MapIsEnabled;
+            bool justLeftMap = false;
+            if (!isInMap && wasLastMap)
+            {
+                justLeftMap = true;
+            }             
+            wasLastMap = isInMap;
+
+            bool isInIVA = isIVA();
+            bool justEnteredIVA = false;
+            if (isInIVA && !wasLastIVA)
+            {
+                justEnteredIVA = true;
+            }
+            wasLastIVA = isInIVA;
 
             if (lastReferencePart != referencePart)
             {
@@ -399,8 +435,7 @@ namespace DockingPortAlignment
                 if (isCurrentlyIVA){
                     print("DPAI: Is currently IVA - tick " + tickCount);
 
-                    if(!wasLastIVA){
-                        wasLastIVA = true;
+                    if(justEnteredIVA || justLeftMap){
                         print("DPAI: Was not previously IVA - tick " + tickCount);
                         
                         if (FlightGlobals.ActiveVessel.Parts.Contains(lastReferencePart))
@@ -410,8 +445,6 @@ namespace DockingPortAlignment
                             findReferencePoints();
                         }
                     }
-                } else {
-                    wasLastIVA = false;
                 }
                 lastReferencePart = referencePart;
             }
@@ -774,8 +807,8 @@ namespace DockingPortAlignment
                     //Drawing.DrawVerticalLineGraphics(xVal, screenRect.y + vertLineHeaderChop, screenRect.height - _vertCDILineChop - vertLineHeaderChop, 4f, colorCDI);
                     //Drawing.DrawHorizontalLineGraphics(screenRect.x, yVal, screenRect.width, 4f, colorCDI);
 
-                    Drawing.DrawVerticalLineGraphics(glassCenter.x + (xVal - .5f) * screenRect.width, rpmDrawableRect.yMin, rpmDrawableRect.height, 4f, colorCDI);
-                    Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal-.5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 4f, colorCDI);
+                    NavyFish.Drawing.DrawVerticalLineGraphics(glassCenter.x + (xVal - .5f) * screenRect.width, rpmDrawableRect.yMin, rpmDrawableRect.height, 4f, colorCDI);
+                    NavyFish.Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal-.5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 4f, colorCDI);
                 }   
 
                 GL.PushMatrix();
@@ -1599,6 +1632,11 @@ namespace DockingPortAlignment
             }
         }
 
+        public static void clearRenameHighlightBoxRPM()
+        {
+            currentHighlightBox = HighlightBox.NONE;
+        }
+
         public static void setRenameHighlightBoxRPM(HighlightBox box)
         {
             currentHighlightBox = box;
@@ -1636,7 +1674,7 @@ namespace DockingPortAlignment
         public static void LoadPrefs()
         {
             //print("Load Prefs");
-            config = PluginConfiguration.CreateForType<DockingPortAlignment>(null);
+            config = PluginConfiguration.CreateForType<DockingPortAlignmentIndicator>(null);
             config.load();
 
             gaugeScale = (float)config.GetValue<double>("gui_scale", 0.86);
@@ -1706,29 +1744,29 @@ namespace DockingPortAlignment
         private static void loadTextures()
         {
             Byte[] arrBytes;
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("gaugeBackground.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("gaugeBackground.png", null);
             gaugeBackgroundTex.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("RPM_background.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("RPM_background.png", null);
             rpmBackgroundTex.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("gaugeForeground.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("gaugeForeground.png", null);
             gaugeForegroundTex.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("alignment.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("alignment.png", null);
             alignmentTex.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("directionArrow.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("directionArrow.png", null);
             directionArrowTex.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("prograde.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("prograde.png", null);
             prograde.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("retrograde.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("retrograde.png", null);
             retrograde.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("roll.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("roll.png", null);
             roll.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("MS33558.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("MS33558.png", null);
             fontTexture.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("targetPort.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("targetPort.png", null);
             targetPort.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignment>("appLauncherIcon.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("appLauncherIcon.png", null);
             appLauncherIcon.LoadImage(arrBytes);
-            TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignment>("MS33558.fnt", null);
+            TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("MS33558.fnt", null);
             List<string> textStrings = new List<string>();
             while (!tr.EndOfStream)
             {
@@ -1765,7 +1803,7 @@ namespace DockingPortAlignment
 
         private static void OnDestroy()
         {
-            if (toolbarButton != null) toolbarButton.Destroy();
+            //if (toolbarButton != null) toolbarButton.Destroy();
         }
         #endregion
 
@@ -1815,13 +1853,14 @@ namespace DockingPortAlignment
             //sliderField(ref arrowLengthMult, "arrowLengthMult", .01f, 5f);
             //sliderField(ref arrowLengthOffsetMult, "arrowLengthOffsetMult", .01f, 5f);
 
-            //label<Part>(referencePart, "Reference Part: ");
+            label<Part>(referencePart, "Reference Part: ");
+            label<Part>(lastReferencePart, "Last Reference Part: ");
 
             //if (referencePartNamed != null)
             //{
             //    label<String>(referencePartNamed.portName, "Reference Name: ");
             //}
-            
+
             //if (referencePoints.Count > 0){
             //    int i=0;
             //    foreach(PartModule pm in referencePoints){
@@ -1840,6 +1879,7 @@ namespace DockingPortAlignment
             //label<int>(referencePartIndex, "RefPartIndex: ");
 
             label<bool>(isIVA(), "Is Iva: ");
+            label<bool>(MapView.MapIsEnabled, "Is Map: ");
 
             GUI.DragWindow();
         }
@@ -1879,7 +1919,13 @@ namespace DockingPortAlignment
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
-            GUILayout.Label(value.ToString());
+            if (value != null)
+            {
+                GUILayout.Label(value.ToString());
+            } else
+            {
+                GUILayout.Label("Null");
+            }
             GUILayout.EndHorizontal();
         }
 

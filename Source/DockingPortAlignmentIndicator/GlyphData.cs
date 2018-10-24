@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace DockingPortAlignment
+namespace NavyFish
 {
     public class GlyphData
     {

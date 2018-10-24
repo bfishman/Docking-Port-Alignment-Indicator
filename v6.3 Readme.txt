@@ -1,30 +1,12 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 6.2-----------||
+||----------Version 6.3-----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
 
---------------------Disclosures---------------------------------------------------------------
-This mod uses MiniAVC (https://github.com/CYBUTEK/KSPAddonVersionChecker) to provide automatic
-version checking. If you opt-in, it will use the internet to check whether there is a new version 
-available. Data is only read from the internet and no personal information is sent. For a more 
-comprehensive version checking experience, please download the KSP-AVC Plugin.
-
-Also,
-
-This mod integrates with Raster Prop Monitor (https://github.com/Mihara/RasterPropMonitor/) by 
-Mihara. The DPAI installation will overwrite the following file (if RPM is installed): 
-"GameData\JSI\RPMPodPatches\BasicMFD\p0_home40x20.txt". This does not affect RPM's function -
-it simply adds a "DPAI" label to the stock RPM MFD's upper-right navigation button.
-
-Also,
-
-This mod requires the use of Module Manager (https://github.com/sarbian/ModuleManager) to 
-provide renamable docking ports as well as RPM integration.
-----------------------------------------------------------------------------------------------
-
+Please note: Blizzy Toolbar Integration is currently disabled until the toolbar is updated.
 
 Installation Instructions:
   
@@ -37,18 +19,10 @@ Installation Instructions:
   *************************************IMPORTANT!!********************************************
 
 
-
   -Simply Extract the included GameData folder into your KSP directory and merge the contents.
    (The included Source directory does not need to be extracted.)
 
-
-  -If Blizzy's toolbar is installed, DPAI will use it by default. If you'd like to force DPAI
-   to use the Stock Application Launcher instead, open the following file:
-   "GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DPAI Settings.cfg",
-   and change 'forceStockAppLauncher = false' to 'forceStockAppLauncher = true' (no quotes)
-
-
-
+   
 Installation Directory Structure should look like this:
 
 
@@ -60,19 +34,30 @@ KSP Install Directory
  |  |
  |  +NavyFish
  |  |  |...
- |  |
- |  +JSI
- |  |  |...
  |  | 
  |  +ModuleManager.X.Y.Z.dll
 
  
 Changelog:
+Version 6.3:
+[update]  Rebuilt for KSP v1.1
+
+
+Version 6.2.1 (BETA):
+[update]  Works with KSP 1.1 Pre-Release build v1.1.0.1183
+[fixed]   IVA reference part is now properly maintained when switching between IVA/EVA/MapView
+[change]  ModuleDockingNodeNamed now no longer relies upon DockingPortAlignmentIndicator.dll, 
+          allowing mod authors to use its functionality without depending upon DPAI. Simply 
+		  check if a part contains a ModuleDockingNodeNamed partmodule, and if so call module.getCustomName().
+
+
 Version 6.2:
 [fixed]   Stock toolbar button no longer multiplies like a rabbit!
 
+
 Version 6.1:
 [fixed]   DPAI *now* preserves the 'Control From Here' reference part when going IVA  
+
 
 Version 6.0:
 [added]   Raster Prop Monitor (RPM) Integration! (See Below)
@@ -85,20 +70,23 @@ Version 6.0:
 [added]   DPAI now preserves the 'Control From Here' reference part when going IVA    
 [added]   Option to show/hide target port HUD indicator while IVA
 [added]   Parts with multiple docking ports can now have unique names for each port
-[changed] Appearance of 'point towards' arrow (smaller, higher-resolution)
+[change]  Appearance of 'point towards' arrow (smaller, higher-resolution)
 [fixed]   Improved CDI line transition to back-hemisphere (no more unintentional flipping)
+
 
 Version 5.1:
 [changed] Re-enabled support for Blizzy's Toolbar. If present, DPAI will place its button on Blizzy's toolbar.
           DPAI can be forced to place its button on the Stock App Launcher via a config file (see bundled Readme.txt)
 
+		  
 Version 5.0:
 [added]   Integration with stock application launcher (removed support for blizzy's toolbar)
-[changed] DPAI can now be displayed without target selected. Use stock toolbar button to show/hide indicator
+[change]  DPAI can now be displayed without target selected. Use stock toolbar button to show/hide indicator
 [added]   Setting to enable/disable cycling and automatic targeting of ports on target vessel (default: enabled)
 [added]   Setting to exclude 'already docked' ports when cycling through available targets (default: enabled)
 [added]   Setting to show/hide Target Port HUD Icon and change its size
 [added]   KSP AVC integration (Mini-AVC bundled)
+
 
 Version 4.0:
 [added] Ability to cycle through all unoccupied ports on your target. No more need to right-click a port!
@@ -111,12 +99,13 @@ Version 4.0:
 [added] Prograde icon on velocity vector changes to Retrograde icon when CVEL is negative.
 [added] Support for parts with multiple docking ports (Thanks taniwha!)
 [added] Support for Extraplanetary Launchpads' recycle bins (Thanks taniwha!)
-[changed] New toolbar button icon, easier to identify. Button will show/hide indicator.
-[changed] Removed hard-dependency on Blizzy's Toolbar
-[changed] Added custom 'toolbar' button if Blizzy's toolbar is not present.
-[changed] Text now drawn using Bitmap Fonts, allowing for higher resolution text.
+[change] New toolbar button icon, easier to identify. Button will show/hide indicator.
+[change] Removed hard-dependency on Blizzy's Toolbar
+[change] Added custom 'toolbar' button if Blizzy's toolbar is not present.
+[change] Text now drawn using Bitmap Fonts, allowing for higher resolution text.
 [fixed] Indicator no longer displayed in Map View or while on EVA
 [fixed] Generalized port orientation logic - non-stock lateral ports should now work (Thanks taniwha!)
+
 
 Version 3.0:
 [update] Verified compatibility with KSP v0.23
@@ -128,7 +117,7 @@ Version 3.0:
 
 Version 2.2:
 [update] Verified compatibility with KSP v0.22
-[changed] Roll degrees now range from 0-359.9 (was -180 to +180 before)
+[change] Roll degrees now range from 0-359.9 (was -180 to +180 before)
 [fixed] Stock lateral docking ports (Inline Clampotron) now orient correctly!
 [fixed] Settings window toggle-buttons now much more visible
 
@@ -155,7 +144,16 @@ Version 2.0:
 
 Version 1.0: First Release
 
---------------------License Information--------------------------------------------
+--------------------Disclosures---------------------------------------------------------------
+This mod uses MiniAVC (https://github.com/CYBUTEK/KSPAddonVersionChecker) to provide automatic
+version checking. If you opt-in, it will use the internet to check whether there is a new version 
+available. Data is only read from the internet and no personal information is sent. For a more 
+comprehensive version checking experience, please download the full KSP-AVC Plugin.
+
+This mod is packed with and requires the use of Module Manager in order to provide renamable 
+docking ports as well as RPM integration. (https://github.com/sarbian/ModuleManager)
+
+-------------------License Information---------------------------------------------------------
  
     Copyright (C) 2014, Bryan Fishman
     

@@ -28,14 +28,21 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using KSP;
+using KSPAssets;
 
-namespace DockingPortAlignment
+namespace NavyFish
 {
     public class ModuleDockingNodeNamed : PartModule
     {
         public static RenameWindow renameWindow = null;
 
         public ModuleDockingNodeNamed() {}
+
+        public string getCustomName()
+        {
+            return portName;
+        }
 
         [KSPField(guiActive = true, guiActiveEditor = true, guiName = "Port Name", isPersistant = true)]
         public string portName;
@@ -49,22 +56,23 @@ namespace DockingPortAlignment
         [KSPEvent(guiActive = true, guiActiveEditor = true, guiActiveUnfocused = true, externalToEVAOnly = false, unfocusedRange = 2000f, guiName = "Rename Port")]
         public void renameDockingPort()
         {
-            renameWindow.DisplayForNode(this);
+            RenameWindow.instance.DisplayForNode(this);
         }
 
         public override void OnAwake()
         {
             //Debug.Log("moduleDockingNodeNamed:  OnAwake Begun");
             base.OnAwake();
-            if (renameWindow == null)
-            {
-                renameWindow = new RenameWindow();
-            }
+            //if (renameWindow == null)
+            //{
+            //    renameWindow = new RenameWindow();
+            //}
             //Debug.Log("moduleDockingNodeNamed:  OnAwake Complete");
         }
 
         public override void OnStart(PartModule.StartState state)
         {
+            renameWindow = RenameWindow.instance;
             //Debug.Log("moduleDockingNodeNamed:  OnStart Begun");
             base.OnStart(state);
             if(!initialized){

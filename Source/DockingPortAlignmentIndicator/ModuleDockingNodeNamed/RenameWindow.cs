@@ -28,20 +28,28 @@
 using System;
 using UnityEngine;
 using KSP.IO;
-using DockingPortAlignment;
+using NavyFish;
 
-namespace DockingPortAlignment
+namespace NavyFish
 {
-    public class RenameWindow
+    [KSPAddon(KSPAddon.Startup.EveryScene, true)]
+    public class RenameWindow : MonoBehaviour
     {
+        public static RenameWindow instance;
+
         private Rect renameWindowRect = new Rect(0, 0, 250, 80);
         private ModuleDockingNodeNamed portModuleToRename = null;
         private bool windowOpen = false;
         private Vessel lastActiveVessel;
         private string windowTitle = "Rename Docking Port";
-
-        public RenameWindow()
+        private Type DPAI;
+        public void Start()
         {
+            //Debug.Log("RenameWindow: Start");
+            DontDestroyOnLoad(this);
+            RenameWindow.instance = this;
+
+            DPAI = Type.GetType("NavyFish.DockingPortAlignmentIndicator, DockingPortAlignmentIndicator");
         }
 
         public void DisplayForNode(ModuleDockingNodeNamed namedNode)
@@ -53,19 +61,36 @@ namespace DockingPortAlignment
         {
             this.windowTitle = windowTitle;
             //Debug.Log("Rename Window: Display for Node");
-            if (RenderingManager.fetch != null)
+            //if (RenderingManager.fetch != null)
+            //{
+            //    if (!windowOpen) RenderingManager.AddToPostDrawQueue(0, DrawRenameDialog);
+            //    lastActiveVessel = FlightGlobals.ActiveVessel;
+            //}
+
+            if (!windowOpen)
             {
-                if (!windowOpen) RenderingManager.AddToPostDrawQueue(0, DrawRenameDialog);
-                lastActiveVessel = FlightGlobals.ActiveVessel;
+                if (FlightGlobals.ActiveVessel != null)
+                {
+                    lastActiveVessel = FlightGlobals.ActiveVessel;
+                }
             }
 
             windowOpen = true;
             portModuleToRename = namedNode;
 
         }
+
+        private void OnGUI()
+        {
+            if (windowOpen)
+            {
+                DrawRenameDialog();
+            }
+        }
+
         private void DrawRenameDialog()
         {
-            if (!windowOpen) return;
+            //if (!windowOpen) return;
             renameWindowRect.x = .5f * (Screen.width - renameWindowRect.width);
             renameWindowRect.y = .5f * Screen.height - 200;
             renameWindowRect = GUILayout.Window(1340, renameWindowRect, onRenameDialogDraw, windowTitle, HighLogic.Skin.window);
@@ -73,6 +98,7 @@ namespace DockingPortAlignment
 
         private void onRenameDialogDraw(int id)
         {
+            //Debug.Log("RenameWindow: onRenameDialogDraw");
             Vessel currentActiveVessel = FlightGlobals.ActiveVessel;
             bool activeVesselChanged = false;
             if (lastActiveVessel != currentActiveVessel)
@@ -104,11 +130,23 @@ namespace DockingPortAlignment
 
         public void closeWindow()
         {
-            portModuleToRename = null;
+            if (portModuleToRename != null)
+            {
+
+                if (DPAI != null)
+                {
+                    Debug.Log("RenameWindow: attempting to invoke clearRenameHighlightBoxRPM");
+                    DPAI.GetMethod("clearRenameHighlightBoxRPM").Invoke(null, null);
+                }
+                else {
+                    Debug.Log("RenameWindow: DPAI is Null");
+                }
+                portModuleToRename = null;
+            }
             renameWindowRect.Set(0, 0, 250, 80);
             windowOpen = false;
-            DockingPortAlignment.setRenameHighlightBoxRPM(DockingPortAlignment.HighlightBox.NONE);
-            RenderingManager.RemoveFromPostDrawQueue(0, DrawRenameDialog);
+            
+            //RenderingManager.RemoveFromPostDrawQueue(0, DrawRenameDialog);
         }
     }
 }
