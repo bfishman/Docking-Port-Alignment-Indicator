@@ -1,9 +1,15 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.8.2----------||
+||---------Version 6.8.2(.2-mkw)--||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
+
+*** NOTE ************************************************************
+This is an unofficial release by Micha.
+Please do NOT raise bug-reports from this version to NavyFish.
+*********************************************************************
+
 
 Installation Instructions:
   
@@ -36,6 +42,11 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.8.2(.2-mkw):
+[updated] Recompiled for KSP 1.5.1
+[added]   Added switching between the Toolbar (Stock vs Blizzy) in the settings menu.
+[fixed]   Fixed incorrect usage of Unity APIs in field initializers.
 
 Version 6.8.2:
 [updated] Recompiled for KSP 1.4.2
