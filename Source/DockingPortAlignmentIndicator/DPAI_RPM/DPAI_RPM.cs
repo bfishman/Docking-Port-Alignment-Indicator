@@ -92,6 +92,8 @@ namespace NavyFish
             }
         }
 
+        int bottomGutter = 55;
+        private static Rect gaugeRect = new Rect();
         public bool DrawDPAI(RenderTexture screen, float aspectRatio)
         {
             if (HighLogic.LoadedSceneIsEditor) return false;
@@ -101,17 +103,36 @@ namespace NavyFish
                 return false;
             }
 
+                        
             GL.PushMatrix();
 
             GL.LoadPixelMatrix(0, screen.width, screen.height, 0);
             GL.Viewport(new Rect(0, 0, screen.width, screen.height));
             GL.Clear(true, true, Color.black);
 
-            //drawRPMtest(screen, DockingPortAlignment.mat_background);
-            RenderTexture lastRT = RenderTexture.active;
-            RenderTexture.active = screen;
-            DockingPortAlignmentIndicator.drawIndicatorContentsRPM(screen.width, screen.height);
-            RenderTexture.active = lastRT;
+            float vH = screen.height - bottomGutter;
+            float vW = screen.width;
+            vH = Math.Min(vH, vW);
+            vW = vH;
+
+            float hOffset = (screen.width - vW) / 2f;
+
+            gaugeRect.Set(hOffset, 0, vW, vH);
+
+            //Graphics.Blit(DockingPortAlignmentIndicator.guiRenderTexture, screen);
+
+            Graphics.DrawTexture(gaugeRect, DockingPortAlignmentIndicator.guiRenderTexture);
+
+            Drawing.DrawHorizontalLineGraphics(0, screen.height-bottomGutter, screen.width, 2, Color.white);
+
+            DockingPortAlignmentIndicator.drawRPMText(screen.width, screen.height);
+
+            ////drawRPMtest(screen, DockingPortAlignment.mat_background);
+            //RenderTexture lastRT = RenderTexture.active;
+            //RenderTexture.active = screen;
+            //DockingPortAlignmentIndicator.drawIndicatorContentsRPM(screen.width, screen.height);
+            //DockingPortAlignmentIndicator.rpmRenderTexture = screen;
+            //RenderTexture.active = lastRT;
 
             GL.PopMatrix();
             return true;
@@ -183,7 +204,6 @@ namespace NavyFish
                             }
                         }
 
-                        break;
                     case 5:
                         //Debug.Log("buttonRight");
                         //DockingPortAlignment.cyclePortRight();

@@ -47,14 +47,13 @@ namespace NavyFish
         static Rect selectedPortHUDRect = new Rect(0, 0, targetHUDiconSize, targetHUDiconSize);
         
         public static float gaugeScale = .86f;
-        private static int backgroundTextureWidth = 400;
-        private static int backgroundTextureHeight = 407;
+        private static int backgroundTextureWidth = 317;
+        private static int backgroundTextureHeight = 317;
         private static Rect backgroundRect = new Rect(0, 0f, backgroundTextureWidth * gaugeScale, backgroundTextureHeight * gaugeScale);
 
         private static int foregroundTextureWidth = 400;
         private static int foregroundTextureHeight = 457;
         private static Rect foregroundRect = new Rect(0, 0f, foregroundTextureWidth * gaugeScale, foregroundTextureHeight * gaugeScale);
-        private static float visiblePortion = .77f;
 
         private static Rect leftButtonRect = new Rect();
         private static Rect rightButtonRect = new Rect();
@@ -73,7 +72,7 @@ namespace NavyFish
         private static float distanceToTarget;
         private static float closureD;
 
-        private static float velocityVectorIconSize = 42f;
+        private static float velocityVectorIconSize = 31;
         private static float transverseVelocityRange = 3.5f;
         private static float velocityVectorExponent = .75f;
 
@@ -84,7 +83,7 @@ namespace NavyFish
         private static float CDIexponentDecreaseBeginRange = 15f;
         private static float CDIexponentDecreaseDoneRange = 5f;
 
-        private static float markerSize = 140f;
+        private static float markerSize = 111;
         private static float targetHUDiconSize = 22;
         private static float pulsePeriod = 1.42f;
         private static float pulseDurationRatio = .4f;
@@ -98,20 +97,20 @@ namespace NavyFish
 
         public static Texture2D gaugeForegroundTex = new Texture2D(foregroundTextureWidth, foregroundTextureHeight, TextureFormat.ARGB32, false);
         public static Texture2D gaugeBackgroundTex = new Texture2D(backgroundTextureWidth, backgroundTextureHeight, TextureFormat.ARGB32, false);
-        public static Texture2D rpmBackgroundTex = new Texture2D(320, 320, TextureFormat.ARGB32, false);
+        public static Texture2D rpmBackgroundTex = new Texture2D(317, 317, TextureFormat.ARGB32, false);
         public static Texture2D alignmentTex = new Texture2D(207, 207, TextureFormat.ARGB32, false);
         public static Texture2D directionArrowTex = new Texture2D(70, 150, TextureFormat.ARGB32, false);
         public static Texture2D prograde = new Texture2D(96, 96, TextureFormat.ARGB32, false);
         public static Texture2D retrograde = new Texture2D(96, 96, TextureFormat.ARGB32, false);
-        public static Texture2D roll = new Texture2D(51, 33, TextureFormat.ARGB32, false);
+        public static Texture2D roll = new Texture2D(64, 64, TextureFormat.ARGB32, false);
         public static Texture2D targetPort = new Texture2D(40, 40, TextureFormat.ARGB32, false);
         public static Texture2D fontTexture = new Texture2D(256, 256, TextureFormat.ARGB32, false);
         public static Texture2D appLauncherIcon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
         public static Texture2D customToolbarIcon;
 
         public static BitmapFont bitmapFont;
-        private static float textNumberScale = .8f;
-        private static float textLabelScale = .6f;
+        private static float textNumberScale = .7f;
+        private static float textLabelScale = .52f;
         private static float textTargetNameScale = .77f;
 
         private static bool showSettings = false;
@@ -131,7 +130,7 @@ namespace NavyFish
 
         public static bool RPMPageActive = false;
         
-        //static IButton toolbarButton;
+        static IButton toolbarButton;
 
         private static ApplicationLauncherButton appLauncherButton;
 
@@ -216,12 +215,7 @@ namespace NavyFish
                     appLauncherIcon);
             }
         }
-        
-        private void removeFromStockAppLauncher()
-        {
-            //appLauncherButton = null;
-        }
-
+       
         private void onShowGUI()
         {
             //print("onShowGUI()");
@@ -240,11 +234,9 @@ namespace NavyFish
 
             LoadConfigFile();
 
-            blizzyToolbarAvailable = false;
-            //blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
+            blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
 
-            //if (forceStockAppLauncher || !blizzyToolbarAvailable)
-            if (true)
+            if (forceStockAppLauncher || !blizzyToolbarAvailable)
             {
                 if (ApplicationLauncher.Ready)
                 {
@@ -260,57 +252,40 @@ namespace NavyFish
 
                 GameEvents.onGUIApplicationLauncherDestroyed.Add(delegate()
                 {
-                    removeFromStockAppLauncher();
+                    //appLauncherButton = null;
                 });
 
             }
             else
             {
-                //toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
-                //toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
-                //toolbarButton.ToolTip = "Show/Hide Docking Port Alignment Indicator";
-                //toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
-                //toolbarButton.Visible = true;
-                //toolbarButton.Enabled = true;
-                //toolbarButton.OnClick += (e) =>
-                //{
-                //    gaugeVisiblityToggledOn = !gaugeVisiblityToggledOn;
-                //};
+                toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
+                toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
+                toolbarButton.ToolTip = "Show/Hide Docking Port Alignment Indicator";
+                toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
+                toolbarButton.Visible = true;
+                toolbarButton.Enabled = true;
+                toolbarButton.OnClick += (e) =>
+                {
+                    gaugeVisiblityToggledOn = !gaugeVisiblityToggledOn;
+                };
             }
-
 
             if (!hasInitializedStyles) initStyles();
 
-            //RenderingManager.AddToPostDrawQueue(2, onGaugeDraw);
-
-            //if (shouldDebug) RenderingManager.AddToPostDrawQueue(2, OnDrawDebug);
-
             settingsWindowPosition = new Rect(0, 0, 0, 0);
-            //settingsWindowPosition = new Rect((Screen.width - settingsWindowWidth) / 2f, (Screen.height - settingsWindowHeight)/ 2f, settingsWindowWidth, settingsWindowHeight);
-            //print("end of awake");
+
         }
         
         public void Start()
         {
             LoadPrefs();
-            //settingsWindowPosition.x = windowPosition.x;
-            //settingsWindowPosition.width = windowPosition.width;
             settingsWindowPosition.y = windowPosition.yMax;
-            //settingsWindowPosition.height = settingsWindowHeight;
-            //print("end of start");
         }
 
         private void OnGUI()
         {
-            //if (Event.current.type == EventType.Repaint || Event.current.isMouse)
-            //{
-            //myPreDrawQueue(); // Your current on preDrawQueue code
-            //}
-
-            // Your current on postDrawQueue code
             onGaugeDraw();
             if (shouldDebug) OnDrawDebug();
-
         }
 
         public void Update()
@@ -354,8 +329,8 @@ namespace NavyFish
             if (showIndicator || (RPMPageActive && isIVA()))
             {
                 if (targetedDockingModule != null) calculateGaugeData();
+                drawIndicatorContentsToTexture();
             }
-            //print("Update: End");
         }
 
         private static bool isIVA()
@@ -430,18 +405,18 @@ namespace NavyFish
 
             if (lastReferencePart != referencePart)
             {
-                print("DPAI: Reference Part Changed - tick " + tickCount);
+                //print("DPAI: Reference Part Changed - tick " + tickCount);
                 bool isCurrentlyIVA = isIVA();
                 if (isCurrentlyIVA){
-                    print("DPAI: Is currently IVA - tick " + tickCount);
+                    //print("DPAI: Is currently IVA - tick " + tickCount);
 
                     if(justEnteredIVA || justLeftMap){
-                        print("DPAI: Was not previously IVA - tick " + tickCount);
+                        //print("DPAI: Was not previously IVA - tick " + tickCount);
                         
                         if (FlightGlobals.ActiveVessel.Parts.Contains(lastReferencePart))
                         {
                             FlightGlobals.ActiveVessel.SetReferenceTransform(lastReferencePart);
-                            print("DPAI: Re-setting Reference Part - tick " + tickCount);
+                            //print("DPAI: Re-setting Reference Part - tick " + tickCount);
                             findReferencePoints();
                         }
                     }
@@ -619,23 +594,7 @@ namespace NavyFish
         private static void calculateGaugeData()
         {
             Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
-            //ModuleDockingNode targetPort = targetedDockingModule;
-            //Transform targetTransform = targetPort.transform;
-
-            //Vector3 targetPortOutVector;
-            //Vector3 targetPortRollReferenceVector;
-
-            //if (targetPort.part.name == "dockingPortLateral")
-            //{
-            //    targetPortOutVector = -targetTransform.forward.normalized;
-            //    targetPortRollReferenceVector = -targetTransform.up;
-            //}
-            //else
-            //{
-            //    targetPortOutVector = targetTransform.up.normalized;
-            //    targetPortRollReferenceVector = targetTransform.forward;
-            //}
-
+         
             ITargetable targetPort = targetedDockingModule as ITargetable;
 
             Transform targetTransform = targetPort.GetTransform();
@@ -715,32 +674,30 @@ namespace NavyFish
                     drawTargetPortHUDIndicator();
                 }
             }
-
-            //print("onGaugeDraw: Start");
+            
             if (showIndicator)
             {
                 windowPosition.width = foregroundTextureWidth * gaugeScale;
                 windowPosition.height = foregroundTextureHeight * gaugeScale;
-                //windowPosition.yMin = settingsWindowPosition.yMin - windowPosition.height;
-                windowPosition = constrainToScreen(GUI.Window(1337, windowPosition, drawIndicatorContents, "DPAI", labelStyle));
+      
+                windowPosition = constrainToScreen(GUI.Window(1773, windowPosition, drawRenderedGaugeTexture, "DPAI", labelStyle));
 
-                leftButtonRect.yMin = foregroundRect.height - (57 * gaugeScale);
-                leftButtonRect.yMax = foregroundRect.height - (10 * gaugeScale);
-                leftButtonRect.xMin = (18 * gaugeScale);
-                leftButtonRect.xMax = (69 * gaugeScale);
+                leftButtonRect.yMin = (402 * gaugeScale);
+                leftButtonRect.yMax = (446 * gaugeScale);
+                leftButtonRect.xMin = (21 * gaugeScale);
+                leftButtonRect.xMax = (66 * gaugeScale);
 
                 rightButtonRect.yMin = leftButtonRect.yMin;
                 rightButtonRect.yMax = leftButtonRect.yMax;
-                rightButtonRect.xMin = foregroundRect.width - (69 * gaugeScale);
-                rightButtonRect.xMax = foregroundRect.width - (18 * gaugeScale);
+                rightButtonRect.xMin = (334 * gaugeScale);
+                rightButtonRect.xMax = (380 * gaugeScale);
 
                 if (showSettings)
                 {
-                    //settingsWindowPosition = constrainToScreen(GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, "Docking Alignment Indicator Settings", windowStyle));
                     settingsWindowPosition.x = windowPosition.x;
                     settingsWindowPosition.y = windowPosition.yMax;
                     if (!settingsWindowOverflow) settingsWindowPosition.width = windowPosition.width;
-                    //settingsWindowPosition.height = settingsWindowHeight;
+                 
                     settingsWindowPosition = GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, "DPAI Settings", windowStyle);
                     if (settingsWindowPosition.width > windowPosition.width)
                     {
@@ -751,16 +708,49 @@ namespace NavyFish
                         settingsWindowOverflow = false;
                     }
                     
-                    //GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, "DPAI Settings", windowStyle);
                 }
             }
-            //print("onGaugeDraw: End");
+        }
+
+        public static void drawRPMText(int screenWidth, int screenHeight)
+        {
+            fullScreenRect.Set(0, 0, screenWidth, screenHeight);
+            drawGlyphStringGraphics("TGT:", tgtX, fullScreenRect.yMax - rtLabelY, rtLabelScale, BitmapFont.HorizontalAlignment.LEFT, currentHighlightBox == HighlightBox.LEFT ? Color.yellow : Color.white);
+            drawGlyphStringGraphics("REF:", fullScreenRect.center.x + refX, fullScreenRect.yMax - rtLabelY, rtLabelScale, BitmapFont.HorizontalAlignment.LEFT, currentHighlightBox == HighlightBox.RIGHT ? Color.yellow : Color.white);
+
+            String targetDisplayName = determineTargetPortName();
+
+            BitmapFont.StringDimensions stringDimensions = bitmapFont.getStringDimensions(targetDisplayName, 1f);
+            float virtualWidth = fullScreenRect.width * .5f - tgtX - rtLabelSpacing;
+            float widthScale = virtualWidth / stringDimensions.width;
+            float virtualHeight = rpmTgtRefTextHeight;
+            float heightScale = virtualHeight / (stringDimensions.height);
+            textTargetNameScale = Math.Min(widthScale, heightScale);
+            
+            float x = tgtX + rtLabelSpacing + virtualWidth * .5f - (stringDimensions.width * textTargetNameScale / 2f);
+            float y = fullScreenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
+
+            drawGlyphStringGraphics(targetDisplayName, x, y, textTargetNameScale, BitmapFont.HorizontalAlignment.LEFT, currentHighlightBox == HighlightBox.LEFT ? Color.yellow : Color.white);
+
+            String referenceName = getReferencePortName();
+
+            stringDimensions = bitmapFont.getStringDimensions(referenceName, 1f);
+            virtualWidth = screenRect.width * .5f - refX - rtLabelSpacing;
+            widthScale = virtualWidth / stringDimensions.width;
+            virtualHeight = rpmTgtRefTextHeight;
+            heightScale = virtualHeight / (stringDimensions.height);
+            textTargetNameScale = Math.Min(widthScale, heightScale);
+            
+            x = screenRect.center.x + refX + rtLabelSpacing + virtualWidth * .5f - (stringDimensions.width * textTargetNameScale / 2f);
+            y = screenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
+
+            drawGlyphStringGraphics(referenceName, x, y, textTargetNameScale, BitmapFont.HorizontalAlignment.LEFT, currentHighlightBox == HighlightBox.RIGHT ? Color.yellow : Color.white);
         }
 
         private static Rect constrainToScreen(Rect r)
         {
-            r.x = Mathf.Clamp(r.x, 75 - r.width, Screen.width - 75);
-            r.y = Mathf.Clamp(r.y, 75 - r.height, Screen.height - 75);
+            r.x = Mathf.Clamp(r.x, 150 - r.width, Screen.width - 150);
+            r.y = Mathf.Clamp(r.y, 150 - r.height, Screen.height - 150);
             return r;
         }
 
@@ -771,11 +761,30 @@ namespace NavyFish
         private static Rect fullScreenRect = new Rect();
         static float screenPercentRPM = 1f;//.935f;
         static Rect rpmDrawableRect = new Rect();
-        public static void drawIndicatorContentsRPM(int screenWidth, int screenHeight)
+        
+        static Rect visibleRect = new Rect(40, 44, 319, 319);
+        public static RenderTexture guiRenderTexture = new RenderTexture((int)visibleRect.width, (int)visibleRect.height, 0, RenderTextureFormat.ARGB32);
+        
+        public static void drawIndicatorContentsToTexture()
         {
+            //var cam = KSP.UI.UIMainCamera.Camera;
+
+            guiRenderTexture.DiscardContents();
+
+            var previousRenderTexture = RenderTexture.active;
+            
+            RenderTexture.active = guiRenderTexture;
+
+            GL.PushMatrix();
+            GL.LoadPixelMatrix(0, guiRenderTexture.width, guiRenderTexture.height, 0);
+
+            float screenWidth = guiRenderTexture.width;
+            float screenHeight = guiRenderTexture.height;
+            screenPercentRPM = 1f;
+
             fullScreenRect.Set(0, 0, screenWidth, screenHeight);
-            float virtualWidth = screenWidth*screenPercentRPM;
-            float virtualHeight = screenHeight*screenPercentRPM;
+            float virtualWidth = screenWidth * screenPercentRPM;
+            float virtualHeight = screenHeight * screenPercentRPM;
             float xOffset = (screenWidth - virtualWidth) * .5f;
             float yOffset = 0;//(screenHeight - virtualHeight) * .5f;
 
@@ -783,16 +792,14 @@ namespace NavyFish
             glassCenter = screenRect.center;
             glassCenterV3.Set(glassCenter.x, glassCenter.y, 0);
 
+            vertLineHeaderChop = 0;
+            vertLineFooterChop = 0;
+
             rpmDrawableRect.Set(xOffset, vertLineHeaderChop, virtualWidth, virtualHeight - vertLineFooterChop - vertLineHeaderChop);
 
-            //if (preRotation == null)
-            //{
-            //    preRotation = Matrix4x4.TRS(new Vector3(roll.width / 2f, roll.height / 2f), Quaternion.Euler(0f, 0f, 90f), identityScaleV3);
-            //}
+            Graphics.DrawTexture(screenRect, gaugeBackgroundTex);
 
-            Graphics.DrawTexture(screenRect, rpmBackgroundTex);
-
-            float baseScale = screenRect.width / ((float)backgroundTextureWidth);
+            float baseScale = 1f;
 
             if (targetedDockingModule != null)
             {
@@ -801,50 +808,42 @@ namespace NavyFish
                     float xVal = 0, yVal = 0;
                     float visibleYOffset = vertLineHeaderChop;
                     Color colorCDI = determineCDIcolor();
-                 
-                    calculateCDIvalues0to1(ref xVal, ref yVal);  
-                    
-                    //Drawing.DrawVerticalLineGraphics(xVal, screenRect.y + vertLineHeaderChop, screenRect.height - _vertCDILineChop - vertLineHeaderChop, 4f, colorCDI);
-                    //Drawing.DrawHorizontalLineGraphics(screenRect.x, yVal, screenRect.width, 4f, colorCDI);
 
-                    NavyFish.Drawing.DrawVerticalLineGraphics(glassCenter.x + (xVal - .5f) * screenRect.width, rpmDrawableRect.yMin, rpmDrawableRect.height, 4f, colorCDI);
-                    NavyFish.Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal-.5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 4f, colorCDI);
-                }   
+                    calculateCDIvalues0to1(ref xVal, ref yVal);
 
-                GL.PushMatrix();
+                    NavyFish.Drawing.DrawVerticalLineGraphics(glassCenter.x + (xVal - .5f) * screenRect.width, rpmDrawableRect.yMin, rpmDrawableRect.height, 2f, colorCDI);
+                    NavyFish.Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal - .5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 2f, colorCDI);
+                }
+
+                
                 if (Math.Abs(orientationDeviation.x) > alignmentGaugeRange || Math.Abs(orientationDeviation.y) > alignmentGaugeRange)
                 {
                     Vector2 normDir = new Vector2(orientationDeviation.x, orientationDeviation.y).normalized;
-                    float angle = (float)Math.Atan2(normDir.x, -normDir.y) * UnityEngine.Mathf.Rad2Deg;
+                    float arrowX = (alignmentFlipXAxis ? -1 : 1) * normDir.x;
+                    float arrowY = (alignmentFlipYAxis ? -1 : 1) * -normDir.y;
+                    float angle = (float)Math.Atan2(arrowX, arrowY) * UnityEngine.Mathf.Rad2Deg;
 
-                    //float arrowLength = visiblePortion * glassCenter.y;
                     float arrowLength = screenRect.height * arrowLengthMult;
                     float arrowWidth = arrowLength * directionArrowTex.width / directionArrowTex.height;
-                                        
-                    //Rect arrowRect = new Rect(0.5f * (backgroundRect.width - arrowWidth), glassCenter.y - arrowLength, arrowWidth, arrowLength);
-                    //Testing this..
-                    Rect arrowRect = new Rect(-arrowWidth*.5f, -arrowLength*arrowLengthOffsetMult, arrowWidth, arrowLength);
 
-                    //GUIUtility.RotateAroundPivot(angle, glassCenter);
+                    Rect arrowRect = new Rect(-arrowWidth * .5f, -arrowLength * arrowLengthOffsetMult, arrowWidth, arrowLength);
+
                     GL.PushMatrix();
-                    //TODO: extract these from method (optimize)
-                    
-                    //GL.MultMatrix(Matrix4x4.TRS(new Vector3(0,0,0), Quaternion.Euler(0, 0, angle) ,new Vector3(1,1,1)));
-                    //Trying this..
+
                     GL.MultMatrix(Matrix4x4.TRS(glassCenterV3, Quaternion.Euler(0, 0, angle), identityScaleV3));
 
                     Graphics.DrawTexture(arrowRect, directionArrowTex);
                     GL.PopMatrix();
-                    
+
                 }
                 else
                 {
-                    float displayX = scaleExponentially(orientationDeviation.x / alignmentGaugeRange, alignmentExponent);
-                    float displayY = scaleExponentially(orientationDeviation.y / alignmentGaugeRange, alignmentExponent);
+                    float displayX = (alignmentFlipXAxis ? -1 : 1) * scaleExponentially(orientationDeviation.x / alignmentGaugeRange, alignmentExponent);
+                    float displayY = (alignmentFlipYAxis ? -1 : 1) * scaleExponentially(orientationDeviation.y / alignmentGaugeRange, alignmentExponent);
 
-                    float scaledMarkerSize = markerSize * baseScale;
+                    float scaledMarkerSize = markerSize * gaugeAlignmentMarkerScale;
 
-                    Rect markerRect = new Rect(glassCenter.x * (1 + displayX) - scaledMarkerSize*.5f,
+                    Rect markerRect = new Rect(glassCenter.x * (1 + displayX) - scaledMarkerSize * .5f,
                                             glassCenter.y * (1 + displayY) - scaledMarkerSize * .5f,
                                             scaledMarkerSize,
                                             scaledMarkerSize);
@@ -852,163 +851,71 @@ namespace NavyFish
                     Graphics.DrawTexture(markerRect, alignmentTex);
 
 
-                    float scaledRollWidth = roll.width * baseScale;
-                    float scaledRollHeight = roll.height * baseScale;
-                    //GUIUtility.RotateAroundPivot(-orientationDeviation.z, glassCenter);
-                    GL.PushMatrix();
-                    //TODO: extract these from method (optimize)
+                    float scaledRollWidth = roll.width * baseScale * rollMarkerScale;
+                    float scaledRollHeight = roll.height * baseScale * rollMarkerScale;
                     
-                    GL.MultMatrix(Matrix4x4.TRS(glassCenterV3, Quaternion.Euler(0, 0, -orientationDeviation.z), identityScaleV3));
-                    //GL.MultMatrix(preRotation);
+                    GL.PushMatrix();
+                   
+                    GL.MultMatrix(Matrix4x4.TRS(glassCenterV3, Quaternion.Euler(0, 0, -orientationDeviation.z * (rollFlipAxis ? -1 : 1)), identityScaleV3));
 
-                    //Graphics.DrawTexture(new Rect(glassCenter.x - .5f * scaledRollWidth, (roll.height + 20) * baseScale, scaledRollWidth, scaledRollHeight), roll);
-                    Graphics.DrawTexture(new Rect(-scaledRollWidth/2f, (scaledRollHeight + rollOffset - screenRect.height)/2f, scaledRollWidth, scaledRollHeight), roll);
+                    Graphics.DrawTexture(new Rect(-scaledRollWidth / 2f, (scaledRollHeight + rollOffset - screenRect.height) / 2f, scaledRollWidth, scaledRollHeight), roll);
                     GL.PopMatrix();
                 }
 
-                GL.PopMatrix();
-
                 if (useCDI)
                 {
-                    drawVelocityVectorGraphics(screenRect, baseScale);
+                    drawVelocityVector(screenRect, gaugeVelocityVectorScale);
                 }
 
-                drawGaugeValuesRPM(screenRect, baseScale);
+                float dstXpos = _dstXpos;
+                float dstYpos = _dstYpos;
+                float cvelXpos = _cvelXpos;
+                float cvelYpos = _cvelYpos;
+
+                Color originalColor = GUI.color;
+
+                GUI.color = colorGaugeLabels;
+                drawGlyphStringGrahpics("DST", screenRect.x + _DSTLABEL_x, screenRect.y + _dstYpos + _LABEL_yOFF,gaugeLabelScale, BitmapFont.HorizontalAlignment.LEFT);
+                drawGlyphStringGrahpics("CVEL", screenRect.x + _CVELLABEL_x, screenRect.y + _cvelYpos + _LABEL_yOFF, gaugeLabelScale, BitmapFont.HorizontalAlignment.RIGHT);
+                drawGlyphStringGrahpics("CDST", screenRect.x + _CDSTLABEL_x, screenRect.y + (_CDSTLABEL_y + _LABEL_yOFF), gaugeLabelScale, BitmapFont.HorizontalAlignment.RIGHT);
+                GUI.color = originalColor;
+
+                drawGlyphStringGrahpics(distanceToTarget.ToString("F1"), screenRect.x + dstXpos, screenRect.y + _dstYpos, gaugeDigitScale, BitmapFont.HorizontalAlignment.LEFT);
+                drawGlyphStringGrahpics(closureV.ToString("F"), screenRect.x + cvelXpos, screenRect.y + _cvelYpos, gaugeDigitScale, BitmapFont.HorizontalAlignment.RIGHT);
+                drawGlyphStringGrahpics(closureD.ToString("F1"), screenRect.x + _CLOSURED_x, screenRect.y + _CLOSURED_y, gaugeDigitScale, BitmapFont.HorizontalAlignment.RIGHT);
+
+
+                if (drawRollDigits)
+                {
+                    float rDegXPos = _rDegXPos;
+                    float rDegYPos = _rDegYPos;
+                    GUI.color = colorGaugeLabels;
+                    drawGlyphStringGrahpics("R\u00B0", screenRect.x + _degSign_x, screenRect.y + _degSign_y, gaugeLabelScale, BitmapFont.HorizontalAlignment.RIGHT);
+                    GUI.color = originalColor;
+                    drawGlyphStringGrahpics(orientationDeviation.z.ToString("F1"), screenRect.x + rDegXPos, screenRect.y + rDegYPos, gaugeDigitScale, BitmapFont.HorizontalAlignment.RIGHT);
+                }
             }
 
-            drawRefandTgtLabelsRPM(fullScreenRect);
-            drawTargetPortNameRPM(fullScreenRect);
-            drawReferencePortNameRPM(fullScreenRect);
-            //drawHighlightBox(fullScreenRect);
+
+            GL.PopMatrix();
+            RenderTexture.active = previousRenderTexture;
         }
 
-        //private static void drawHighlightBox(Rect screenRect)
-        //{
-        //    switch (currentHighlightBox)
-        //    {
-        //        case HighlightBox.NONE:
-        //            return;
-        //        case HighlightBox.LEFT:
-
-        //            break;
-        //        case HighlightBox.RIGHT:
-        //            break;
-        //    }
-        //}
-
-        //public static void drawRPMHelpScreen(int screenWidth, int screenHeight)
-        //{
-        //    fullScreenRect.Set(0, 0, screenWidth, screenHeight);
-        //    //float virtualWidth = screenWidth * screenPercentRPM;
-        //    //float virtualHeight = screenHeight * screenPercentRPM;
-        //    //float xOffset = (screenWidth - virtualWidth) * .5f;
-        //    //float yOffset = 0;//(screenHeight - virtualHeight) * .5f;
-
-        //    //screenRect.Set(xOffset, yOffset, virtualWidth, virtualHeight);
-        //    //glassCenter.Set(xOffset + (screenRect.width / 2f), yOffset + (screenRect.height / 2f));
-        //    //glassCenterV3.Set(glassCenter.x, glassCenter.y, 0);
-
-        //    //Graphics.DrawTexture(screenRect, rpmBackgroundTex);
-
-        //    drawRefandTgtLabelsRPM(fullScreenRect);
-        //}
-
-        static Rect visibleRect = new Rect();
-        public static void drawIndicatorContents(int windowID)
+        public static void drawRenderedGaugeTexture(int windowID)
         {
-            //print("drawIndicatorContents: Start");
+            Rect gaugeRect = new Rect(0, 0, foregroundTextureWidth * gaugeScale, foregroundTextureHeight* gaugeScale);
 
-            backgroundRect.width = backgroundTextureWidth * gaugeScale;
-            backgroundRect.height = backgroundTextureHeight * gaugeScale;
-            
-            foregroundRect.width = foregroundTextureWidth * gaugeScale;
-            foregroundRect.height = foregroundTextureHeight * gaugeScale;
-
-            //from foreground texture's transparent portion
-            visibleRect.Set(40 * gaugeScale, 43 * gaugeScale, 318 * gaugeScale, 319 * gaugeScale);
-            Vector2 glassCenter = visibleRect.center;
+            backgroundRect.Set(visibleRect.x * gaugeScale,
+                                visibleRect.y * gaugeScale,
+                                visibleRect.width * gaugeScale,
+                                visibleRect.height * gaugeScale);
 
 
-            GUI.DrawTexture(backgroundRect, gaugeBackgroundTex);
+            GUI.DrawTexture(backgroundRect, guiRenderTexture);
 
-            if (targetedDockingModule != null)
-            {
+            GUI.DrawTexture(gaugeRect, gaugeForegroundTex);
 
-
-                if (useCDI)
-                {
-                    float xVal = 0 , yVal = 0;
-
-                    Color colorCDI = determineCDIcolor();
-                    calculateCDIvalues0to1(ref xVal, ref yVal);
-
-                    Drawing.DrawVerticalLine(visibleRect.xMin + xVal*visibleRect.width, visibleRect.yMin, visibleRect.height, 2f, colorCDI);
-                    Drawing.DrawHorizontalLine(visibleRect.xMin, visibleRect.yMin + yVal*visibleRect.height, visibleRect.width, 2f, colorCDI);
-                }
-
-                Matrix4x4 matrixBackup = GUI.matrix;
-                if (Math.Abs(orientationDeviation.x) > alignmentGaugeRange || Math.Abs(orientationDeviation.y) > alignmentGaugeRange)
-                {
-                    Vector2 normDir = new Vector2(orientationDeviation.x, orientationDeviation.y).normalized;
-                    float angle = (float)Math.Atan2(normDir.x, -normDir.y) * UnityEngine.Mathf.Rad2Deg;
-
-                    //rpm
-                    //float arrowLength = screenRect.height * arrowLengthMult;
-                    //float arrowWidth = arrowLength * directionArrowTex.width / directionArrowTex.height;
-                    //Rect arrowRect = new Rect(-arrowWidth * .5f, -arrowLength * arrowLengthOffsetMult, arrowWidth, arrowLength);
-
-                    //new
-                    float arrowLength = visiblePortion * backgroundRect.height * arrowLengthMult;
-                    float arrowWidth = arrowLength * directionArrowTex.width / directionArrowTex.height;
-                    Rect arrowRect = new Rect(0.5f * (backgroundRect.width - arrowWidth), glassCenter.y - arrowLength * arrowLengthOffsetMult, arrowWidth, arrowLength);
-
-                    //old
-                    //float arrowLength = visiblePortion * glassCenter.y * .5f;  // .5f is fudge factor w/ the new texture
-                    //float arrowWidth = arrowLength * directionArrowTex.width / directionArrowTex.height;
-                    //Rect arrowRect = new Rect(0.5f * (backgroundRect.width - arrowWidth), glassCenter.y - arrowLength, arrowWidth, arrowLength);
-
-                    GUIUtility.RotateAroundPivot(angle, glassCenter);
-
-                    GUI.DrawTexture(arrowRect, directionArrowTex);
-                    GUI.matrix = matrixBackup;
-                }
-                else
-                {
-                    float displayX = scaleExponentially(orientationDeviation.x / alignmentGaugeRange, alignmentExponent);
-                    float displayY = scaleExponentially(orientationDeviation.y / alignmentGaugeRange, alignmentExponent);
-
-                    float scaledMarkerSize = markerSize * gaugeScale;
-
-                    Rect markerRect = new Rect(glassCenter.x * (1 + displayX) - .5f * scaledMarkerSize,
-                                            glassCenter.y * (1 + displayY) - .5f * scaledMarkerSize,
-                                            scaledMarkerSize,
-                                            scaledMarkerSize);
-
-                    GUI.DrawTexture(markerRect, alignmentTex);
-
-                    //GUIUtility.RotateAroundPivot(orientationDeviation.z, glassCenter);
-                    GUIUtility.RotateAroundPivot(-orientationDeviation.z, glassCenter);
-
-                    float scaledRollWidth = roll.width * gaugeScale;
-                    float scaledRollHeight = roll.height * gaugeScale;
-
-                    GUI.DrawTexture(new Rect(glassCenter.x - .5f * scaledRollWidth, (roll.height + 20) * gaugeScale, scaledRollWidth, scaledRollHeight), roll);
-                }
-
-                GUI.matrix = matrixBackup;
-
-                if (useCDI)
-                {
-                    drawVelocityVector(visibleRect);
-                }
-
-                drawGaugeValues();
-
-            }
-
-            GUI.DrawTexture(foregroundRect, gaugeForegroundTex);
-
-            drawTargetPortName();
+            drawTargetPortName(gaugeRect);
 
             Color lastBackColor = GUI.backgroundColor;
             if (showSettings)
@@ -1020,8 +927,10 @@ namespace NavyFish
                 GUI.backgroundColor = colorsettingsButtonDeactivated;
             }
 
-            bool settingsButtonClicked = GUI.Button(new Rect(146 * gaugeScale, 367 * gaugeScale, 110 * gaugeScale, 18 * gaugeScale), "", settingsButtonStyle);
-            drawGlyphString("Settings", 173 * gaugeScale, 364 * gaugeScale, gaugeScale * .62f);
+            Rect settingsButtonRect = new Rect(settingsButtonX * gaugeScale, settingsButtonY * gaugeScale, settingsButtonWidth * gaugeScale, settingsButtonHeight * gaugeScale);
+            bool settingsButtonClicked = GUI.Button(settingsButtonRect, "", settingsButtonStyle);
+
+            drawGlyphStringGUI("Settings", settingsTextX * gaugeScale, settingsTextY * gaugeScale, settingsTextScale * gaugeScale, BitmapFont.HorizontalAlignment.LEFT);
 
             if (settingsButtonClicked) showSettings = !showSettings;
 
@@ -1051,8 +960,7 @@ namespace NavyFish
                 lastPosition.y = windowPosition.y;
                 saveWindowPosition();
             }
-            
-            //print("drawIndicatorContents: End");
+
         }
 
         public static void cyclePortLeft()
@@ -1074,6 +982,7 @@ namespace NavyFish
 
         private void drawSettingsWindowContents(int id)
         {
+            //print("Drawing Settings Window.." + settingsWindowPosition.ToString());
             bool last;
             float lastFloat;
             //print("drawSettingsWindowContents: Start");
@@ -1091,7 +1000,7 @@ namespace NavyFish
 
             GUILayout.BeginHorizontal();
             last = drawHudIcon;
-            drawHudIcon = GUILayout.Toggle(drawHudIcon, "Display Target Port HUD Icon");
+            drawHudIcon = GUILayout.Toggle(drawHudIcon, "Display HUD Target Port Icon");
             if (drawHudIcon != last)
             {
                 saveConfigSettings();
@@ -1104,7 +1013,7 @@ namespace NavyFish
                 GUILayout.BeginHorizontal();
                 last = showHUDIconWhileIva;
                 GUILayout.Space(14f);
-                showHUDIconWhileIva = GUILayout.Toggle(showHUDIconWhileIva, "Display while IVA (and using RPM)");
+                showHUDIconWhileIva = GUILayout.Toggle(showHUDIconWhileIva, "Display when using RPM");
                 if (showHUDIconWhileIva != last)
                 {
                     saveConfigSettings();
@@ -1112,7 +1021,7 @@ namespace NavyFish
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("HUD Icon Size:");
+                GUILayout.Label("HUD Target Port Icon Size:");
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
                 lastFloat = targetHUDiconSize;
@@ -1163,124 +1072,65 @@ namespace NavyFish
                 windowPosition.y = settingsWindowPosition.y - windowPosition.height;
                 saveConfigSettings();
             }
+
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            last = alignmentFlipXAxis;
+            alignmentFlipXAxis = GUILayout.Toggle(alignmentFlipXAxis, "Invert Alignment X");
+            if (alignmentFlipXAxis != last) saveConfigSettings();
+
+            GUILayout.FlexibleSpace();
+            //GUILayout.EndHorizontal();
+            //GUILayout.BeginHorizontal();
+            last = translationFlipXAxis;
+            translationFlipXAxis = GUILayout.Toggle(translationFlipXAxis, "Invert Translation X");
+            if (translationFlipXAxis != last) saveConfigSettings();
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            last = alignmentFlipYAxis;
+            alignmentFlipYAxis = GUILayout.Toggle(alignmentFlipYAxis, "Invert Alignment Y");
+            if (alignmentFlipYAxis != last) saveConfigSettings();
+
+            GUILayout.FlexibleSpace();
+            //GUILayout.EndHorizontal();
+            //GUILayout.BeginHorizontal();
+            last = translationFlipYAxis;
+            translationFlipYAxis = GUILayout.Toggle(translationFlipYAxis, "Invert Translation Y");
+            if (translationFlipYAxis != last) saveConfigSettings();
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            last = rollFlipAxis;
+            rollFlipAxis = GUILayout.Toggle(rollFlipAxis, "Invert Roll Direction");
+            if (rollFlipAxis != last) saveConfigSettings();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
             
-            //GUI.DragWindow();
 
-            //print("drawSettingsWindowContents: Start");
         }
-
-        private static void drawGaugeValues()
-        {
-            float dstXpos = 89 * gaugeScale;
-            float cvelXpos = 289 * gaugeScale;
-            float yPos = 335 * gaugeScale;
-
-            Color originalColor = GUI.color;
-            
-            GUI.color = colorGaugeLabels;
-            drawGlyphString("DST", 45 * gaugeScale, yPos + 6 * gaugeScale, gaugeScale * textLabelScale);
-            drawGlyphString("CVEL", 238 * gaugeScale, yPos + 6 * gaugeScale, gaugeScale * textLabelScale);
-            drawGlyphString("CDST", 236 * gaugeScale, (310 + 6) * gaugeScale, gaugeScale * textLabelScale);
-            GUI.color = originalColor;
-
-            drawGlyphString(distanceToTarget.ToString("F1"), dstXpos, yPos);
-            drawGlyphString(closureV.ToString("F"), cvelXpos, yPos);
-            drawGlyphString(closureD.ToString("F1"), 289 * gaugeScale, 310 * gaugeScale);
-
-
-            if (drawRollDigits)
-            {
-                float rDegXPos = 306 * gaugeScale;
-                float rDegYPos = 41 * gaugeScale;
-                GUI.color = colorGaugeLabels;
-                drawGlyphString("R\u00B0", 280 * gaugeScale, (38 + 6) * gaugeScale, gaugeScale * textLabelScale);
-                GUI.color = originalColor;
-                drawGlyphString(orientationDeviation.z.ToString("F1"), rDegXPos, rDegYPos);
-            }
-        }
-
-        static int _dstXpos = 59;
-        static int _cvelXpos = 300;
-        static int _yPos = 335;
-        static int _LABEL_yOFF = 10;
-        static int _DSTLABEL_x = 14;
-        static int _CVELLABEL_x = 238;
-        static int _CDSTLABEL_x = 236;
-        static int _CDSTLABEL_y = 305;
-
-        static int _CLOSURED_x = 300;
-        static int _CLOSURED_y = 305;
-
-        private static void drawGaugeValuesRPM(Rect screenRect, float scale)
-        {
-            float dstXpos = _dstXpos * scale;
-            float cvelXpos = _cvelXpos * scale;
-            float yPos = _yPos * scale;
-
-            Color originalColor = GUI.color;
-
-            GUI.color = colorGaugeLabels;
-            drawGlyphStringRPM("DST", screenRect.x + _DSTLABEL_x * scale, screenRect.y + yPos + _LABEL_yOFF * scale, scale * textLabelScale);
-            drawGlyphStringRPM("CVEL", screenRect.x + _CVELLABEL_x * scale, screenRect.y + yPos + _LABEL_yOFF * scale, scale * textLabelScale);
-            drawGlyphStringRPM("CDST", screenRect.x + _CDSTLABEL_x * scale, screenRect.y + (_CDSTLABEL_y + _LABEL_yOFF) * scale, scale * textLabelScale);
-            GUI.color = originalColor;
-
-            drawGlyphStringRPM(distanceToTarget.ToString("F1"), screenRect.x + dstXpos, screenRect.y + yPos, scale);
-            drawGlyphStringRPM(closureV.ToString("F"), screenRect.x + cvelXpos, screenRect.y + yPos, scale);
-            drawGlyphStringRPM(closureD.ToString("F1"), screenRect.x + _CLOSURED_x * scale, screenRect.y + _CLOSURED_y * scale, scale);
-
-
-            if (drawRollDigits)
-            {
-                float rDegXPos = _rDegXPos * scale;
-                float rDegYPos = _rDegYPos * scale;
-                GUI.color = colorGaugeLabels;
-                drawGlyphStringRPM("R\u00B0", screenRect.x + _degSign_x * scale, screenRect.y + _degSign_y * scale, scale * textLabelScale);
-                GUI.color = originalColor;
-                drawGlyphStringRPM(orientationDeviation.z.ToString("F1"), screenRect.x + rDegXPos, screenRect.y + rDegYPos, scale);
-            }
-        }
-
-        private static void drawTargetPortName()
+        Rect centeredToggleRect = new Rect(0,0,0,0);
+    
+        private static void drawTargetPortName(Rect positionRect)
         {
             String targetDisplayName = determineTargetPortName();
             BitmapFont.StringDimensions stringDimensions = bitmapFont.getStringDimensions(targetDisplayName, 1f);
-            float widthScale = 190 * gaugeScale / stringDimensions.width;
-            float heightScale = 20 * gaugeScale / (stringDimensions.height);
+            float widthScale = targetNameBoxWidth * gaugeScale / stringDimensions.width;
+            float heightScale = targetNameBoxHeight * gaugeScale / (stringDimensions.height);
             textTargetNameScale = Math.Min(widthScale, heightScale);
-            float x = foregroundRect.center.x - stringDimensions.width * textTargetNameScale / 2f;
-            float y = foregroundRect.yMax - (34 * gaugeScale) - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
+            float x = positionRect.center.x - stringDimensions.width * textTargetNameScale / 2f;
+            float y = positionRect.yMax - (targetNameBoxYOffset * gaugeScale) - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
             
-            drawGlyphString(targetDisplayName, x, y, textTargetNameScale);
+            drawGlyphStringGUI(targetDisplayName, x, y, textTargetNameScale, BitmapFont.HorizontalAlignment.LEFT);
         }
-
-        private static void drawRefandTgtLabelsRPM(Rect screenRect)
-        {
-            drawGlyphStringRPM("TGT:", tgtX, screenRect.yMax - rtLabelY, rtLabelScale, currentHighlightBox == HighlightBox.LEFT ? Color.yellow : Color.white);
-            drawGlyphStringRPM("REF:", screenRect.center.x + refX, screenRect.yMax - rtLabelY, rtLabelScale, currentHighlightBox == HighlightBox.RIGHT ? Color.yellow : Color.white);
-        }
-
-        private static void drawTargetPortNameRPM(Rect screenRect)
-        {
-            //String targetDisplayName = "Tgt: ";
-            //targetDisplayName += determineTargetPortName();
-
-            String targetDisplayName = determineTargetPortName();
-            
-            BitmapFont.StringDimensions stringDimensions = bitmapFont.getStringDimensions(targetDisplayName, 1f);
-            float virtualWidth = screenRect.width * .5f - tgtX - rtLabelSpacing;
-            float widthScale = virtualWidth / stringDimensions.width;
-            float virtualHeight = rpmTgtRefTextHeight;
-            float heightScale = virtualHeight / (stringDimensions.height);
-            textTargetNameScale = Math.Min(widthScale, heightScale);
-            //float x = screenRect.center.x - stringDimensions.width * textTargetNameScale / 2f;
-            //float x = 0f;
-            float x = tgtX + rtLabelSpacing + virtualWidth*.5f - (stringDimensions.width * textTargetNameScale / 2f);
-            float y = screenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
-
-            drawGlyphStringRPM(targetDisplayName, x, y, textTargetNameScale, currentHighlightBox == HighlightBox.LEFT ? Color.yellow : Color.white);
-        }
-
+                
         //private static List<ModuleDockingNodeNamed> refNamedModules = new List<ModuleDockingNodeNamed>();
 
         public static string getReferencePortName()
@@ -1300,23 +1150,6 @@ namespace NavyFish
                 //referenceName += "None";
                 return "None";
             }
-        }
-
-        private static void drawReferencePortNameRPM(Rect screenRect){
-            //String referenceName = "Ref: ";
-            String referenceName = getReferencePortName();
-
-            BitmapFont.StringDimensions stringDimensions = bitmapFont.getStringDimensions(referenceName, 1f);
-            float virtualWidth = screenRect.width * .5f - refX - rtLabelSpacing;
-            float widthScale = virtualWidth / stringDimensions.width;
-            float virtualHeight = rpmTgtRefTextHeight;
-            float heightScale = virtualHeight / (stringDimensions.height);
-            textTargetNameScale = Math.Min(widthScale, heightScale);
-            //float x = screenRect.xMax - stringDimensions.width * textTargetNameScale;
-            float x = screenRect.center.x + refX + rtLabelSpacing + virtualWidth*.5f - (stringDimensions.width * textTargetNameScale / 2f);
-            float y = screenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetNameScale;
-
-            drawGlyphStringRPM(referenceName, x, y, textTargetNameScale, currentHighlightBox == HighlightBox.RIGHT ? Color.yellow : Color.white);
         }
 
         private static String determineTargetPortName()
@@ -1349,62 +1182,27 @@ namespace NavyFish
             return targetDisplayName;
         }
 
-        private static void drawGlyphString(String valueString, float x, float y)
+        private static void drawGlyphStringGUI(String valueString, float x, float y, float customScale, BitmapFont.HorizontalAlignment hAlign)
         {
-            bitmapFont.drawString(valueString, x, y, gaugeScale * textNumberScale);
+            bitmapFont.drawStringGUI(valueString, x, y, customScale, hAlign, Color.white);
         }
 
-        private static void drawGlyphString(String valueString, float x, float y, float customScale)
+        private static void drawGlyphStringGUI(String valueString, float x, float y, float customScale, BitmapFont.HorizontalAlignment hAlign, Color color)
         {
-            bitmapFont.drawString(valueString, x, y, customScale);
+            bitmapFont.drawStringGUI(valueString, x, y, customScale, hAlign, color);
         }
 
-        private static void drawGlyphStringRPM(String valueString, float x, float y, float customScale)
+        private static void drawGlyphStringGrahpics(String valueString, float x, float y, float customScale, BitmapFont.HorizontalAlignment hAlign)
         {
-            bitmapFont.drawStringGraphics(valueString, x, y, customScale, Color.white);
+            bitmapFont.drawStringGraphics(valueString, x, y, customScale, hAlign, Color.white);
         }
 
-        private static void drawGlyphStringRPM(String valueString, float x, float y, float customScale, Color color)
+        private static void drawGlyphStringGraphics(String valueString, float x, float y, float customScale, BitmapFont.HorizontalAlignment hAlign, Color color)
         {
-            bitmapFont.drawStringGraphics(valueString, x, y, customScale, color);
+            bitmapFont.drawStringGraphics(valueString, x, y, customScale, hAlign, color);
         }
 
-        private static void drawVelocityVector(Rect gaugeRect)
-        {
-            float gaugeX, gaugeY;
-            
-            gaugeX = UnityEngine.Mathf.Clamp(transverseVelocity.x, -transverseVelocityRange, transverseVelocityRange) / transverseVelocityRange;
-            gaugeY = UnityEngine.Mathf.Clamp(transverseVelocity.y, -transverseVelocityRange, transverseVelocityRange) / transverseVelocityRange;
-
-            Texture2D velocityVectorTexture = null;
-            if (closureV > 0)
-            {
-                velocityVectorTexture = prograde;
-            }
-            else
-            {
-                velocityVectorTexture = retrograde;
-            }
-
-            if (Math.Abs(orientationDeviation.x) > 90f){
-                gaugeX *= -1;
-                gaugeY *= -1;
-            }
-            
-            gaugeX = scaleExponentially(gaugeX, velocityVectorExponent);
-            gaugeY = scaleExponentially(gaugeY, velocityVectorExponent);
-
-            float scaledVelocityVectorSize = velocityVectorIconSize * gaugeScale;
-            float scaledVelocityVectorHalfSize = scaledVelocityVectorSize * .5f;
-
-            GUI.DrawTexture(new Rect(gaugeRect.xMin + .5f * gaugeRect.width * (1 + gaugeX) - scaledVelocityVectorHalfSize,
-                                        gaugeRect.yMin + .5f * gaugeRect.height * (1 + gaugeY) - scaledVelocityVectorHalfSize,
-                                        scaledVelocityVectorSize,
-                                        scaledVelocityVectorSize),
-                                        velocityVectorTexture);
-        }
-
-        private static void drawVelocityVectorGraphics(Rect gaugeRect, float baseScale)
+           private static void drawVelocityVector(Rect gaugeRect, float baseScale)
         {
             float gaugeX, gaugeY;
 
@@ -1427,8 +1225,8 @@ namespace NavyFish
                 gaugeY *= -1;
             }
 
-            gaugeX = scaleExponentially(gaugeX, velocityVectorExponent);
-            gaugeY = scaleExponentially(gaugeY, velocityVectorExponent);
+            gaugeX = (translationFlipXAxis ? -1 : 1) * scaleExponentially(gaugeX, velocityVectorExponent);
+            gaugeY = (translationFlipYAxis ? -1 : 1) * scaleExponentially(gaugeY, velocityVectorExponent);
 
             float scaledVelocityVectorSize = velocityVectorIconSize * baseScale;
             float scaledVelocityVectorHalfSize = scaledVelocityVectorSize * .5f;
@@ -1668,6 +1466,11 @@ namespace NavyFish
             config.SetValue("allowAutoPortTargeting", allowAutoPortTargeting);
             config.SetValue("excludeDockedPorts", excludeDockedPorts);
             config.SetValue("gui_scale", (double)gaugeScale);
+            config.SetValue("alignmentFlipXAxis", alignmentFlipXAxis);
+            config.SetValue("alignmentFlipYAxis", alignmentFlipYAxis);
+            config.SetValue("translationFlipXAxis", translationFlipXAxis);
+            config.SetValue("translationFlipYAxis", translationFlipYAxis);
+            config.SetValue("rollFlipAxis", rollFlipAxis);
             config.save();
         }
 
@@ -1691,7 +1494,11 @@ namespace NavyFish
             allowAutoPortTargeting = config.GetValue<bool>("allowAutoPortTargeting", true);
             excludeDockedPorts = config.GetValue<bool>("excludeDockedPorts", true);
             showHUDIconWhileIva = config.GetValue<bool>("showHUDIconWhileEva", false);
-
+            alignmentFlipXAxis = config.GetValue<bool>("alignmentFlipXAxis", false);
+            alignmentFlipYAxis = config.GetValue<bool>("alignmentFlipYAxis", false);
+            translationFlipXAxis = config.GetValue<bool>("translationFlipXAxis", false);
+            translationFlipYAxis = config.GetValue<bool>("translationFlipYAxis", false);
+            rollFlipAxis = config.GetValue<bool>("rollFlipAxis", false);
             saveWindowPosition();
             saveConfigSettings();
             //print("End Load Prefs");
@@ -1722,10 +1529,7 @@ namespace NavyFish
         }
         #endregion
 
-        #region RPM
-
-        #endregion
-
+        
         #region Resources
 
         //public static Material mat_background;
@@ -1738,8 +1542,6 @@ namespace NavyFish
         //    mat.mainTexture = tex2D;
         //    return mat;
         //}
-
-
 
         private static void loadTextures()
         {
@@ -1760,13 +1562,16 @@ namespace NavyFish
             retrograde.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("roll.png", null);
             roll.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("MS33558.png", null);
+            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("DialogPlain.png", null);
             fontTexture.LoadImage(arrBytes);
+            fontTexture.filterMode = FilterMode.Bilinear;
+            fontTexture.wrapMode = TextureWrapMode.Clamp;
+
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("targetPort.png", null);
             targetPort.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("appLauncherIcon.png", null);
             appLauncherIcon.LoadImage(arrBytes);
-            TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("MS33558.fnt", null);
+            TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("DialogPlain.fnt", null);
             List<string> textStrings = new List<string>();
             while (!tr.EndOfStream)
             {
@@ -1803,7 +1608,7 @@ namespace NavyFish
 
         private static void OnDestroy()
         {
-            //if (toolbarButton != null) toolbarButton.Destroy();
+            if (toolbarButton != null) toolbarButton.Destroy();
         }
         #endregion
 
@@ -1816,12 +1621,23 @@ namespace NavyFish
             debugWindowPosition = GUILayout.Window(1338, debugWindowPosition, drawDebugWindowContents, "Debug", GUILayout.MinWidth(400), GUILayout.MaxWidth(800));
         }
 
-        static int rollOffset = 7;
-        static int _rDegXPos = 320;
-        static int _rDegYPos = 5;
-        static int _degSign_x = 295;
-        static int _degSign_y = 9;
+        
+        static float rollOffsetRPM = -57;
+        
         static int vertLineFooterChop = 50;
+
+        private static float settingsButtonX = 150;
+        private static float settingsButtonY = 376;
+        private static float settingsButtonWidth = 100;
+        private static float settingsButtonHeight = 14;
+
+        static float settingsTextX = 178;
+        static float settingsTextY = 374;
+        static float settingsTextScale = .47f;
+
+        static float numLabelXOffset = -45;
+        static float numLabelYOffset = 5f;
+        static float DSTLabelXOffset = -37;
 
         private static int _rpmTextYTop = 19;
         private static int rpmTgtRefTextHeight = 19;
@@ -1829,59 +1645,80 @@ namespace NavyFish
         private static int tgtX = 6, refX = 6, rtLabelY = 48, rtLabelSpacing = 6;
         private static float rtLabelScale = .6f;
 
-        private static float arrowLengthOffsetMult = 1.6f, arrowLengthMult = .25f;
+        private static float arrowLengthOffsetMultRPM = 2f; //2.8f;
 
         private static int vertLineHeaderChop = 15;
+
+        static float dstXpos = 83;
+        static float cvelXpos = 298;
+        static float textNumberYPos = 339;
+        static float closureDXPos = 298;
+        static float closureDYPos = 317;
+        static float rDegXPos = 315;
+        static float rDegYPos = 43;
+        static float degreeSignXPos = 292;
+        static float degreeSignYPos = 48;
+
+        static float alignmentMarkerVisibleRange = .81f;
+
+        static float gaugeDigitScale = .8f;
+        static float gaugeLabelScale = .55f;
+
+        static int _LABEL_yOFF = 6;
+
+        static int _dstXpos = 47;
+        static int _dstYpos = 292;
+                
+        static int _DSTLABEL_x = 7;
+
+        static int _cvelXpos = 304;
+        static int _cvelYpos = 292;
+        static int _CVELLABEL_x = 227;
+
+        static int _CLOSURED_x = 304;
+        static int _CLOSURED_y = 267;
+
+        static int _CDSTLABEL_x = 226;
+        static int _CDSTLABEL_y = 267;     
         
+        static int _rDegXPos = 304;
+        static int _rDegYPos = -1;
+
+        static int _degSign_x = 248;
+        static int _degSign_y = 3;
+
+        static float gaugeVelocityVectorScale = 1.05f;
+
+        static float rollMarkerScale = .65f;
+        static float rollOffset = -53;
+
+        static float gaugeAlignmentMarkerScale = .9f;
+        private static float arrowLengthOffsetMult = 1.6f, arrowLengthMult = .2f;
+
+        static float targetNameBoxWidth = 205;
+        static float targetNameBoxHeight = 40;
+        static float targetNameBoxYOffset = 37;
+
+        public static int RPMbottomGutter = 30;
+
+        public static bool alignmentFlipXAxis = false;
+        public static bool alignmentFlipYAxis = false;
+        public static bool translationFlipXAxis = false;
+        public static bool translationFlipYAxis = false;
+        public static bool rollFlipAxis = false;
+
         private void drawDebugWindowContents(int windowID)
         {
-            floatTextField(ref visiblePortion, "visiblePortion");
-            label<float>(wrapRange(translationDeviation.x / 90f), "transXwrap");
-            label<float>(wrapRange(translationDeviation.y / 90f), "transYwrap");
-            //intTextField(ref vertLineHeaderChop, "vertLineHeaderChop");
-            //intTextField(ref _rpmTextYTop, "_rpmTextYTop");
-            //intTextField(ref rpmTgtRefTextHeight, "rpmTgtRefTextHeight");
-
-            //intTextField(ref tgtX, "tgtX");
-            //intTextField(ref refX, "refX");
-            //intTextField(ref rtLabelY, "rtLabelY");
-            //intTextField(ref rtLabelSpacing, "rtLabelSpacing");
-            //floatTextField(ref rtLabelScale, "rtLabelScale");
-
-            ////sliderField(ref screenPercentRPM, "screenPercent", .1f, 1f);
-
-            //sliderField(ref arrowLengthMult, "arrowLengthMult", .01f, 5f);
-            //sliderField(ref arrowLengthOffsetMult, "arrowLengthOffsetMult", .01f, 5f);
-
-            label<Part>(referencePart, "Reference Part: ");
-            label<Part>(lastReferencePart, "Last Reference Part: ");
-
-            //if (referencePartNamed != null)
-            //{
-            //    label<String>(referencePartNamed.portName, "Reference Name: ");
-            //}
-
-            //if (referencePoints.Count > 0){
-            //    int i=0;
-            //    foreach(PartModule pm in referencePoints){
-            //        if (pm is ModuleDockingNodeNamed)
-            //        {
-            //            label<String>(((ModuleDockingNodeNamed)pm).portName, "\trefPoints[" + i + "]: ");
-            //        }
-            //        else
-            //        {
-            //            label<String>(pm.part.name, "\trefPoints[" + i + "]: ");
-            //        }
-            //        i++;
-            //    }
-            //}
-
-            //label<int>(referencePartIndex, "RefPartIndex: ");
-
-            label<bool>(isIVA(), "Is Iva: ");
-            label<bool>(MapView.MapIsEnabled, "Is Map: ");
+            //stuff here
 
             GUI.DragWindow();
+        }
+
+        private static void checkBoxField(ref bool value, string label)
+        {
+            GUILayout.BeginHorizontal();
+            value = GUILayout.Toggle(value, label);
+            GUILayout.EndHorizontal();
         }
 
         private static void intTextField(ref int value, string label)

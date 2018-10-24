@@ -1,12 +1,9 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||----------Version 6.3-----------||
+||----------Version 6.4-----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
-
-
-Please note: Blizzy Toolbar Integration is currently disabled until the toolbar is updated.
 
 Installation Instructions:
   
@@ -39,8 +36,18 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.4:
+[added]   New gauge foreground artwork by community member Devric. Sweet!
+[added]   You can now invert each alignment, translation, and roll axis via the settings menu.
+[change]  Unified GUI and RPM rendering paths: Cleaner, faster mod.
+[updated] Re-added support for Blizzy's Toolbar mod. If present, icon will default to Blizzy's toolbar.
+            The icon can be forced to use the stock app launcher by editing 'DPAI Settings.cfg'
+			
+			
 Version 6.3:
 [update]  Rebuilt for KSP v1.1
+[change]  Incorporated new gauge foreground artwork by community member Devric.
 
 
 Version 6.2.1 (BETA):
@@ -144,7 +151,12 @@ Version 2.0:
 
 Version 1.0: First Release
 
+-------------------Contributions--------------------------------------------------------------
+
+Guage foreground artwork contributed by community member Devric as of version 6.4. Huge props!
+
 --------------------Disclosures---------------------------------------------------------------
+
 This mod uses MiniAVC (https://github.com/CYBUTEK/KSPAddonVersionChecker) to provide automatic
 version checking. If you opt-in, it will use the internet to check whether there is a new version 
 available. Data is only read from the internet and no personal information is sent. For a more 

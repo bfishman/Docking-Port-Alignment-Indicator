@@ -47,12 +47,23 @@ namespace NavyFish
         private static char[] spaceSeparator = new char[] { ' ' };
         private static Encoding defaultEncoding = Encoding.Unicode;
 
+
         public BitmapFont(Texture2D bmFontTexture, string[] bmFontData)
         {
             this.fontTexture = bmFontTexture;
             this.fontData = bmFontData;
             parseHeader();
             buildGlyphs();
+        }
+
+        public enum HorizontalAlignment
+        {
+            LEFT, RIGHT
+        }
+
+        public enum VerticalAlignment
+        {
+            BOTTOM
         }
 
         private void parseHeader()
@@ -92,39 +103,56 @@ namespace NavyFish
             }
         }
 
-        public void drawString(String text, float x, float y, float scale)
+        public void drawStringGraphics(String text, float x, float y, float scale, HorizontalAlignment hAlign, Color color)
+        {
+            internalDrawString(text, x, y, scale, hAlign, Color.white, false);
+        }
+
+        public void drawStringGUI(String text, float x, float y, float scale, HorizontalAlignment hAlign, Color color)
+        {
+            internalDrawString(text, x, y, scale, hAlign, color, true);
+        }
+
+        List<GlyphData> tempGlyphList = new List<GlyphData>();
+        private void internalDrawString(String text, float x, float y, float scale, HorizontalAlignment hAlign, Color color, bool drawGUI)
         {
             //byte[] ascii = defaultEncoding.GetBytes(text);
+            
+            float totalWidth = 0;
+            foreach (int id in text)
+            {
+                GlyphData glyph = getGlyphFromID(id);
+                totalWidth += glyph.xAdvance * scale;
+            }
+
+            float hAlignFactor = 0;
+            if (hAlign == HorizontalAlignment.RIGHT)
+            {
+                hAlignFactor = -totalWidth;
+            }
+
             float cursorX = x;
             foreach (int id in text)
             {
                 GlyphData glyph = getGlyphFromID(id);
-                destRect.x = cursorX + glyph.xOffset * scale;
-                destRect.y = y + glyph.yOffset * scale;
-                destRect.width = glyph.width * scale;
-                destRect.height = glyph.height * scale;
-                GUI.DrawTextureWithTexCoords(destRect, fontTexture, glyph.srcRect);
-                cursorX += glyph.xAdvance * scale;
-            }
-        }
-
-        public void drawStringGraphics(String text, float x, float y, float scale, Color color)
-        {
-            //byte[] ascii = defaultEncoding.GetBytes(text);
-            float cursorX = x;
-            foreach (int id in text)
-            {
-                GlyphData glyph = getGlyphFromID(id);
-                destRect.x = cursorX + glyph.xOffset * scale;
+                destRect.x = cursorX + (glyph.xOffset + hAlignFactor) * scale;
                 destRect.y = y + glyph.yOffset * scale;
                 destRect.width = glyph.width * scale;
                 destRect.height = glyph.height * scale;
 
-                Graphics.DrawTexture(destRect, fontTexture, glyph.srcRect, 0,0,0,0,color);
+                if (drawGUI)
+                {
+                    GUI.DrawTextureWithTexCoords(destRect, fontTexture, glyph.srcRect);
+                } else
+                {
+                    Graphics.DrawTexture(destRect, fontTexture, glyph.srcRect, 0, 0, 0, 0, color);
+                }
+                
                 cursorX += glyph.xAdvance * scale;
             }
-        }
 
+        }
+        
         public StringDimensions getStringDimensions(String text, float scale)
         {
             StringDimensions dim = new StringDimensions();
@@ -197,5 +225,6 @@ namespace NavyFish
                 return string.Format("W: {0} || H: {1} || yOff: {2}", width, height, yOffset);
             }
         }
+
     }
 }
