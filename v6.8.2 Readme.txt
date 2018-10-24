@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.8.1----------||
+||---------Version 6.8.2----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -36,6 +36,9 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.8.2:
+[updated] Recompiled for KSP 1.4.2
 
 Version 6.8.1:
 [updated] Recompiled for KSP 1.4.1
