@@ -199,7 +199,8 @@ namespace NavyFish
             return target.GetTargetingMode() == VesselTargetModes.DirectionVelocityAndOrientation;
         }
 
-        private void addToStockAppLauncher () {
+        private void addToolBarButtonToStockAppLauncher ()
+        {
             if ( appLauncherButton == null ) { 
                 //print("DPAI: adding stock appLauncher button");
                 //RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
@@ -214,7 +215,16 @@ namespace NavyFish
                     appLauncherIcon);
             }
         }
-       
+
+        private void removeToolBarButtonFromAppLauncher()
+        {
+            if (appLauncherButton != null)
+            {
+                ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
+                appLauncherButton = null;
+            }
+        }
+
         private void onShowGUI()
         {
             //print("DPAI_DEBUG onShowGUI()");
@@ -257,27 +267,18 @@ namespace NavyFish
                     toolbarButton = null;
                 }
 
-                GameEvents.onGUIApplicationLauncherReady.Add(addToStockAppLauncher);
-                GameEvents.onGUIApplicationLauncherDestroyed.Add(delegate () {
-                    if (appLauncherButton != null)
-                    {
-                        ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-                    }
-                });
+                GameEvents.onGUIApplicationLauncherReady.Add(addToolBarButtonToStockAppLauncher);
+                GameEvents.onGUIApplicationLauncherDestroyed.Add(removeToolBarButtonFromAppLauncher);
                 if (ApplicationLauncher.Ready)
                 {
-                    addToStockAppLauncher();
+                    addToolBarButtonToStockAppLauncher();
                 }
             }
 
             else
 
             {
-                if(appLauncherButton != null)
-                {
-                    ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-                    appLauncherButton = null;
-                }
+                removeToolBarButtonFromAppLauncher();
 
                 toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
                 toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
