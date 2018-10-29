@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.8.2(.2-mkw)--||
+||---------Version 6.8.2(.3-mkw)--||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -42,6 +42,10 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.8.2(.3-mkw):
+[change]  Removed "DPAI Settings.cfg"
+[fixed]   Minor code refactor which removed a potential null-reference exception.
 
 Version 6.8.2(.2-mkw):
 [updated] Recompiled for KSP 1.5.1
