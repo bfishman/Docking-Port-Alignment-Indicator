@@ -230,10 +230,6 @@ namespace NavyFish
         public void Awake()
         {
             loadTextures();
-
-            LoadConfigFile();
-
-
         }
         
         public void Start()
@@ -1542,30 +1538,6 @@ namespace NavyFish
             saveWindowPosition();
             saveConfigSettings();
             //print("End Load Prefs");
-        }
-
-        private void LoadConfigFile()
-        {
-
-            ConfigNode cfgFile = ConfigNode.Load(KSPUtil.ApplicationRootPath + "GameData/NavyFish/Plugins/Docking Port Alignment Indicator/DPAI Settings.cfg");
-
-            if (cfgFile == null)
-            {
-                print("DPAI: Failed to load 'DPAI Settings.cfg'");
-            }
-            else
-            {
-                ConfigNode rootNode = cfgFile.GetNode("DockingPortAlignment");
-                if (rootNode != null)
-                {
-                    forceStockAppLauncher = rootNode.GetValue("forceStockAppLauncher") == "true";
-                    //print("DPAI: forceStockAppLauncher = " + forceStockAppLauncher.ToString());
-                }
-                else
-                {
-                    print("DPAI: Config Root Node is null");
-                }
-            }
         }
         #endregion
 
