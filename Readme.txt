@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.8.2(.3-mkw)--||
+||---------Version 6.8.3(.4-mkw)--||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -42,6 +42,14 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.8.3(.4-mkw):
+[change]  Merged upstream v6.8.3 into my branchline, keeping my modifications
+
+Version 6.8.3:
+[updated] Recompiled for KSP 1.6.1
+[fixed] RPM MFD Display would not work unless DPAI UI app was toggled visible at least once
+[fixed] Module Manager warnings
 
 Version 6.8.2(.3-mkw):
 [change]  Removed "DPAI Settings.cfg"

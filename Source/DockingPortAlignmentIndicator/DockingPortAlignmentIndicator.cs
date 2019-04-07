@@ -330,7 +330,7 @@ namespace NavyFish
             {
                 showIndicator = true;
 
-                determineTargetPort();
+   
 
                 //mousePos.Set(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
                 //print(mousePos);
@@ -354,6 +354,7 @@ namespace NavyFish
 
             if (showIndicator || (RPMPageActive && isIVA()))
             {
+                determineTargetPort();
                 if (targetedDockingModule != null) calculateGaugeData();
                 drawIndicatorContentsToTexture();
             }
@@ -1738,6 +1739,17 @@ namespace NavyFish
 
             //intTextField(ref tgtX, "tgtX");
             //intTextField(ref refX, "refX");
+            bool sceneElligibleForIndicator = (HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
+            label<Boolean>(sceneElligibleForIndicator, "sceneElligibleForIndicator");
+            label<Boolean>(gaugeVisiblityToggledOn, "gaugeVisiblityToggledOn");
+
+
+            label<Boolean>(RPMPageActive, "RPMPageActive");
+            label<Boolean>(isIVA(), "isIVA()");
+            label<Boolean>(showIndicator, "showIndicator");
+            GUILayout.BeginHorizontal();
+            GUILayout.EndHorizontal();
+            label<Boolean>(showIndicator || (RPMPageActive && isIVA()), "(showIndicator || (RPMPageActive && isIVA()))");
 
             GUI.DragWindow();
         }
