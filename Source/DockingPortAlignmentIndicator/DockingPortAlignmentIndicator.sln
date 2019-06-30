@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockingPortAlignmentIndicator", "DockingPortAlignmentIndicator.csproj", "{0EE05EA6-FE25-487D-9FC9-ECDE3E74060F}"
 EndProject
@@ -10,6 +10,21 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DPAI_RPM", "DPAI_RPM\DPAI_RPM.csproj", "{EBBA27C3-03DE-4EA1-9699-D6597E744669}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomaticSaveLauncher", "..\AutomaticSaveLauncher\AutomaticSaveLauncher.csproj", "{C578D7C7-88F2-4C15-AA25-EB5D6D74BA43}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{98ADDF43-A4EF-4614-9080-85703C00B0B8}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version
+		..\..\LICENSE = ..\..\LICENSE
+		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg
+		..\..\README.md = ..\..\README.md
+		..\..\Readme.txt = ..\..\Readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GameData", "GameData", "{2D75BC84-2BC3-4C9F-A3A2-30CB0A85D857}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version
+		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +51,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2D75BC84-2BC3-4C9F-A3A2-30CB0A85D857} = {98ADDF43-A4EF-4614-9080-85703C00B0B8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B15E05FB-F6B3-4263-9C97-B546A8188D0E}
 	EndGlobalSection
 EndGlobal
