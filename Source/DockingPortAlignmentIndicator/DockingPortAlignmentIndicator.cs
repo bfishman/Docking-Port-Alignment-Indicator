@@ -964,7 +964,7 @@ namespace NavyFish
             if (allowAutoPortTargeting)
             {
                 Event ev = Event.current;
-                if (ev.type == EventType.mouseDown && ev.button == 0)
+                if (ev.type == EventType.MouseDown && ev.button == 0)
                 {
                     if (rightButtonRect.Contains(ev.mousePosition))
                     {
