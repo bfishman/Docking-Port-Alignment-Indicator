@@ -1,13 +1,13 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.8.3(.5-mkw)--||
+||---------Version 6.8.4----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
+
 *** NOTE ************************************************************
-This is an unofficial release by Micha.
-Please do NOT raise bug-reports from this version to NavyFish.
+Major thanks go to Micha for helping maintain this mod!
 *********************************************************************
 
 
@@ -42,6 +42,10 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.8.4:
+[update] Merged all downstream 'mkw' changes into Master Brnach
+[update] Rebuilt bitmap font file to fix kerning. More work needs to be done, however.
 
 Version 6.8.3(.4-mkw):
 [change]  Merged upstream v6.8.3 into my branchline, keeping my modifications
