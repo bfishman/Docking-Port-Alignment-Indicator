@@ -1,12 +1,12 @@
-# DockingPortAlignmentIndicator
+# Docking Port Alignment Indicator
 
-This is a copy of NavyFish's Docking Port Alignment Indicator mod for Kerbal Space Program.
+The official repository for NavyFish's Docking Port Alignment Indicator, a mod for [Kerbal Space Program.](https://www.kerbalspaceprogram.com/)
 
-**Please do NOT bother NavyFish with any bugs arising from using this unofficial version**
+Please visit the [forum thread](https://forum.kerbalspaceprogram.com/index.php?showtopic=40423) for user-support and more detailed information.
 
-The current version is based on the current (as of 2019-10-29) v6.8.3 release from NavyFish available on [SpaceDock](https://spacedock.info/mod/543/Docking%20Port%20Alignment%20Indicator). 
-It was then modified to remove some runtime warnings and recompiled and tested on KSP v1.8.0.
+#### Package releases (downloads) may be found at the following locations:
+* [Curse Forge](https://www.curseforge.com/kerbal/ksp-mods/docking-port-alignment-indicator)
+* [Space Dock](https://spacedock.info/mod/543/Docking%20Port%20Alignment%20Indicator)
+* Also available on [CKAN](https://forum.kerbalspaceprogram.com/index.php?/topic/154922-ckan-the-comprehensive-kerbal-archive-network-v1266-leonov/)
 
-The [forum thread](https://forum.kerbalspaceprogram.com/index.php?showtopic=40423) contains all remaining relevant information.
-
-Maintainer: Michael "Micha" Werle
+*This project is actively maintained through the generous assistance of Michael "Micha" Werle*
