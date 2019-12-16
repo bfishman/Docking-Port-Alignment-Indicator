@@ -3,12 +3,6 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(SolutionDir)\common_settings.props" Condition="Exists('$(SolutionDir)\common_settings.props')" />
   <PropertyGroup>
-    <!-- Defaults; only the project-owner should change these. To override, use environment
-       - variables or the "common_settings.props" file. -->
-    <DPAI_DIR Condition="('$(DPAI_DIR)' == '')">$(SolutionDir)\..\..</DPAI_DIR>
-    <KSPDIR Condition="('$(KSPDIR)' == '')">..\..\..\..\..\..\..\Kerbal Space Program Dev</KSPDIR>
-  </PropertyGroup>
-  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0EE05EA6-FE25-487D-9FC9-ECDE3E74060F}</ProjectGuid>
@@ -42,12 +36,6 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\Assembly*.dll">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\Unity*.dll">
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
