@@ -1,12 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <DPAI_DIR>$(SolutionDir)\..\..</DPAI_DIR>
-    <KSP_DIR>..\..\..\..\..\..\..\Kerbal Space Program Dev</KSP_DIR>
-    <PDB2MDB_TOOL>..\..\..\..\..\..\..\\pdb2mdb.exe</PDB2MDB_TOOL>
-  </PropertyGroup>
   <Import Project="$(SolutionDir)\common_settings.props" Condition="Exists('$(SolutionDir)\common_settings.props')" />
+  <PropertyGroup>
+    <PDB2MDB_TOOL>..\..\..\..\..\..\..\\pdb2mdb.exe</PDB2MDB_TOOL>
+    <!-- Defaults; only the project-owner should change these. To override, use environment
+       - variables or the "common_settings.props" file. -->
+    <DPAI_DIR Condition="('$(DPAI_DIR)' == '')">$(SolutionDir)\..\..</DPAI_DIR>
+    <KSPDIR Condition="('$(KSPDIR)' == '')">..\..\..\..\..\..\..\Kerbal Space Program Dev</KSPDIR>
+  </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -41,37 +43,22 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(KSP_DIR)\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+    <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\Assembly*.dll">
       <Private>False</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(KSP_DIR)\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\Unity*.dll">
       <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="UnityEngine">
-      <HintPath>$(KSP_DIR)\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
+    <Reference Include="System">
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>$(KSP_DIR)\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    <Reference Include="System.Core">
+      <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(KSP_DIR)\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    <Reference Include="System.Data.DataSetExtensions">
+      <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>$(KSP_DIR)\KSP_x64_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(KSP_DIR)\KSP_x64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>$(KSP_DIR)\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
+    <Reference Include="System.Data">
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -102,4 +89,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(KSPDIR)KSP_x64.exe</StartProgram>
+    <StartWorkingDirectory>$(KSPDIR)</StartWorkingDirectory>
+  </PropertyGroup>
 </Project>
