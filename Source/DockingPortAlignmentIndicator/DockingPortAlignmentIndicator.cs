@@ -126,7 +126,7 @@ namespace NavyFish
         private static bool drawHudIcon = true;
         private static bool resetTarget = false;
         private static bool blizzyToolbarAvailable = false;
-        private static bool forceStockAppLauncher = false;
+        private static bool forceStockAppLauncher = true;
 
         public static bool RPMPageActive = false;
         
@@ -1535,7 +1535,7 @@ namespace NavyFish
             translationFlipXAxis = config.GetValue<bool>("translationFlipXAxis", false);
             translationFlipYAxis = config.GetValue<bool>("translationFlipYAxis", false);
             rollFlipAxis = config.GetValue<bool>("rollFlipAxis", false);
-            forceStockAppLauncher = config.GetValue<bool>("forceStockAppLauncher", forceStockAppLauncher);
+            forceStockAppLauncher = config.GetValue<bool>("forceStockAppLauncher", true);
             saveWindowPosition();
             saveConfigSettings();
             //print("End Load Prefs");
