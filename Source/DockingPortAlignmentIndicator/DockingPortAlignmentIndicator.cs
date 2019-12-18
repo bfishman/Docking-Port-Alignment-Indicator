@@ -198,9 +198,13 @@ namespace NavyFish
             return target.GetTargetingMode() == VesselTargetModes.DirectionVelocityAndOrientation;
         }
 
+        /// <summary>
+        /// Called when the AppLauncher (stock toolbar) becomes active after a Game Scene switch.
+        /// </summary>
         private void addToolBarButtonToStockAppLauncher ()
         {
-            if ( appLauncherButton == null ) { 
+            Debug.Log($"[DPAI] addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            if (HighLogic.LoadedSceneIsFlight && appLauncherButton == null) {
                 //print("DPAI: adding stock appLauncher button");
                 //RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
                 //RUIToggleButton.OnFalse onFalseDelegate = new RUIToggleButton.OnFalse(onHideGUI);
@@ -217,11 +221,39 @@ namespace NavyFish
 
         private void removeToolBarButtonFromAppLauncher()
         {
+            Debug.Log("[DPAI] removeToolBarButtonFromAppLauncher (appLauncherButton=={appLauncherButton})");
             if (appLauncherButton != null)
             {
                 ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
                 appLauncherButton = null;
             }
+        }
+
+        private void OnAppLauncherReady()
+        {
+            Debug.Log($"[DPAI] OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                addToolBarButtonToStockAppLauncher();
+            }
+            else
+            {
+                removeToolBarButtonFromAppLauncher();
+            }
+        }
+
+        private void OnAppLauncherUnreadifying(GameScenes requestedScene)
+        {
+            Debug.Log("[DPAI] OnAppLauncherUnreadifying - new scene " + requestedScene.displayDescription());
+            if (requestedScene != GameScenes.FLIGHT)
+            {
+                removeToolBarButtonFromAppLauncher();
+            }
+        }
+
+        private void OnGameSceneLoadRequestedForAppLauncher(GameScenes requestedScene)
+        {
+            Debug.Log("[DPAI] OnGameSceneLoadRequestedForAppLauncher - new scene " + requestedScene.displayDescription());
         }
 
         private void onShowGUI()
@@ -238,11 +270,13 @@ namespace NavyFish
 
         public void Awake()
         {
+            Debug.Log($"[DPAI] Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             loadTextures();
         }
         
         public void Start()
         {
+            Debug.Log($"[DPAI] Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             LoadPrefs();
 
             updateToolBarButton();
@@ -254,21 +288,27 @@ namespace NavyFish
 
         private void updateToolBarButton()
         {
+            Debug.Log($"[DPAI] updateToolBarButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
 
             //Debug.Log("DPAI START");
 
             if (forceStockAppLauncher || !blizzyToolbarAvailable)
             {
+                // Destroy blizzy button
                 if (toolbarButton != null)
                 {
                     toolbarButton.Destroy();
                     toolbarButton = null;
                 }
 
-                GameEvents.onGUIApplicationLauncherReady.Add(addToolBarButtonToStockAppLauncher);
-                GameEvents.onGUIApplicationLauncherDestroyed.Add(removeToolBarButtonFromAppLauncher);
-                if (ApplicationLauncher.Ready)
+                // Various "GameEvents" exist for the ApplicationLauncher, but it seems only one is
+                // actually called in KSP1.8.x - onGUIApplicationLauncherReady
+                GameEvents.onGUIApplicationLauncherReady.Add(OnAppLauncherReady);
+                //GameEvents.onGUIApplicationLauncherUnreadifying.Remove(OnAppLauncherUnreadifying);
+                //GameEvents.onGUIApplicationLauncherDestroyed.Add(removeToolBarButtonFromAppLauncher);
+                //GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequestedForAppLauncher);
+                if (ApplicationLauncher.Ready && HighLogic.LoadedSceneIsFlight)
                 {
                     addToolBarButtonToStockAppLauncher();
                 }
@@ -277,7 +317,12 @@ namespace NavyFish
             else
 
             {
+                // Destroy stock launcher button
                 removeToolBarButtonFromAppLauncher();
+                GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
+                //GameEvents.onGUIApplicationLauncherUnreadifying.Remove(OnAppLauncherUnreadifying);
+                //GameEvents.onGUIApplicationLauncherDestroyed.Remove(removeToolBarButtonFromAppLauncher);
+                //GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequestedForAppLauncher);
 
                 toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
                 toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
@@ -1631,9 +1676,17 @@ namespace NavyFish
             hasInitializedStyles = true;
         }
 
-        private static void OnDestroy()
+        private void OnDestroy()
         {
+            Debug.Log($"[DPAI] addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+
             if (toolbarButton != null) toolbarButton.Destroy();
+
+            removeToolBarButtonFromAppLauncher();
+            GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
+            //GameEvents.onGUIApplicationLauncherUnreadifying.Remove(OnAppLauncherUnreadifying);
+            //GameEvents.onGUIApplicationLauncherDestroyed.Remove(removeToolBarButtonFromAppLauncher);
+            //GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequestedForAppLauncher);
         }
         #endregion
 
