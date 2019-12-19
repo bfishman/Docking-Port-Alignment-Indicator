@@ -268,12 +268,27 @@ namespace NavyFish
             gaugeVisiblityToggledOn = false;
         }
 
+        /// <summary>
+        /// Called once per object. Effectively the Constructor.
+        /// </summary>
         public void Awake()
         {
             Debug.Log($"[DPAI] Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             loadTextures();
         }
         
+        /// <summary>
+        /// Called whenever the object is enabled.
+        /// </summary>
+        /// Opposite is OnDisbled. Called before Start()
+        public void OnEnable()
+        {
+            Debug.Log($"[DPAI] OnEnable (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+        }
+
+        /// <summary>
+        /// Called once only per object just before the first frame.
+        /// </summary>
         public void Start()
         {
             Debug.Log($"[DPAI] Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
@@ -284,6 +299,15 @@ namespace NavyFish
             if ( !hasInitializedStyles ) initStyles();
 
             settingsWindowPosition = new Rect(0, windowPosition.yMax, 0, 0);
+        }
+
+        /// <summary>
+        /// Called by KSP when this AddOn gets disabled (should be when the game exits the scene)
+        /// </summary>
+        public void OnDisable()
+        {
+            Debug.Log($"[DPAI] OnDisable (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            removeToolBarButtonFromAppLauncher();
         }
 
         private void updateToolBarButton()
@@ -1678,7 +1702,7 @@ namespace NavyFish
 
         private void OnDestroy()
         {
-            Debug.Log($"[DPAI] addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            Debug.Log($"[DPAI] OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
 
             if (toolbarButton != null) toolbarButton.Destroy();
 
