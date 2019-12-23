@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.8.4----------||
+||---------Version 6.8.5----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -42,6 +42,11 @@ KSP Install Directory
 
  
 Changelog:
+
+Version 6.8.5:
+[update] Recompiled for KSP 1.8.1
+[fixed] Stock Toolbar icon showing up in different scenes (main menu).
+[update] Defaults to using Stock Toolbar.
 
 Version 6.8.4:
 [update] Merged all downstream 'mkw' changes into Master Brnach
