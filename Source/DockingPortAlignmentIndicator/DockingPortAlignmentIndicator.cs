@@ -568,9 +568,13 @@ namespace NavyFish
                                 {
                                     if (tgt is ModuleDockingNode)
                                     {
-
                                         ModuleDockingNode port = tgt as ModuleDockingNode;
-                                        if (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) && excludeDockedPorts)
+                                        Log($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
+                                        // MKW: if node was attached in the VAB, state is "PreAttached"
+                                        if (excludeDockedPorts &&
+                                                (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) || 
+                                                port.state.StartsWith("PreAttached", StringComparison.OrdinalIgnoreCase))
+                                            )
                                         {
                                             //print("continue");
                                             //do not add to list if module is already docked

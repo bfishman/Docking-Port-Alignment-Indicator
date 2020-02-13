@@ -13,6 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomaticSaveLauncher", "..
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{98ADDF43-A4EF-4614-9080-85703C00B0B8}"
 	ProjectSection(SolutionItems) = preProject
+		..\..\CHANGELOG.md = ..\..\CHANGELOG.md
 		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version
 		..\..\LICENSE = ..\..\LICENSE
 		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg
