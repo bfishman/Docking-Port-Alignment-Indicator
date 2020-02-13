@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.8.5----------||
+||---------Version 6.8.6----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -25,7 +25,7 @@ Installation Instructions:
   -Simply Extract the included GameData folder into your KSP directory and merge the contents.
    (The included Source directory does not need to be extracted.)
 
-   
+
 Installation Directory Structure should look like this:
 
 
@@ -40,13 +40,13 @@ KSP Install Directory
  |  | 
  |  +ModuleManager.X.Y.Z.dll
 
- 
+
 Latest Changelog:
 
-Version 6.8.5:
-[update] Recompiled for KSP 1.8.1
-[fixed] Stock Toolbar icon showing up in different scenes (main menu).
-[update] Defaults to using Stock Toolbar.
+Version 6.8.6:
+[update]  Recompiled for KSP 1.9
+[update]  Separated Changelog out from Readme.
+[fixed] Docking ports attached in VAB were not being ignored (#3)
 
 For the full changelog, please see CHANGELOG.md
 
@@ -55,11 +55,6 @@ For the full changelog, please see CHANGELOG.md
 Gauge foreground artwork contributed by community member Devric as of version 6.4. Huge props!
 
 --------------------Disclosures---------------------------------------------------------------
-
-This mod uses MiniAVC (https://github.com/CYBUTEK/KSPAddonVersionChecker) to provide automatic
-version checking. If you opt-in, it will use the internet to check whether there is a new version 
-available. Data is only read from the internet and no personal information is sent. For a more 
-comprehensive version checking experience, please download the full KSP-AVC Plugin.
 
 This mod is packed with and requires the use of Module Manager in order to provide renamable 
 docking ports as well as RPM integration. (https://github.com/sarbian/ModuleManager)

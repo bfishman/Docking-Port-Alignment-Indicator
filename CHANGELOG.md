@@ -3,9 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-
 ## [Unreleased] - TBD
+
+## [6.8.6] - 2020-02-13
 ### Changed
+- Recompiled for KSP 1.9
 - Separated Changelog out from Readme.
 ### Fixed
 - Docking ports attached in VAB were not being ignored (#3)
