@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased] - TBD
+## [{VERSION}] for KSP {KSPVERSION} - {DATE}
 
 ## [6.8.6] - 2020-02-13
 ### Changed
@@ -111,8 +111,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Unified GUI and RPM rendering paths: Cleaner, faster mod.
 - Re-added support for Blizzy's Toolbar mod. If present, icon will default to Blizzy's toolbar.
   The icon can be forced to use the stock app launcher by editing 'DPAI Settings.cfg'
-			
-			
+
+
 ## [6.3.0] - 2016-04-20
 ### Changed
 - Rebuilt for KSP v1.1

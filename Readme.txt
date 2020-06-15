@@ -1,7 +1,7 @@
 **--------------------------------**
 ||Docking Port Alignment Indicator||
 ||--------------------------------||
-||---------Version 6.8.6----------||
+||-------Version {VERSION}----------||
 ||-------Author: NavyFish---------||
 **-------- Bryan Fishman----------**
 
@@ -41,14 +41,7 @@ KSP Install Directory
  |  +ModuleManager.X.Y.Z.dll
 
 
-Latest Changelog:
-
-Version 6.8.6:
-[update]  Recompiled for KSP 1.9
-[update]  Separated Changelog out from Readme.
-[fixed] Docking ports attached in VAB were not being ignored (#3)
-
-For the full changelog, please see CHANGELOG.md
+For the changelog, please see CHANGELOG.md
 
 -------------------Contributions--------------------------------------------------------------
 
