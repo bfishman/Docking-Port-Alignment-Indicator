@@ -3,5 +3,8 @@
 *.bak
 *.cache
 .vs/
+user_settings.props
+
 [Bb]in/
 [Oo]bj/
+Release*/
