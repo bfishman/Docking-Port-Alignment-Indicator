@@ -134,7 +134,9 @@
       </PropertyGroup>
   </Target>
 
-  <UsingTask TaskName="GrepInFile"  TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+  <UsingTask TaskName="GrepInFile"
+             TaskFactory="CodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <Path ParameterType="System.String" Required="true" />
       <Expression ParameterType="System.String" Required="true" />
@@ -152,7 +154,7 @@
         if(match.Success)
         {
           Value = match.Groups[1].Value;
-          //Console.WriteLine("KSP Version found - {0}!", Value);
+          //Console.WriteLine("Pattern {0} matched; value: {1}!", Expression, Value);
           break;
         }
       }
@@ -161,6 +163,8 @@
   </UsingTask>
 
   <Target Name="getkspversion">
+    <Error Text="Can not find KSP readme.txt in '$(KSPDIR)'"
+           Condition="!Exists('$(KSPDIR)\readme.txt')" />
     <GrepInFile Path="$(KSPDIR)\readme.txt" Expression="Version\s+(\d+\.\d+(\.\d+)?)\s*">
       <Output PropertyName="KSPVersion" TaskParameter="Value" />
     </GrepInFile>
@@ -230,7 +234,7 @@
   </Target>
 
   <Target Name="GenerateVersionFile"
-          Inputs="Version.template"
+          Inputs="Version.template;$(DistDir)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.dll"
           Outputs="$(DistDir)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version"
           DependsOnTargets="Compile;getversion;getkspversion">
     <ItemGroup>
