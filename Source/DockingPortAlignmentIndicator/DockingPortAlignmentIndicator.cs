@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using KSP.UI.Screens;
 
 using static NavyFish.LogWrapper;
+using System.Linq;
 
 namespace NavyFish
 {
@@ -124,6 +125,7 @@ namespace NavyFish
         private static bool targetOutOfRange = false;
         private static bool allowAutoPortTargeting = true;
         private static bool excludeDockedPorts = true;
+        private static bool restrictDockingPorts = true; // Restrict target ports based on size etc
         private static bool drawHudIcon = true;
         private static bool resetTarget = false;
         private static bool blizzyToolbarAvailable = false;
@@ -458,6 +460,68 @@ namespace NavyFish
             else return false;
         }
 
+        /// <summary>
+        /// Returns true if the targetPort is compatible with the current vessel.
+        /// </summary>
+        /// If the controlling part of the current vessel is a docking port, then it
+        /// is compared against the target port. Otherwise, all docking ports on the
+        /// current vessel are checked.
+        /// <param name="targetPort"></param>
+        /// <returns></returns>
+        private static bool isCompatiblePort(ModuleDockingNode targetPort)
+        {
+            bool compatible = false;
+
+            // If the destination is disabled, it doesn't matter which ports we have
+            if (targetPort.IsDisabled) {
+                return false;
+            }
+
+            // Get the controlling docking port, or all of them
+            var dockingPorts  = referencePart.FindModulesImplementing<ModuleDockingNode>();
+            if (dockingPorts.Count == 0) {
+                dockingPorts = FlightGlobals.ActiveVessel.FindPartModulesImplementing<ModuleDockingNode>();
+            }
+
+            // See if one of the source ports is compatible with the target port.
+            using (IEnumerator<ModuleDockingNode> dnEnumerator = dockingPorts.GetEnumerator())
+            {
+                while (!compatible && dnEnumerator.MoveNext())
+                {
+                    var sourcePort = dnEnumerator.Current;
+
+                    // Can't dock using a disabled port
+                    if (sourcePort.IsDisabled) {
+                        continue;
+                    }
+                    // If one port is gendered, they both have to be
+                    // TODO: verify with mods; stock ports are ungendered
+                    if (sourcePort.gendered != targetPort.gendered) {
+                        continue;
+                    }
+                    // If the ports are gendered, they have to be opposite gender
+                    // TODO: Possibly if one port is gendered, but the other isn't, ignore?
+                    if (sourcePort.gendered && (sourcePort.genderFemale == targetPort.genderFemale)) {
+                        continue;
+                    }
+                    // Verify the ports are the same size
+                    // NB: Since v1.0.5 of KSP, docking ports can be "multiport" in which case the nodeType is a comma-delimited string
+                    //if (sourcePort.nodeType != targetPort.nodeType) {
+                    char [] separator = { ',' };
+                    var spNodes = sourcePort.nodeType.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    var dpNodes = targetPort.nodeType.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (spNodes.Intersect(dpNodes).Count() == 0) {
+                        continue;
+                    }
+
+                    // Gender-compatible, same size, so, yayy?
+                    compatible = true;
+                }
+            }
+
+            return compatible;
+        }
+
         public static int tickCount = 0;
 
         private static void determineTargetPort()
@@ -538,6 +602,10 @@ namespace NavyFish
                     }
                 }
                 lastReferencePart = referencePart;
+                // Force recalculation of possible target ports if we're restricting them
+                if (restrictDockingPorts) {
+                    currentTargetVesselWasLastSeenLoaded = false;
+                }
             }
 
             currentTarget = FlightGlobals.fetch.VesselTarget;
@@ -580,6 +648,10 @@ namespace NavyFish
                                             //do not add to list if module is already docked
                                             continue;
                                         }
+                                        else if(restrictDockingPorts && !isCompatiblePort(port))
+                                        {
+                                          // Do not add to list if destination port doesn't match
+                                        }
                                         else
                                         {
                                             //print("1stAdd");
@@ -595,9 +667,18 @@ namespace NavyFish
 
                                 if (dockingModulesList.Count > 0)
                                 {
-                                    //if (currentTarget is ModuleDockingNode && !currentTargetVessel.packed)
-                                    if (isOrientedTarget(currentTarget) && !currentTargetVessel.packed)
+                                    // If we already have a valid docking port as our current target, don't change it
+                                    int idx = dockingModulesList.IndexOf(targetedDockingModule);
+                                    dockingModulesListIndex = -1;
+                                    if (idx != -1)
                                     {
+                                        dockingModulesListIndex = idx;
+                                        lastTarget = targetedDockingModule;
+                                    }
+                                    //if (currentTarget is ModuleDockingNode && !currentTargetVessel.packed)
+                                    else if ((currentTarget is ModuleDockingNode) && isOrientedTarget(currentTarget) && !currentTargetVessel.packed)
+                                    {
+                                        // Use the currently selected target (if it is a docking port)
                                         //targetedDockingModule = currentTarget as ModuleDockingNode;
                                         targetedDockingModule = currentTarget;
                                         dockingModulesListIndex = dockingModulesList.FindIndex(m => m.Equals(targetedDockingModule));
@@ -609,7 +690,8 @@ namespace NavyFish
                                         }
                                         lastTarget = targetedDockingModule;
                                     }
-                                    else
+
+                                    if(dockingModulesListIndex == -1)
                                     {
                                         // Automatically select closest docking port.
                                         float shortestDistance = float.MaxValue;
@@ -1175,6 +1257,13 @@ namespace NavyFish
                     saveConfigSettings();
                     resetTarget = true;
                 }
+                last = restrictDockingPorts;
+                restrictDockingPorts = GUILayout.Toggle(restrictDockingPorts, "Restrict Docking Ports");
+                if (restrictDockingPorts != last)
+                {
+                    saveConfigSettings();
+                    resetTarget = true;
+                }
                 GUILayout.EndHorizontal();
             }
 
@@ -1596,6 +1685,7 @@ namespace NavyFish
             config.SetValue("HudIconSize", targetHUDiconSize);
             config.SetValue("allowAutoPortTargeting", allowAutoPortTargeting);
             config.SetValue("excludeDockedPorts", excludeDockedPorts);
+            config.SetValue("restrictDockingPorts", restrictDockingPorts);
             config.SetValue("gui_scale", (double)gaugeScale);
             config.SetValue("alignmentFlipXAxis", alignmentFlipXAxis);
             config.SetValue("alignmentFlipYAxis", alignmentFlipYAxis);
@@ -1626,6 +1716,7 @@ namespace NavyFish
             targetHUDiconSize = config.GetValue("HudIconSize", 22f);
             allowAutoPortTargeting = config.GetValue<bool>("allowAutoPortTargeting", true);
             excludeDockedPorts = config.GetValue<bool>("excludeDockedPorts", true);
+            restrictDockingPorts = config.GetValue<bool>("restrictDockingPorts", true);
             showHUDIconWhileIva = config.GetValue<bool>("showHUDIconWhileEva", false);
             alignmentFlipXAxis = config.GetValue<bool>("alignmentFlipXAxis", false);
             alignmentFlipYAxis = config.GetValue<bool>("alignmentFlipYAxis", false);
