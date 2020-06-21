@@ -73,9 +73,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug'">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(KSPDIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator" />  
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(KSPDIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator" />
   </Target>
   <PropertyGroup>
     <StartAction>Program</StartAction>

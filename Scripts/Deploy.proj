@@ -6,8 +6,11 @@
 
   <!-- Variables (override in ConnectedLivingSpace.User.props) -->
   <PropertyGroup>
+     <!-- Default build type - release -->
+     <BuildConfiguration Condition="'$(BuildConfiguration)' == ''">Release</BuildConfiguration>
+
     <!-- Project root folder -->
-    <ProjectRoot Condition="'$(ProjectRoot)' == ''">$(DPAI_DIR)</ProjectRoot>
+    <ProjectRoot Condition="'$(ProjectRoot)' == ''">$([System.IO.Path]::GetFullPath($(DPAI_DIR)))</ProjectRoot>
 
     <!-- Release Folder -->
     <!-- To change the output folder, use the following parameter: /p:ReleaseDir=C:\KSP\Mods\Releases\ConnectedLivingSpace -->
@@ -48,7 +51,7 @@
 
   <!-- compile solution as release -->
   <Target Name="Compile">
-    <MSBuild Projects="$(SourceDir)\DockingPortAlignmentIndicator.sln" Properties="Configuration=Release"/>
+    <MSBuild Projects="$(SourceDir)\DockingPortAlignmentIndicator.sln" Properties="Configuration=$(BuildConfiguration)"/>
   </Target>
 
   <Target Name="BuildDir">
@@ -80,6 +83,10 @@
       <OutdatedFiles Include="$(DestFolder)\**" Exclude="@(Copied)" />
     </ItemGroup>
     <Delete Files="@(OutdatedFiles)"/>
+    <ItemGroup>
+      <ReleaseFiles Remove="@(ReleaseFiles)" />
+      <OutdatedFiles Remove="@(OutdatedFiles)" />
+    </ItemGroup>
   </Target>
 
   <!-- This target builds the release package -->
@@ -105,6 +112,10 @@
     <Copy
       SourceFiles="$(DistDir)\LICENSE"
       DestinationFolder="$(BuildDir)\" />
+    <ItemGroup>
+      <DistFiles Remove="@(DistFiles)" />
+      <OutdatedFiles Remove="@(OutdatedFiles)" />
+    </ItemGroup>
   </Target>
 
   <!-- create zip file with content of release\bin folder -->
@@ -254,4 +265,45 @@
       <Tokens Remove="@(Tokens)" />
     </ItemGroup>
   </Target>
+
+
+
+  <!-- Sets up debug configuration; can't be inside "Deploy-DEBUG" due to a limitation of MSBuild -->
+  <Target Name="SetDebugConfiguration">
+    <CreateProperty Value="Debug">
+      <Output TaskParameter="Value" PropertyName="BuildConfiguration"/>
+    </CreateProperty>
+  </Target>
+
+  <!-- Builds and deploys the debug version of DPAI -->
+  <Target Name="Deploy-DEBUG">
+    <CallTarget Targets="SetDebugConfiguration"/>
+    <CallTarget Targets="Compile"/>
+    <CallTarget Targets="DoDeploy"/>
+    <CallTarget Targets="DoDeploy-DEBUG"/>
+  </Target>
+
+  <!-- This target deploys the debug-build artefacts over the top of the standard artifacts in the KSP directory -->
+  <Target Name="DoDeploy-DEBUG">
+    <PropertyGroup>
+      <SourceFolder>$(SourceDir)\bin\Debug</SourceFolder>
+      <DestFolder>$(KSPDIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator</DestFolder>
+    </PropertyGroup>
+    <MakeDir Directories="$(DestFolder)" Condition="!Exists('$(DestFolder)')" />
+    <ItemGroup>
+      <ReleaseFiles
+        Include="$(SourceFolder)\*.*"
+        Exclude="">
+      </ReleaseFiles>
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(ReleaseFiles)"
+      DestinationFolder="$(DestFolder)\"
+      SkipUnchangedFiles="true" >
+    </Copy>
+    <ItemGroup>
+      <ReleaseFiles Remove="@(ReleaseFiles)" />
+    </ItemGroup>
+  </Target>
+
 </Project>
