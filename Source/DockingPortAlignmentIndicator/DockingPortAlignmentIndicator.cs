@@ -1682,7 +1682,7 @@ namespace NavyFish
             //config.SetValue("show_rolldigits", drawRollDigits);
             config.SetValue("drawHudIcon", drawHudIcon);
             config.SetValue("showHUDIconWhileEva", showHUDIconWhileIva);
-            config.SetValue("HudIconSize", targetHUDiconSize);
+            config.SetValue("HudIconSize", (double)targetHUDiconSize);
             config.SetValue("allowAutoPortTargeting", allowAutoPortTargeting);
             config.SetValue("excludeDockedPorts", excludeDockedPorts);
             config.SetValue("restrictDockingPorts", restrictDockingPorts);
@@ -1713,7 +1713,7 @@ namespace NavyFish
             //useCDI = config.GetValue<bool>("show_cdi", true);
             //drawRollDigits = config.GetValue("show_rolldigits", true);
             drawHudIcon = config.GetValue<bool>("drawHudIcon", true);
-            targetHUDiconSize = config.GetValue("HudIconSize", 22f);
+            targetHUDiconSize = (float)config.GetValue<double>("HudIconSize", 22f);
             allowAutoPortTargeting = config.GetValue<bool>("allowAutoPortTargeting", true);
             excludeDockedPorts = config.GetValue<bool>("excludeDockedPorts", true);
             restrictDockingPorts = config.GetValue<bool>("restrictDockingPorts", true);
