@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
+### Added
+- Docking port restrictions have been added. When cycling through docking ports,
+  only docking ports which are compatible with the current vessel are shown. (#4)
+### Fixed
+- Fix HUD Icon Size not getting saved (#6)
 
 ## [6.8.6] - 2020-02-13
 ### Changed
@@ -122,8 +127,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [6.2.1] (BETA)
 ### Changed
 - Works with KSP 1.1 Pre-Release build v1.1.0.1183
-- ModuleDockingNodeNamed now no longer relies upon DockingPortAlignmentIndicator.dll, 
-  allowing mod authors to use its functionality without depending upon DPAI. Simply 
+- ModuleDockingNodeNamed now no longer relies upon DockingPortAlignmentIndicator.dll,
+  allowing mod authors to use its functionality without depending upon DPAI. Simply
   check if a part contains a ModuleDockingNodeNamed partmodule, and if so call module.getCustomName().
 ### Fixed
 - IVA reference part is now properly maintained when switching between IVA/EVA/MapView
@@ -136,7 +141,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [6.1.0] - 2015-03-18
 ### Fixed
-- DPAI *now* preserves the 'Control From Here' reference part when going IVA  
+- DPAI *now* preserves the 'Control From Here' reference part when going IVA
 
 
 ## [6.0.0]
@@ -148,7 +153,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - [RPM] Display and cycle the Docking Reference part from MFD
   - [RPM] Rename target and reference ports from MFD while IVA
   - [RPM] Toggleable info page which displays MFD controls for DPAI
-- DPAI now preserves the 'Control From Here' reference part when going IVA    
+- DPAI now preserves the 'Control From Here' reference part when going IVA
 - Option to show/hide target port HUD indicator while IVA
 - Parts with multiple docking ports can now have unique names for each port
 ### Changed
@@ -161,7 +166,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Re-enabled support for Blizzy's Toolbar. If present, DPAI will place its button on Blizzy's toolbar.  DPAI can be forced to place its button on the Stock App Launcher via a config file (see bundled Readme.txt)
 
-		  
+
 ## [5.0.0] - 2015-01-10
 ### Added
 - Integration with stock application launcher (removed support for blizzy's toolbar)
@@ -179,7 +184,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Ports can now be targeted up to 2.25 Km away!
 - When a vessel is first targeted, the nearest port is automatically targeted.
 - Magenta HUD indicator floats on top of currently targeted port to allow for easy identification.
-- Ability to rename all docking ports using the right-click GUI (in both VAB/SPH and flight). 
+- Ability to rename all docking ports using the right-click GUI (in both VAB/SPH and flight).
 - Text readout on indicator which displays the name of the targeted port.
 - Closure Distance (CDST) readout, displays range to target port along the approach axis only.
 - Prograde icon on velocity vector changes to Retrograde icon when CVEL is negative.
