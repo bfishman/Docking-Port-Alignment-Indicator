@@ -1501,11 +1501,20 @@ namespace NavyFish
         {
             //print("drawTargetPortIndicator: Start");
 
-            if (targetedDockingModule != null)
-            {
+            // When we exit a scene with the DPAI window showing, the underlying GameObject
+            // has already been destroyed but targetedDockingModule is not null and, being
+            // an interface variable, does not use the Unity operator == overload.  So we
+            // need to do a bit more to avoid a Null-reference exception.
+            var tdmTransform = targetedDockingModule?.GetTransform();
+            // tdmTransform is an actual Unity object variable, so it uses the overloaded
+            // Unity operator == and correctly detects a destroyed GameObject.
+            if (tdmTransform == null) {
+                return;
+            }
+
             Camera cam = FlightCamera.fetch.mainCamera;
             //Vector3 portToCamera = targetedDockingModule.transform.position - cam.transform.position;
-            Vector3 portToCamera = targetedDockingModule.GetTransform().position - cam.transform.position;
+            Vector3 portToCamera = tdmTransform.position - cam.transform.position;
 
             if (Vector3.Dot(cam.transform.forward, portToCamera) < 0)
             {
@@ -1513,7 +1522,7 @@ namespace NavyFish
                 return;
             }
 
-            Vector3 screenSpacePortLocation = cam.WorldToScreenPoint(targetedDockingModule.GetTransform().position);
+            Vector3 screenSpacePortLocation = cam.WorldToScreenPoint(tdmTransform.position);
             centerVec2.x = screenSpacePortLocation.x;
             centerVec2.y = cam.pixelHeight - screenSpacePortLocation.y;
             selectedPortHUDRect.center = centerVec2;
@@ -1543,7 +1552,6 @@ namespace NavyFish
             GUI.color = iconColor;
             GUI.DrawTexture(selectedPortHUDRect, targetPort, ScaleMode.ScaleToFit, true);
             GUI.color = originalColor;
-            }
             //print("drawTargetPortIndicator: End");
         }
 
