@@ -91,7 +91,20 @@
 
   <!-- This target builds the release package -->
   <Target Name="MakeRelease"
-          DependsOnTargets="BuildDir;GenerateChangelog;GenerateVersionFile;GenerateReadme">
+          DependsOnTargets="GenerateVersionFile">
+    <!-- Clean build-directory -->
+    <RemoveDir Directories="$(BuildDir)"/>
+    <CallTarget Targets="BuildDir"/>
+
+    <!-- Copy static text files -->
+    <Copy
+      SourceFiles="$(DistDir)\LICENSE"
+      DestinationFolder="$(BuildDir)\" />
+
+    <!-- Generate templated text files -->
+    <CallTarget Targets="GenerateChangelog"/>
+    <CallTarget Targets="GenerateReadme"/>
+
     <!-- Copy main mod files -->
     <ItemGroup>
       <DistFiles
@@ -106,15 +119,7 @@
       <Output TaskParameter="CopiedFiles" ItemName="Copied" />
     </Copy>
     <ItemGroup>
-      <OutdatedFiles Include="$(BuildDir)\GameData\**" Exclude="@(Copied)" />
-    </ItemGroup>
-    <Delete Files="@(OutdatedFiles)"/>
-    <Copy
-      SourceFiles="$(DistDir)\LICENSE"
-      DestinationFolder="$(BuildDir)\" />
-    <ItemGroup>
       <DistFiles Remove="@(DistFiles)" />
-      <OutdatedFiles Remove="@(OutdatedFiles)" />
     </ItemGroup>
   </Target>
 
