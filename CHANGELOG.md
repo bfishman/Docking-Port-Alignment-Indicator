@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
+
+## [6.9.0.0] for KSP 1.9.1 - 2020-06-22
 ### Added
 - Docking port restrictions have been added. When cycling through docking ports,
   only docking ports which are compatible with the current vessel are shown. (#4)
