@@ -472,11 +472,6 @@ namespace NavyFish
         {
             bool compatible = false;
 
-            // If the destination is disabled, it doesn't matter which ports we have
-            if (targetPort.IsDisabled) {
-                return false;
-            }
-
             // Get the controlling docking port, or all of them
             var dockingPorts  = referencePart.FindModulesImplementing<ModuleDockingNode>();
             if (dockingPorts.Count == 0) {
@@ -492,6 +487,9 @@ namespace NavyFish
 
                     // Can't dock using a disabled port
                     if (sourcePort.IsDisabled) {
+                        continue;
+                    }
+                    if (!sourcePort.state.StartsWith("Ready")) {
                         continue;
                     }
                     // If one port is gendered, they both have to be
@@ -648,15 +646,15 @@ namespace NavyFish
                                             //do not add to list if module is already docked
                                             continue;
                                         }
-                                        else if(restrictDockingPorts && !isCompatiblePort(port))
+
+                                        if(restrictDockingPorts && !isCompatiblePort(port))
                                         {
                                           // Do not add to list if destination port doesn't match
+                                          continue;
                                         }
-                                        else
-                                        {
-                                            //print("1stAdd");
-                                            dockingModulesList.Add(tgt);
-                                        }
+
+                                        //print("1stAdd");
+                                        dockingModulesList.Add(tgt);
                                     }
                                     else
                                     {
@@ -1505,46 +1503,46 @@ namespace NavyFish
 
             if (targetedDockingModule != null)
             {
-                Camera cam = FlightCamera.fetch.mainCamera;
-                //Vector3 portToCamera = targetedDockingModule.transform.position - cam.transform.position;
-                Vector3 portToCamera = targetedDockingModule.GetTransform().position - cam.transform.position;
+            Camera cam = FlightCamera.fetch.mainCamera;
+            //Vector3 portToCamera = targetedDockingModule.transform.position - cam.transform.position;
+            Vector3 portToCamera = targetedDockingModule.GetTransform().position - cam.transform.position;
 
-                if (Vector3.Dot(cam.transform.forward, portToCamera) < 0)
-                {
-                    //Port is behind the camera
-                    return;
-                }
+            if (Vector3.Dot(cam.transform.forward, portToCamera) < 0)
+            {
+                //Port is behind the camera
+                return;
+            }
 
-                Vector3 screenSpacePortLocation = cam.WorldToScreenPoint(targetedDockingModule.GetTransform().position);
-                centerVec2.x = screenSpacePortLocation.x;
-                centerVec2.y = cam.pixelHeight - screenSpacePortLocation.y;
-                selectedPortHUDRect.center = centerVec2;
+            Vector3 screenSpacePortLocation = cam.WorldToScreenPoint(targetedDockingModule.GetTransform().position);
+            centerVec2.x = screenSpacePortLocation.x;
+            centerVec2.y = cam.pixelHeight - screenSpacePortLocation.y;
+            selectedPortHUDRect.center = centerVec2;
 
-                selectedPortHUDRect.width = targetHUDiconSize;
-                selectedPortHUDRect.height = targetHUDiconSize;
+            selectedPortHUDRect.width = targetHUDiconSize;
+            selectedPortHUDRect.height = targetHUDiconSize;
 
-                float pulsePercent = (UnityEngine.Time.fixedTime % pulsePeriod) / pulsePeriod;
+            float pulsePercent = (UnityEngine.Time.fixedTime % pulsePeriod) / pulsePeriod;
 
-                if (pulsePercent < pulseDurationRatio)
-                {
-                    float pulseAbsence = (pulsePercent / pulseDurationRatio); //0 to 1
-                    float pulsePresence = 1 - pulseAbsence; //1 to 0
+            if (pulsePercent < pulseDurationRatio)
+            {
+                float pulseAbsence = (pulsePercent / pulseDurationRatio); //0 to 1
+                float pulsePresence = 1 - pulseAbsence; //1 to 0
 
-                    iconColor.r = UnityEngine.Mathf.Clamp01(pulsePresence + (pulseAbsence) * colorTargetPortHUDicon.r);
-                    iconColor.g = UnityEngine.Mathf.Clamp01(pulsePresence + (pulseAbsence) * colorTargetPortHUDicon.g);
-                    iconColor.b = UnityEngine.Mathf.Clamp01(pulsePresence + (pulseAbsence) * colorTargetPortHUDicon.b);
-                }
-                else
-                {
-                    iconColor.r = colorTargetPortHUDicon.r;
-                    iconColor.g = colorTargetPortHUDicon.g;
-                    iconColor.b = colorTargetPortHUDicon.b;
-                }
+                iconColor.r = UnityEngine.Mathf.Clamp01(pulsePresence + (pulseAbsence) * colorTargetPortHUDicon.r);
+                iconColor.g = UnityEngine.Mathf.Clamp01(pulsePresence + (pulseAbsence) * colorTargetPortHUDicon.g);
+                iconColor.b = UnityEngine.Mathf.Clamp01(pulsePresence + (pulseAbsence) * colorTargetPortHUDicon.b);
+            }
+            else
+            {
+                iconColor.r = colorTargetPortHUDicon.r;
+                iconColor.g = colorTargetPortHUDicon.g;
+                iconColor.b = colorTargetPortHUDicon.b;
+            }
 
-                Color originalColor = GUI.color;
-                GUI.color = iconColor;
-                GUI.DrawTexture(selectedPortHUDRect, targetPort, ScaleMode.ScaleToFit, true);
-                GUI.color = originalColor;
+            Color originalColor = GUI.color;
+            GUI.color = iconColor;
+            GUI.DrawTexture(selectedPortHUDRect, targetPort, ScaleMode.ScaleToFit, true);
+            GUI.color = originalColor;
             }
             //print("drawTargetPortIndicator: End");
         }
