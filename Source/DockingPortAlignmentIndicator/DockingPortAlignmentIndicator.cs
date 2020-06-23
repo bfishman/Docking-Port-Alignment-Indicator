@@ -1789,7 +1789,7 @@ namespace NavyFish
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("appLauncherIcon.png", null);
             appLauncherIcon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
             appLauncherIcon.LoadImage(arrBytes);
-            TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("DialogPlain.fnt", null);
+            TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("DialogPlain.dat", null);
             List<string> textStrings = new List<string>();
             while (!tr.EndOfStream)
             {
