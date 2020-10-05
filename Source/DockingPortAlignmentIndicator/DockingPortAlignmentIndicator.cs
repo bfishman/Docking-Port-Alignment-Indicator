@@ -473,8 +473,8 @@ namespace NavyFish
             bool compatible = false;
 
             // Get the controlling docking port, or all of them
-            var dockingPorts  = referencePart.FindModulesImplementing<ModuleDockingNode>();
-            if (dockingPorts.Count == 0) {
+            var dockingPorts  = referencePart?.FindModulesImplementing<ModuleDockingNode>();
+            if ((dockingPorts?.Count ?? 0) == 0) {
                 dockingPorts = FlightGlobals.ActiveVessel.FindPartModulesImplementing<ModuleDockingNode>();
             }
 
