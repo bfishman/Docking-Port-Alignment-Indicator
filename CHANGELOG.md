@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
 
 
+## [6.9.1.1] for KSP 1.10.0 - 2020-10-05
+### Fixed
+- Null-reference exception when looking for compatible ports.
+
+
 ## [6.9.1.0] for KSP 1.9.1 - 2020-06-23
 ### Fixed
 - Renamed DialogPlain.fnt to fix log errors during startup (#5)
