@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
 
 
+## [6.9.2.1] for KSP 1.11.0 - 2020-12-28
+### Changed
+- Recompiled for KSP 1.11 - this was necessary to fix null reference exceptions.
+
+
 ## [6.9.1.1] for KSP 1.10.0 - 2020-10-05
 ### Fixed
 - Null-reference exception when looking for compatible ports.
