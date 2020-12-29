@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
 
 
+## [6.9.2.2] for KSP 1.11.0 - 2020-12-29
+### Fixed
+- Repackaged to fix pathname separator in ZIP file (fixes #11).
+### Changed
+- Retargeted to DotNet 4.6.1
+
+
 ## [6.9.2.1] for KSP 1.11.0 - 2020-12-28
 ### Changed
 - Recompiled for KSP 1.11 - this was necessary to fix null reference exceptions.
