@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
+### Changed
+- Recompiled with KSP1.12.2
 
 
 ## [6.9.2.2] for KSP 1.11.0 - 2020-12-29
