@@ -19,9 +19,11 @@ environemnt, this can be very useful to track down issues.
 ## Making Changes
 
 Create your own git branch to work on a feature or a fix. Remember to commit
-early and often and give each commit a detailed description.
+early and often and give each commit a detailed description. It is highly
+recommended to use the [ConventionCommits][Conventional Commits] format for
+writing your commit messages.
 
-Add your changes to "CHANGELOG.md"
+Add your changes to "CHANGELOG.md". Please follow the recommended style.
 
 Update the version in "AssemblyInfo.cs" appropriately.
 
@@ -43,3 +45,4 @@ and changelog files, and create a DPAI ZIP file for releasing.
 
 [DPAI_Git]: https://github.com/bfishman/Docking-Port-Alignment-Indicator
 [KSP_Debugging]: https://forum.kerbalspaceprogram.com/index.php?showtopic=102909
+[ConventionalCommits]: https://www.conventionalcommits.org/
