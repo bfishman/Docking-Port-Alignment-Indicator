@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using KSP;
 using NavyFish;
@@ -147,84 +147,60 @@ namespace NavyFish
             {
                 showHelp = !showHelp;
             }
-            else
+            if (buttonID == buttonUp)
             {
-                //Debug.Log("Button Pressed: " + buttonID);
-                switch (buttonID)
+                //Debug.Log("buttonUp");
+                ModuleDockingNodeNamed.renameWindow.closeWindow();
+                DockingPortAlignmentIndicator.cycleReferencePoint(-1);
+            }
+            if (buttonID == buttonDown)
+            {
+                //Debug.Log("buttonDown");
+                ModuleDockingNodeNamed.renameWindow.closeWindow();
+                DockingPortAlignmentIndicator.cycleReferencePoint(1);
+            }
+            if (buttonID == buttonHome)
+            {
+                //Debug.Log("buttonHome");
+                //ModuleDockingNodeNamed.renameWindow.closeWindow();
+                if (renameLeft)
                 {
-                    case 0:
-                        //Debug.Log("buttonUp");
-                        ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        DockingPortAlignmentIndicator.cycleReferencePoint(-1);
-                        break;
-                    case 1:
-                        //Debug.Log("buttonDown");
-                        ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        DockingPortAlignmentIndicator.cycleReferencePoint(1);
-                        break;
-                    case 2:
-                        //Debug.Log("buttonEnter");
-                        break;
-                    case 3:
-                        //Debug.Log("buttonEsc");
-                        break;
-                    case 4:
-                        //Debug.Log("buttonHome");
-                        //ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        if (renameLeft)
-                        {
-                            bool result = renameTarget();
-                            if (result)
-                            {
-                                renameLeft = !renameLeft;
-                                return;
-                            }
-                            else
-                            {
-                                result = renameReference();
-                                if (result) renameLeft = !renameLeft;
-
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            bool result = renameReference();
-                            if (result)
-                            {
-                                renameLeft = !renameLeft;
-                                return;
-                            }
-                            else
-                            {
-                                result = renameTarget();
-                                if (result) renameLeft = !renameLeft;
-
-                                return;
-                            }
-                        }
-
-                    case 5:
-                        //Debug.Log("buttonRight");
-                        //DockingPortAlignment.cyclePortRight();
-                        break;
-                    case 6:
-                        ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        showHelp = true;
-                        //Debug.Log("buttonLeft");
-                        //DockingPortAlignment.cyclePortLeft();
-                        break;
-                    case 7:
-                        //Debug.Log("buttonNext");
-                        ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        DockingPortAlignmentIndicator.cyclePortLeft();
-                        break;
-                    case 8:
-                        //Debug.Log("buttonPrev");
-                        ModuleDockingNodeNamed.renameWindow.closeWindow();
-                        DockingPortAlignmentIndicator.cyclePortRight();
-                        break;
+                    bool result = renameTarget();
+                    if (result)
+                    {
+                        renameLeft = !renameLeft;
+                    }
+                    else
+                    {
+                        result = renameReference();
+                        if (result) renameLeft = !renameLeft;
+                    }
                 }
+                else
+                {
+                    bool result = renameReference();
+                    if (result)
+                    {
+                        renameLeft = !renameLeft;
+                    }
+                    else
+                    {
+                        result = renameTarget();
+                        if (result) renameLeft = !renameLeft;
+                    }
+                }
+            }
+            if (buttonID == buttonNext)
+            {
+                //Debug.Log("buttonNext");
+                ModuleDockingNodeNamed.renameWindow.closeWindow();
+                DockingPortAlignmentIndicator.cyclePortLeft();
+            }
+            if (buttonID == buttonPrev)
+            {
+                //Debug.Log("buttonPrev");
+                ModuleDockingNodeNamed.renameWindow.closeWindow();
+                DockingPortAlignmentIndicator.cyclePortRight();
             }
 
             //Debug.Log("Show Help " + showHelp);

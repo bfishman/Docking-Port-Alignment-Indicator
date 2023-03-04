@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildThisFileDirectory)\user_settings.props" Condition="Exists('$(MSBuildThisFileDirectory)\user_settings.props')" />
   <PropertyGroup>
@@ -6,13 +6,15 @@
        - variables or the "user_settings.props" file. -->
     <DPAI_DIR Condition=" '$(DPAI_DIR)' == '' ">$(MSBuildThisFileDirectory)\..\..</DPAI_DIR>
     <KSPDIR Condition=" '$(KSPDIR)' == '' ">..\..\..\..\..\..\..\Kerbal Space Program Dev</KSPDIR>
+    <KSPDllDir Condition=" '$(OS)' == 'Windows_NT'">$(KSPDIR)/KSP_x64_Data/Managed/</KSPDllDir>
+    <KSPDllDir Condition=" '$(OS)' != 'Windows_NT'">$(KSPDIR)/KSP_Data/Managed/</KSPDllDir>
   </PropertyGroup>
   <!-- The following references all KSP related DLLs. -->
   <ItemGroup>
-    <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\Assembly*.dll">
+    <Reference Include="$(KSPDllDir)\Assembly*.dll">
       <Private>False</Private>
     </Reference>
-    <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\Unity*.dll">
+    <Reference Include="$(KSPDllDir)\Unity*.dll">
       <Private>False</Private>
     </Reference>
   </ItemGroup>
