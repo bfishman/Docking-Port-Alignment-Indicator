@@ -1,4 +1,4 @@
-REM Builds and packages the release
+REM Builds the Debug binaries and deploys them to your KSP Directory
 REM
 SETLOCAL EnableDelayedExpansion
 
