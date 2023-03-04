@@ -111,8 +111,6 @@ namespace NavyFish
         public static Texture2D customToolbarIcon;
 
         public static BitmapFont bitmapFont;
-        private static float textNumberScale = .7f;
-        private static float textLabelScale = .52f;
         private static float textTargetRefNameScale = .77f;
 
         private static bool showSettings = false;
@@ -502,6 +500,7 @@ namespace NavyFish
                     if (sourcePort.gendered && (sourcePort.genderFemale == targetPort.genderFemale)) {
                         continue;
                     }
+
                     // Verify the ports are the same size
                     // NB: Since v1.0.5 of KSP, docking ports can be "multiport" in which case the nodeType is a comma-delimited string
                     //if (sourcePort.nodeType != targetPort.nodeType) {
@@ -1835,9 +1834,6 @@ namespace NavyFish
             debugWindowPosition = GUILayout.Window(1338, debugWindowPosition, drawDebugWindowContents, "Debug", GUILayout.MinWidth(400), GUILayout.MaxWidth(800));
         }
 
-        
-        static float rollOffsetRPM = -57;
-        
         static int vertLineFooterChop = 50;
 
         private static float settingsButtonX = 150;
@@ -1849,31 +1845,13 @@ namespace NavyFish
         static float settingsTextY = 374;
         static float settingsTextScale = .47f;
 
-        static float numLabelXOffset = -45;
-        static float numLabelYOffset = 5f;
-        static float DSTLabelXOffset = -37;
-
         private static int _rpmTextYTop = 19;
         private static int rpmTgtRefTextHeight = 19;
 
         private static int tgtX = 6, refX = 6, rtLabelY = 48, rtLabelSpacing = 6;
         private static float rtLabelScale = .6f;
 
-        private static float arrowLengthOffsetMultRPM = 2f; //2.8f;
-
         private static int vertLineHeaderChop = 15;
-
-        static float dstXpos = 83;
-        static float cvelXpos = 298;
-        static float textNumberYPos = 339;
-        static float closureDXPos = 298;
-        static float closureDYPos = 317;
-        static float rDegXPos = 315;
-        static float rDegYPos = 43;
-        static float degreeSignXPos = 292;
-        static float degreeSignYPos = 48;
-
-        static float alignmentMarkerVisibleRange = .81f;
 
         static float gaugeDigitScale = .8f;
         static float gaugeLabelScale = .55f;
