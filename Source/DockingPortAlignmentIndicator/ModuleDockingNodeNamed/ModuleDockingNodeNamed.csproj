@@ -50,6 +50,7 @@
   </Target>
   -->
   <Target Name="CopyToKspDir" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug'">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(KSPDIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator" />
+    <Copy SourceFiles="$(TargetDir)/$(TargetName).dll;$(TargetDir)/$(TargetName).pdb"
+          DestinationFolder="$(KSPDIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator" />
   </Target>
 </Project>
