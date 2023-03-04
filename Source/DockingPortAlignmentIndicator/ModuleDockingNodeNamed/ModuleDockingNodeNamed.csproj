@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>$(DPAI_DIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\</OutputPath>
+    <OutputPath>$(SolutionDir)\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -52,5 +52,9 @@
   <Target Name="CopyToKspDir" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug'">
     <Copy SourceFiles="$(TargetDir)/$(TargetName).dll;$(TargetDir)/$(TargetName).pdb"
           DestinationFolder="$(KSPDIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator" />
+  </Target>
+  <Target Name="CopyToDistDir" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release'">
+    <Copy SourceFiles="$(TargetDir)/$(TargetName).dll"
+        DestinationFolder="$(DPAI_DIR)/GameData/NavyFish/Plugins/Docking Port Alignment Indicator" />
   </Target>
 </Project>
