@@ -167,6 +167,7 @@
       foreach(var line in File.ReadLines(Path))
       {
         var match = re.Match(line);
+        //Console.WriteLine("Checking line : {0}", line);
         if(match.Success)
         {
           Value = match.Groups[1].Value;
@@ -181,7 +182,7 @@
   <Target Name="getkspversion">
     <Error Text="Can not find KSP readme.txt in '$(KSPDIR)'"
            Condition="!Exists('$(KSPDIR)\readme.txt')" />
-    <GrepInFile Path="$(KSPDIR)\readme.txt" Expression="Version\s+(\d+\.\d+(\.\d+)?)\s*">
+    <GrepInFile Path="$(KSPDIR)\readme.txt" Expression="Version ([0-9]+[^0-9][0-9]+([^0-9][0-9]+)?)$">
       <Output PropertyName="KSPVersion" TaskParameter="Value" />
     </GrepInFile>
     <Message Text="KSP Version is $(KSPVersion)" Importance="High" />
