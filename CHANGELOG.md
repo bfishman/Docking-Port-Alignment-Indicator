@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
         for use with alternate button layouts. - Kerbas-ad-astra
 ### Changed
 - Recompiled with KSP1.12.2
-
+- Updated ModuleManager to 4.2.1
 
 ## [6.9.2.2] for KSP 1.11.0 - 2020-12-29
 ### Fixed
