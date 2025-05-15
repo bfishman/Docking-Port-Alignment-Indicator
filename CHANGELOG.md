@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
 
+## [6.12.0.0] for KSP 1.12.5 - 2025-05-15
+### Added
+- Added support for localization
+- Added german translation
+
+### Changed
+- Changed the way the docking port name is generated to support the mod
+  "DockingFunctions". Fixes #20
+
 ## [6.11.0.0] for KSP 1.12.5 - 2023-03-04
 ### Added
 - RPM : Allows configuration of which button IDs correspond to which function,
