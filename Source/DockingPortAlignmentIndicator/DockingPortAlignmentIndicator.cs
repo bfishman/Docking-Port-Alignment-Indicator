@@ -1388,7 +1388,7 @@ namespace NavyFish
             }
             else if (targetNamedModule == null)
             {
-                targetDisplayName = (targetedDockingModule as PartModule).part.partInfo.title;
+                targetDisplayName = targetedDockingModule.GetDisplayName();
             }
             else
             {
