@@ -27,8 +27,7 @@
 
 using System;
 using UnityEngine;
-using KSP.IO;
-using NavyFish;
+using KSP.Localization;
 
 namespace NavyFish
 {
@@ -41,7 +40,7 @@ namespace NavyFish
         private ModuleDockingNodeNamed portModuleToRename = null;
         private bool windowOpen = false;
         private Vessel lastActiveVessel;
-        private string windowTitle = "Rename Docking Port";
+        private string windowTitle = Localizer.GetStringByTag("#rename_docking_port");
         private Type DPAI;
         public void Start()
         {
@@ -54,7 +53,7 @@ namespace NavyFish
 
         public void DisplayForNode(ModuleDockingNodeNamed namedNode)
         {
-            DisplayForNode(namedNode, "Rename Docking Port");
+            DisplayForNode(namedNode, windowTitle);
         }
 
         public void DisplayForNode(ModuleDockingNodeNamed namedNode, string windowTitle)
@@ -110,12 +109,12 @@ namespace NavyFish
             if (portModuleToRename != null && (HighLogic.LoadedSceneIsEditor || portModuleToRename.vessel.loaded) && !activeVesselChanged)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("Name:", GUILayout.Width(50));
+                GUILayout.Label(Localizer.GetStringByTag("#name"), GUILayout.Width(50));
                 string newName = GUILayout.TextField(portModuleToRename.portName, GUILayout.ExpandWidth(true));
                 portModuleToRename.renameModule(newName);
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
-                bool isDone = GUILayout.Button("Done");
+                bool isDone = GUILayout.Button(Localizer.GetStringByTag("#ok"));
                 GUILayout.EndHorizontal();
                 if (isDone)
                 {

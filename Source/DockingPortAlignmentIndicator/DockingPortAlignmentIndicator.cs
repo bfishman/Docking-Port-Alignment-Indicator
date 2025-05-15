@@ -28,8 +28,9 @@
 using System;
 using UnityEngine;
 using KSP.IO;
-using System.Collections.Generic;
 using KSP.UI.Screens;
+using KSP.Localization;
+using System.Collections.Generic;
 
 using static NavyFish.LogWrapper;
 using System.Linq;
@@ -879,7 +880,7 @@ namespace NavyFish
                 windowPosition.width = foregroundTextureWidth * gaugeScale;
                 windowPosition.height = foregroundTextureHeight * gaugeScale;
       
-                windowPosition = constrainToScreen(GUI.Window(1773, windowPosition, drawRenderedGaugeTexture, "DPAI", labelStyle));
+                windowPosition = constrainToScreen(GUI.Window(1773, windowPosition, drawRenderedGaugeTexture, Localizer.GetStringByTag("#dpai"), labelStyle));
 
                 leftButtonRect.yMin = (402 * gaugeScale);
                 leftButtonRect.yMax = (446 * gaugeScale);
@@ -897,7 +898,7 @@ namespace NavyFish
                     settingsWindowPosition.y = windowPosition.yMax;
                     if (!settingsWindowOverflow) settingsWindowPosition.width = windowPosition.width;
                  
-                    settingsWindowPosition = GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, "DPAI Settings", windowStyle);
+                    settingsWindowPosition = GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, Localizer.GetStringByTag("#dpai_settings"), windowStyle);
                     if (settingsWindowPosition.width > windowPosition.width)
                     {
                         settingsWindowOverflow = true;
@@ -1129,7 +1130,7 @@ namespace NavyFish
             Rect settingsButtonRect = new Rect(settingsButtonX * gaugeScale, settingsButtonY * gaugeScale, settingsButtonWidth * gaugeScale, settingsButtonHeight * gaugeScale);
             bool settingsButtonClicked = GUI.Button(settingsButtonRect, "", settingsButtonStyle);
 
-            drawGlyphStringGUI("Settings", settingsTextX * gaugeScale, settingsTextY * gaugeScale, settingsTextScale * gaugeScale, BitmapFont.HorizontalAlignment.LEFT);
+            drawGlyphStringGUI(Localizer.GetStringByTag("#settings"), settingsTextX * gaugeScale, settingsTextY * gaugeScale, settingsTextScale * gaugeScale, BitmapFont.HorizontalAlignment.LEFT);
 
             if (settingsButtonClicked) showSettings = !showSettings;
 
@@ -1199,7 +1200,7 @@ namespace NavyFish
 
             GUILayout.BeginHorizontal();
             last = drawHudIcon;
-            drawHudIcon = GUILayout.Toggle(drawHudIcon, "Display HUD Target Port Icon");
+            drawHudIcon = GUILayout.Toggle(drawHudIcon, Localizer.GetStringByTag("#display_hud_target_port_icon"));
             if (drawHudIcon != last)
             {
                 saveConfigSettings();
@@ -1212,7 +1213,7 @@ namespace NavyFish
                 GUILayout.BeginHorizontal();
                 last = showHUDIconWhileIva;
                 GUILayout.Space(14f);
-                showHUDIconWhileIva = GUILayout.Toggle(showHUDIconWhileIva, "Display when using RPM");
+                showHUDIconWhileIva = GUILayout.Toggle(showHUDIconWhileIva, Localizer.GetStringByTag("#display_when_using_rpm"));
                 if (showHUDIconWhileIva != last)
                 {
                     saveConfigSettings();
@@ -1220,7 +1221,7 @@ namespace NavyFish
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("HUD Target Port Icon Size:");
+                GUILayout.Label(Localizer.GetStringByTag("#hud_target_port_icon_size"));
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
                 lastFloat = targetHUDiconSize;
@@ -1234,7 +1235,7 @@ namespace NavyFish
 
             GUILayout.BeginHorizontal();
             last = allowAutoPortTargeting;
-            allowAutoPortTargeting = GUILayout.Toggle(allowAutoPortTargeting, "Enable Auto Targeting (and Cycling)");
+            allowAutoPortTargeting = GUILayout.Toggle(allowAutoPortTargeting, Localizer.GetStringByTag("#enable_auto_targeting_and_cycling"));
             if (allowAutoPortTargeting != last)
             {
                 saveConfigSettings();
@@ -1248,14 +1249,14 @@ namespace NavyFish
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(14f);
                 last = excludeDockedPorts;
-                excludeDockedPorts = GUILayout.Toggle(excludeDockedPorts, "Exclude Docked Ports");
+                excludeDockedPorts = GUILayout.Toggle(excludeDockedPorts, Localizer.GetStringByTag("#exlude_docked_ports"));
                 if (excludeDockedPorts != last)
                 {
                     saveConfigSettings();
                     resetTarget = true;
                 }
                 last = restrictDockingPorts;
-                restrictDockingPorts = GUILayout.Toggle(restrictDockingPorts, "Restrict Docking Ports");
+                restrictDockingPorts = GUILayout.Toggle(restrictDockingPorts, Localizer.GetStringByTag("#restrict_docking_ports"));
                 if (restrictDockingPorts != last)
                 {
                     saveConfigSettings();
@@ -1265,7 +1266,7 @@ namespace NavyFish
             }
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("GUI Scale:");
+            GUILayout.Label(Localizer.GetStringByTag("#gui_scale"));
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             float lastScale = gaugeScale;
@@ -1283,14 +1284,14 @@ namespace NavyFish
             GUILayout.FlexibleSpace();
 
             last = alignmentFlipXAxis;
-            alignmentFlipXAxis = GUILayout.Toggle(alignmentFlipXAxis, "Invert Alignment X");
+            alignmentFlipXAxis = GUILayout.Toggle(alignmentFlipXAxis, Localizer.GetStringByTag("#invert_alignment_x"));
             if (alignmentFlipXAxis != last) saveConfigSettings();
 
             GUILayout.FlexibleSpace();
             //GUILayout.EndHorizontal();
             //GUILayout.BeginHorizontal();
             last = translationFlipXAxis;
-            translationFlipXAxis = GUILayout.Toggle(translationFlipXAxis, "Invert Translation X");
+            translationFlipXAxis = GUILayout.Toggle(translationFlipXAxis, Localizer.GetStringByTag("#invert_translation_x"));
             if (translationFlipXAxis != last) saveConfigSettings();
 
             GUILayout.FlexibleSpace();
@@ -1299,14 +1300,14 @@ namespace NavyFish
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             last = alignmentFlipYAxis;
-            alignmentFlipYAxis = GUILayout.Toggle(alignmentFlipYAxis, "Invert Alignment Y");
+            alignmentFlipYAxis = GUILayout.Toggle(alignmentFlipYAxis, Localizer.GetStringByTag("#invert_alignment_y"));
             if (alignmentFlipYAxis != last) saveConfigSettings();
 
             GUILayout.FlexibleSpace();
             //GUILayout.EndHorizontal();
             //GUILayout.BeginHorizontal();
             last = translationFlipYAxis;
-            translationFlipYAxis = GUILayout.Toggle(translationFlipYAxis, "Invert Translation Y");
+            translationFlipYAxis = GUILayout.Toggle(translationFlipYAxis, Localizer.GetStringByTag("#invert_translation_y"));
             if (translationFlipYAxis != last) saveConfigSettings();
 
             GUILayout.FlexibleSpace();
@@ -1315,7 +1316,7 @@ namespace NavyFish
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             last = rollFlipAxis;
-            rollFlipAxis = GUILayout.Toggle(rollFlipAxis, "Invert Roll Direction");
+            rollFlipAxis = GUILayout.Toggle(rollFlipAxis, Localizer.GetStringByTag("#invert_roll_direction"));
             if (rollFlipAxis != last) saveConfigSettings();
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
@@ -1323,7 +1324,7 @@ namespace NavyFish
 
             GUILayout.BeginHorizontal();
             last = forceStockAppLauncher;
-            forceStockAppLauncher = GUILayout.Toggle(forceStockAppLauncher, "Always use Stock Toolbar");
+            forceStockAppLauncher = GUILayout.Toggle(forceStockAppLauncher, Localizer.GetStringByTag("#always_use_stock_toolbar"));
             if (forceStockAppLauncher != last)
             {
                 saveConfigSettings();
@@ -1363,7 +1364,7 @@ namespace NavyFish
             else
             {
                 //referenceName += "None";
-                return "None";
+                return Localizer.GetStringByTag("#none");
             }
         }
 
@@ -1373,17 +1374,17 @@ namespace NavyFish
 
             if (currentTargetVessel == null)
             {
-                targetDisplayName = "No Vessel Targeted";
+                targetDisplayName = Localizer.GetStringByTag("#no_vessel_targeted");
             }
             else if (targetedDockingModule == null)
             {
                 if (targetOutOfRange)
                 {
-                    targetDisplayName = "Target Out of Range";
+                    targetDisplayName = Localizer.GetStringByTag("#target_out_of_range");
                 }
                 else
                 {
-                    targetDisplayName = "No Port Targeted";
+                    targetDisplayName = Localizer.GetStringByTag("#no_port_targeted");
                 }
             }
             else if (targetNamedModule == null)

@@ -44,7 +44,7 @@ namespace NavyFish
             return portName;
         }
 
-        [KSPField(guiActive = true, guiActiveEditor = true, guiName = "Port Name", isPersistant = true)]
+        [KSPField(guiActive = true, guiActiveEditor = true, guiName = "#port_name", isPersistant = true)]
         public string portName;
 
         [KSPField(isPersistant = true)]
@@ -53,7 +53,7 @@ namespace NavyFish
         [KSPField(isPersistant = true)]
         public string controlTransformName;
 
-        [KSPEvent(guiActive = true, guiActiveEditor = true, guiActiveUnfocused = true, externalToEVAOnly = false, unfocusedRange = 2000f, guiName = "Rename Port")]
+        [KSPEvent(guiActive = true, guiActiveEditor = true, guiActiveUnfocused = true, externalToEVAOnly = false, unfocusedRange = 2000f, guiName = "#rename_port")]
         public void renameDockingPort()
         {
             RenameWindow.instance.DisplayForNode(this);

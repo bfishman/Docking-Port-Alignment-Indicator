@@ -14,7 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\..\CHANGELOG.md = ..\..\CHANGELOG.md
 		..\..\CONTRIBUTING.md = ..\..\CONTRIBUTING.md
 		..\..\LICENSE = ..\..\LICENSE
-		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg
 		..\..\README.md = ..\..\README.md
 		..\..\Readme.txt = ..\..\Readme.txt
 		..\..\Scripts\Version.template = ..\..\Scripts\Version.template
@@ -25,6 +24,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GameData", "GameData", "{2D
 		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\DockingPortAlignmentIndicator.version
 		..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg = ..\..\GameData\NavyFish\Plugins\Docking Port Alignment Indicator\moduleDockingNodeNamed.cfg
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Localization", "Localization", "{51657D7B-81F7-49EA-BB4B-37FF26D9A007}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\GameData\NavyFish\Localization\dpai_dictionary_en.cfg = ..\..\GameData\NavyFish\Localization\dpai_dictionary_en.cfg
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +53,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2D75BC84-2BC3-4C9F-A3A2-30CB0A85D857} = {98ADDF43-A4EF-4614-9080-85703C00B0B8}
+		{51657D7B-81F7-49EA-BB4B-37FF26D9A007} = {2D75BC84-2BC3-4C9F-A3A2-30CB0A85D857}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B15E05FB-F6B3-4263-9C97-B546A8188D0E}
