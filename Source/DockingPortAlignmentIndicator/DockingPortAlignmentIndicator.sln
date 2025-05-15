@@ -28,6 +28,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Localization", "Localization", "{51657D7B-81F7-49EA-BB4B-37FF26D9A007}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\GameData\NavyFish\Localization\dpai_dictionary_en.cfg = ..\..\GameData\NavyFish\Localization\dpai_dictionary_en.cfg
+		..\..\GameData\NavyFish\Localization\dpai_dictionary_de.cfg = ..\..\GameData\NavyFish\Localization\dpai_dictionary_de.cfg
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
