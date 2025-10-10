@@ -30,6 +30,7 @@ using UnityEngine;
 using KSP.IO;
 using KSP.UI.Screens;
 using KSP.Localization;
+using KSPAssets.KSPedia;
 using System.Collections.Generic;
 
 using static NavyFish.LogWrapper;
@@ -266,6 +267,30 @@ namespace NavyFish
             gaugeVisiblityToggledOn = false;
         }
 
+        bool wasVisible = false;
+        // GameEvents.onKSPediaSpawn
+        // Called when the KSPedia is shown
+        private void OnKSPediaSpawn ()
+        {
+            LogD($"GameEvents.OnKSPediaSpawn()");
+            wasVisible = gaugeVisiblityToggledOn;
+            if (wasVisible) {
+                onHideGUI();
+            }
+        }
+
+        // GameEvents.onKSPediaDespawn
+        // Note: this event seems to get fired twice when the KSPedia is closed,
+        //       so ensure this function only performs its actions once.
+        private void OnKSPediaDespawn ()
+        {
+            LogD($"GameEvents.OnKSPediaDespawn()");
+            if (wasVisible) {
+                onShowGUI();
+                wasVisible = false;
+            }
+        }
+
         /// <summary>
         /// Called once per object. Effectively the Constructor.
         /// </summary>
@@ -288,6 +313,11 @@ namespace NavyFish
             if ( !hasInitializedStyles ) initStyles();
 
             settingsWindowPosition = new Rect(0, windowPosition.yMax, 0, 0);
+
+            //GameEvents.debugEvents = true;
+
+            GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
+            GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
         }
 
         /// <summary>
@@ -305,6 +335,8 @@ namespace NavyFish
             {
                 destroyBlizzyButton();
             }
+            GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
+            GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
         }
 
         /// <summary>

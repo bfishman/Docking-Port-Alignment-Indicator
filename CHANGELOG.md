@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Added (english) KSPedia. Fixes #17
 
+### Fixed
+- fixed the DPAI window remaining visible on top of KSPedia. Fixes #27
+
 ## [6.12.0.0] for KSP 1.12.5 - 2025-05-15
 ### Added
 - Added support for localization
