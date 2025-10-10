@@ -206,7 +206,7 @@ namespace NavyFish
         /// Called directly and also as a GameEvent callback.
         private void addToolBarButtonToStockAppLauncher ()
         {
-            Log($"addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             if (HighLogic.LoadedSceneIsFlight && appLauncherButton == null) {
                 //print("DPAI: adding stock appLauncher button");
                 //RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
@@ -228,7 +228,7 @@ namespace NavyFish
         /// Called directly and also as a GameEvent callback.
         private void removeToolBarButtonFromAppLauncher()
         {
-            Log("removeToolBarButtonFromAppLauncher (appLauncherButton=={appLauncherButton})");
+            LogD("removeToolBarButtonFromAppLauncher (appLauncherButton=={appLauncherButton})");
             if (appLauncherButton != null)
             {
                 ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
@@ -241,7 +241,7 @@ namespace NavyFish
         /// </summary>
         private void OnAppLauncherReady()
         {
-            Log($"OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             if (HighLogic.LoadedSceneIsFlight)
             {
                 addToolBarButtonToStockAppLauncher();
@@ -252,15 +252,17 @@ namespace NavyFish
             }
         }
 
+        // Callback for toolbar button click
         private void onShowGUI()
         {
-            //print("DPAI_DEBUG onShowGUI()");
+            LogD("onShowGUI()");
             gaugeVisiblityToggledOn = true;
         }
 
+        // Callback for toolbar button click
         private void onHideGUI()
         {
-            //print("DPAI_DEBUG onHideGUI()");
+            LogD("onHideGUI()");
             gaugeVisiblityToggledOn = false;
         }
 
@@ -269,7 +271,7 @@ namespace NavyFish
         /// </summary>
         public void Awake()
         {
-            Log($"Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             loadTextures();
         }
         
@@ -278,7 +280,7 @@ namespace NavyFish
         /// </summary>
         public void Start()
         {
-            Log($"Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             LoadPrefs();
 
             updateToolBarButton();
@@ -293,7 +295,7 @@ namespace NavyFish
         /// </summary>
         private void OnDestroy()
         {
-            Log($"OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
 
             if (forceStockAppLauncher || !blizzyToolbarAvailable)
             {
@@ -364,7 +366,7 @@ namespace NavyFish
         /// </summary>
         private void updateToolBarButton()
         {
-            Log($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
 
             //Debug.Log("DPAI START");
@@ -635,7 +637,7 @@ namespace NavyFish
                                     if (tgt is ModuleDockingNode)
                                     {
                                         ModuleDockingNode port = tgt as ModuleDockingNode;
-                                        Log($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
+                                        LogD($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
                                         // MKW: if node was attached in the VAB, state is "PreAttached"
                                         if (excludeDockedPorts &&
                                                 (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) || 
@@ -1676,14 +1678,14 @@ namespace NavyFish
         #region Preferences
         private static void saveWindowPosition()
         {
-            Log($"saveWindowPosition");
+            //LogD($"saveWindowPosition");
             config.SetValue("window_position", windowPosition);
             config.save();
         }
 
         private static void saveConfigSettings()
         {
-            Log($"saveConfigSettings");
+            LogD($"saveConfigSettings");
             //config.SetValue("show_cdi", useCDI);
             //config.SetValue("show_rolldigits", drawRollDigits);
             config.SetValue("drawHudIcon", drawHudIcon);
@@ -1704,7 +1706,7 @@ namespace NavyFish
 
         public static void LoadPrefs()
         {
-            Log($"LoadPrefs");
+            LogD($"LoadPrefs");
             //print("Load Prefs");
             config = PluginConfiguration.CreateForType<DockingPortAlignmentIndicator>(null);
             config.load();

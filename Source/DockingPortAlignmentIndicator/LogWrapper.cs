@@ -40,12 +40,23 @@ static class LogWrapper
     /// <summary>
     /// Prefix to each logging message.
     /// </summary>
-    const string LogPrefix = "[DPAI] ";
+    const string LogPrefix = "[DPAI.";
 
     [System.Diagnostics.Conditional("DEBUG")]
-    public static void Log(object message)
+    public static void LogD(object message)
     {
-        Debug.Log(LogPrefix + message);
+        Debug.Log(LogPrefix + "DBG] " + message);
     }
+
+    public static void LogE(object message)
+    {
+        Debug.LogError(LogPrefix + "ERR] "  + message);
+    }
+
+    public static void LogW(object message)
+    {
+        Debug.LogWarning(LogPrefix + "WRN] "  + message);
+    }
+
 }
 }
