@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KSPBundleDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" UrlName="kspedia_dpai" Name="kspedia_dpai" CreatedTime="-8584414146326419748" AutoLoad="false">
+  <Author>Micha Werle</Author>
+  <Info>KSPedia for Docking Port Alignment Indicator</Info>
+  <Assets>
+    <Asset Name="DPAI.HowtoDock" Path="Assets/DPAI/DPAI.HowtoDock.prefab" Type="GameObject" Url="DPAI/DPAI" AutoLoad="false" />
+    <Asset Name="DPAI.Title" Path="Assets/DPAI/DPAI.Title.prefab" Type="GameObject" Url="DPAI/DPAI" AutoLoad="false" />
+    <Asset Name="dapi_dot" Path="Assets/Images/dapi_dot.png" Type="Texture2D" Url="Images/dapi_dot" AutoLoad="false" />
+    <Asset Name="dapi_line" Path="Assets/Images/dapi_line.png" Type="Texture2D" Url="Images/dapi_line" AutoLoad="false" />
+    <Asset Name="DPAI Panel - aligned" Path="Assets/Images/DPAI Panel - aligned.png" Type="Texture2D" Url="Images/DPAI Panel - aligned" AutoLoad="false" />
+    <Asset Name="DPAI Panel" Path="Assets/Images/DPAI Panel.png" Type="Texture2D" Url="Images/DPAI Panel" AutoLoad="false" />
+    <Asset Name="dpai_flight_crop" Path="Assets/Images/dpai_flight_crop.png" Type="Texture2D" Url="Images/dpai_flight_crop" AutoLoad="false" />
+    <Asset Name="dpai_marker_alignment" Path="Assets/Images/dpai_marker_alignment.png" Type="Texture2D" Url="Images/dpai_marker_alignment" AutoLoad="false" />
+    <Asset Name="dpai_marker_heading" Path="Assets/Images/dpai_marker_heading.png" Type="Texture2D" Url="Images/dpai_marker_heading" AutoLoad="false" />
+    <Asset Name="dpai_marker_heading_back" Path="Assets/Images/dpai_marker_heading_back.png" Type="Texture2D" Url="Images/dpai_marker_heading_back" AutoLoad="false" />
+    <Asset Name="dpai_marker_heading_fwd" Path="Assets/Images/dpai_marker_heading_fwd.png" Type="Texture2D" Url="Images/dpai_marker_heading_fwd" AutoLoad="false" />
+    <Asset Name="dpai_marker_relative_rot" Path="Assets/Images/dpai_marker_relative_rot.png" Type="Texture2D" Url="Images/dpai_marker_relative_rot" AutoLoad="false" />
+    <Asset Name="dpai_marker_relative_vel" Path="Assets/Images/dpai_marker_relative_vel.png" Type="Texture2D" Url="Images/dpai_marker_relative_vel" AutoLoad="false" />
+    <Asset Name="dpai_marker_txt_cdst" Path="Assets/Images/dpai_marker_txt_cdst.png" Type="Texture2D" Url="Images/dpai_marker_txt_cdst" AutoLoad="false" />
+    <Asset Name="dpai_marker_txt_cvel" Path="Assets/Images/dpai_marker_txt_cvel.png" Type="Texture2D" Url="Images/dpai_marker_txt_cvel" AutoLoad="false" />
+    <Asset Name="dpai_marker_txt_dst" Path="Assets/Images/dpai_marker_txt_dst.png" Type="Texture2D" Url="Images/dpai_marker_txt_dst" AutoLoad="false" />
+    <Asset Name="dpai_marker_txt_rot" Path="Assets/Images/dpai_marker_txt_rot.png" Type="Texture2D" Url="Images/dpai_marker_txt_rot" AutoLoad="false" />
+    <Asset Name="KSPedia_Background" Path="Assets/Images/KSPedia_Background.png" Type="Texture2D" Url="Images/KSPedia_Background" AutoLoad="false" />
+    <Asset Name="Toolbar" Path="Assets/Images/Toolbar.png" Type="Texture2D" Url="Images/Toolbar" AutoLoad="false" />
+    <Asset Name="kspedia_dpai_kspedia" Path="Assets/XML/kspedia_dpai_kspedia.xml" Type="TextAsset" Url="XML/kspedia_dpai_kspedia" AutoLoad="false" />
+  </Assets>
+  <Dependencies>
+    <Dependency>squadcore</Dependency>
+  </Dependencies>
+</KSPBundleDefinition>

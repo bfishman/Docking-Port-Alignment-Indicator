@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: c5a1d44de138569e68bddf65722b42a7
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Open Sans
+  fontNames:
+  - Open Sans
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: e1f1f76ea41920dfcab9c8364fc5f11f, type: 3}
+  - {fileID: 12800000, guid: 62a268fed5e77e60692d7b10826d44a0, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: squadcore
+  assetBundleVariant: 

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KSPedia xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="kspedia_dpai" CreatedTime="-8584414137082215818">
+  <Categories>
+    <Category Name="dpai">
+      <Title>Docking Port Alignment Indicator</Title>
+      <TitleScreen>DPAI.Title</TitleScreen>
+      <Screens>
+        <Screen>DPAI.HowtoDock</Screen>
+      </Screens>
+      <Subcategories />
+    </Category>
+  </Categories>
+  <Screens>
+    <Screen Name="DPAI.Title">
+      <BundleName>kspedia_dpai</BundleName>
+      <AssetPath>Assets/DPAI/DPAI.Title.prefab</AssetPath>
+      <Title>Docking Port Alignment Indicator</Title>
+      <Background />
+      <Text>
+        <Text Name="txt.PageHeading">
+          <Text>Docking Port Alignment Indicator
+</Text>
+        </Text>
+        <Text Name="txt.PageHeading/txt.PageIntro">
+          <Text>The Docking Port Alignment Indicator helps your docking by providing you with a comprehensive docking dispay.</Text>
+        </Text>
+        <Text Name="Image.toolbar/Image.line3/Image.line2/Image.line1/Image.dot/txt.Body (1)">
+          <Text>Toggle the Docking Port Alignment Indicator panel by clicking on the toolbar button.</Text>
+        </Text>
+      </Text>
+      <Tooltips />
+    </Screen>
+    <Screen Name="DPAI.HowtoDock">
+      <BundleName>kspedia_dpai</BundleName>
+      <AssetPath>Assets/DPAI/DPAI.HowtoDock.prefab</AssetPath>
+      <Title>How to Dock</Title>
+      <Background />
+      <Text>
+        <Text Name="txt.PageHeading">
+          <Text>How to Dock using Docking Port Alignment Indicator</Text>
+        </Text>
+        <Text Name="txt.AlignHeading">
+          <Text>Aligning to the target docking port</Text>
+        </Text>
+        <Text Name="txt.AlignHeading/txt.AlignBody">
+          <Text>• Control your vessel from the docking port you want to dock with.
+• Use Flight controls to rotate and translate your vessel.
+• When all markers are aligned in the center, your docking port is aligned with the target docking port.</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.LineRelPos/Img.LineRelPos_1/Image.DotRelPos/txt.RelPosHeading">
+          <Text>Relative Position Indicator</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.LineRelPos/Img.LineRelPos_1/Image.DotRelPos/txt.RelPosHeading/txt.RelPosBody">
+          <Text>No direct control, moves according to velocity vector.</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.LineVel_0/Img.LineVel_1/Img.DotVel/txt.VelHeading">
+          <Text>Velocity Indicator</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.LineVel_0/Img.LineVel_1/Img.DotVel/txt.VelHeading/txt.VelBody">
+          <Text>Controlled via RCS translation controls.</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.LineHeading_0/Img.LineHeading_1/Image.dot/txt.ParagraphHeading (1)">
+          <Text>Heading Indicator</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.LineHeading_0/Img.LineHeading_1/Image.dot/txt.ParagraphHeading (1)/txt.ParagraphBody">
+          <Text>Controlled via yaw and pitch controls.</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.LineHeading_0 (1)/Img.LineHeading_1/Image.dot/txt.ParagraphHeading (1)">
+          <Text>Rotation Indicator</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.LineHeading_0 (1)/Img.LineHeading_1/Image.dot/txt.ParagraphHeading (1)/txt.ParagraphBody">
+          <Text>Controlled via rotation controls.</Text>
+        </Text>
+        <Text Name="Image.dpai_panel_in_space/txt.Subheading (1)">
+          <Text>Unaligned - cannot dock</Text>
+        </Text>
+        <Text Name="Img.PanelAligned/txt.Subheading (2)">
+          <Text>Aligned - ready to dock</Text>
+        </Text>
+        <Text Name="Img.PanelAligned/Img.LineVel_0 (1)/Img.LineVel_1/Img.DotVel/txt.VelBody">
+          <Text>All docking indicators are aligned. Docking is now possible by approaching slowly.</Text>
+        </Text>
+      </Text>
+      <Tooltips />
+    </Screen>
+  </Screens>
+</KSPedia>
