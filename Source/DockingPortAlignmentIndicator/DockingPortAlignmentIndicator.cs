@@ -30,6 +30,7 @@ using UnityEngine;
 using KSP.IO;
 using KSP.UI.Screens;
 using KSP.Localization;
+using KSPAssets.KSPedia;
 using System.Collections.Generic;
 
 using static NavyFish.LogWrapper;
@@ -206,7 +207,7 @@ namespace NavyFish
         /// Called directly and also as a GameEvent callback.
         private void addToolBarButtonToStockAppLauncher ()
         {
-            Log($"addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             if (HighLogic.LoadedSceneIsFlight && appLauncherButton == null) {
                 //print("DPAI: adding stock appLauncher button");
                 //RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
@@ -228,7 +229,7 @@ namespace NavyFish
         /// Called directly and also as a GameEvent callback.
         private void removeToolBarButtonFromAppLauncher()
         {
-            Log("removeToolBarButtonFromAppLauncher (appLauncherButton=={appLauncherButton})");
+            LogD("removeToolBarButtonFromAppLauncher (appLauncherButton=={appLauncherButton})");
             if (appLauncherButton != null)
             {
                 ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
@@ -241,7 +242,7 @@ namespace NavyFish
         /// </summary>
         private void OnAppLauncherReady()
         {
-            Log($"OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             if (HighLogic.LoadedSceneIsFlight)
             {
                 addToolBarButtonToStockAppLauncher();
@@ -252,16 +253,42 @@ namespace NavyFish
             }
         }
 
+        // Callback for toolbar button click
         private void onShowGUI()
         {
-            //print("DPAI_DEBUG onShowGUI()");
+            LogD("onShowGUI()");
             gaugeVisiblityToggledOn = true;
         }
 
+        // Callback for toolbar button click
         private void onHideGUI()
         {
-            //print("DPAI_DEBUG onHideGUI()");
+            LogD("onHideGUI()");
             gaugeVisiblityToggledOn = false;
+        }
+
+        bool wasVisible = false;
+        // GameEvents.onKSPediaSpawn
+        // Called when the KSPedia is shown
+        private void OnKSPediaSpawn ()
+        {
+            LogD($"GameEvents.OnKSPediaSpawn()");
+            wasVisible = gaugeVisiblityToggledOn;
+            if (wasVisible) {
+                onHideGUI();
+            }
+        }
+
+        // GameEvents.onKSPediaDespawn
+        // Note: this event seems to get fired twice when the KSPedia is closed,
+        //       so ensure this function only performs its actions once.
+        private void OnKSPediaDespawn ()
+        {
+            LogD($"GameEvents.OnKSPediaDespawn()");
+            if (wasVisible) {
+                onShowGUI();
+                wasVisible = false;
+            }
         }
 
         /// <summary>
@@ -269,7 +296,7 @@ namespace NavyFish
         /// </summary>
         public void Awake()
         {
-            Log($"Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             loadTextures();
         }
         
@@ -278,7 +305,7 @@ namespace NavyFish
         /// </summary>
         public void Start()
         {
-            Log($"Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             LoadPrefs();
 
             updateToolBarButton();
@@ -286,6 +313,11 @@ namespace NavyFish
             if ( !hasInitializedStyles ) initStyles();
 
             settingsWindowPosition = new Rect(0, windowPosition.yMax, 0, 0);
+
+            //GameEvents.debugEvents = true;
+
+            GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
+            GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
         }
 
         /// <summary>
@@ -293,7 +325,7 @@ namespace NavyFish
         /// </summary>
         private void OnDestroy()
         {
-            Log($"OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
 
             if (forceStockAppLauncher || !blizzyToolbarAvailable)
             {
@@ -303,6 +335,8 @@ namespace NavyFish
             {
                 destroyBlizzyButton();
             }
+            GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
+            GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
         }
 
         /// <summary>
@@ -364,7 +398,7 @@ namespace NavyFish
         /// </summary>
         private void updateToolBarButton()
         {
-            Log($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
 
             //Debug.Log("DPAI START");
@@ -635,7 +669,7 @@ namespace NavyFish
                                     if (tgt is ModuleDockingNode)
                                     {
                                         ModuleDockingNode port = tgt as ModuleDockingNode;
-                                        Log($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
+                                        LogD($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
                                         // MKW: if node was attached in the VAB, state is "PreAttached"
                                         if (excludeDockedPorts &&
                                                 (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) || 
@@ -1676,14 +1710,14 @@ namespace NavyFish
         #region Preferences
         private static void saveWindowPosition()
         {
-            Log($"saveWindowPosition");
+            //LogD($"saveWindowPosition");
             config.SetValue("window_position", windowPosition);
             config.save();
         }
 
         private static void saveConfigSettings()
         {
-            Log($"saveConfigSettings");
+            LogD($"saveConfigSettings");
             //config.SetValue("show_cdi", useCDI);
             //config.SetValue("show_rolldigits", drawRollDigits);
             config.SetValue("drawHudIcon", drawHudIcon);
@@ -1704,7 +1738,7 @@ namespace NavyFish
 
         public static void LoadPrefs()
         {
-            Log($"LoadPrefs");
+            LogD($"LoadPrefs");
             //print("Load Prefs");
             config = PluginConfiguration.CreateForType<DockingPortAlignmentIndicator>(null);
             config.load();

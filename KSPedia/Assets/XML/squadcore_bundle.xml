@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KSPBundleDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" UrlName="squadcore" Name="squadcore" CreatedTime="-8584414256342752028" AutoLoad="false">
+  <Author />
+  <Info />
+  <Assets>
+    <Asset Name="Amaranth-Bold" Path="Assets/Fonts/Amaranth-Bold.ttf" Type="Font" Url="Fonts/Amaranth-Bold" AutoLoad="false" />
+    <Asset Name="Amaranth-BoldItalic" Path="Assets/Fonts/Amaranth-BoldItalic.ttf" Type="Font" Url="Fonts/Amaranth-BoldItalic" AutoLoad="false" />
+    <Asset Name="Amaranth-Italic" Path="Assets/Fonts/Amaranth-Italic.ttf" Type="Font" Url="Fonts/Amaranth-Italic" AutoLoad="false" />
+    <Asset Name="Amaranth-Regular" Path="Assets/Fonts/Amaranth-Regular.ttf" Type="Font" Url="Fonts/Amaranth-Regular" AutoLoad="false" />
+    <Asset Name="OpenSans-Bold" Path="Assets/Fonts/OpenSans-Bold.ttf" Type="Font" Url="Fonts/OpenSans-Bold" AutoLoad="false" />
+    <Asset Name="OpenSans-BoldItalic" Path="Assets/Fonts/OpenSans-BoldItalic.ttf" Type="Font" Url="Fonts/OpenSans-BoldItalic" AutoLoad="false" />
+    <Asset Name="OpenSans-ExtraBold" Path="Assets/Fonts/OpenSans-ExtraBold.ttf" Type="Font" Url="Fonts/OpenSans-ExtraBold" AutoLoad="false" />
+    <Asset Name="OpenSans-ExtraBoldItalic" Path="Assets/Fonts/OpenSans-ExtraBoldItalic.ttf" Type="Font" Url="Fonts/OpenSans-ExtraBoldItalic" AutoLoad="false" />
+    <Asset Name="OpenSans-Italic" Path="Assets/Fonts/OpenSans-Italic.ttf" Type="Font" Url="Fonts/OpenSans-Italic" AutoLoad="false" />
+    <Asset Name="OpenSans-Light" Path="Assets/Fonts/OpenSans-Light.ttf" Type="Font" Url="Fonts/OpenSans-Light" AutoLoad="false" />
+    <Asset Name="OpenSans-LightItalic" Path="Assets/Fonts/OpenSans-LightItalic.ttf" Type="Font" Url="Fonts/OpenSans-LightItalic" AutoLoad="false" />
+    <Asset Name="OpenSans-Regular" Path="Assets/Fonts/OpenSans-Regular.ttf" Type="Font" Url="Fonts/OpenSans-Regular" AutoLoad="false" />
+    <Asset Name="OpenSans-Semibold" Path="Assets/Fonts/OpenSans-Semibold.ttf" Type="Font" Url="Fonts/OpenSans-Semibold" AutoLoad="false" />
+    <Asset Name="OpenSans-SemiboldItalic" Path="Assets/Fonts/OpenSans-SemiboldItalic.ttf" Type="Font" Url="Fonts/OpenSans-SemiboldItalic" AutoLoad="false" />
+    <Asset Name="BackgroundBlack" Path="Assets/SquadCore/KSPedia/Backgrounds/BackgroundBlack.png" Type="Texture2D" Url="SquadCore/KSPedia/Backgrounds/BackgroundBlack" AutoLoad="false" />
+    <Asset Name="BackgroundBlue" Path="Assets/SquadCore/KSPedia/Backgrounds/BackgroundBlue.png" Type="Texture2D" Url="SquadCore/KSPedia/Backgrounds/BackgroundBlue" AutoLoad="false" />
+    <Asset Name="BackgroundBlueGrid" Path="Assets/SquadCore/KSPedia/Backgrounds/BackgroundBlueGrid.png" Type="Texture2D" Url="SquadCore/KSPedia/Backgrounds/BackgroundBlueGrid" AutoLoad="false" />
+    <Asset Name="BackgroundKSC" Path="Assets/SquadCore/KSPedia/Backgrounds/BackgroundKSC.png" Type="Texture2D" Url="SquadCore/KSPedia/Backgrounds/BackgroundKSC" AutoLoad="false" />
+    <Asset Name="BackgroundWhite" Path="Assets/SquadCore/KSPedia/Backgrounds/BackgroundWhite.png" Type="Texture2D" Url="SquadCore/KSPedia/Backgrounds/BackgroundWhite" AutoLoad="false" />
+  </Assets>
+  <Dependencies />
+</KSPBundleDefinition>
