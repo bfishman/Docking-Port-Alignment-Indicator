@@ -419,10 +419,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 318178606}
     m_Modifications:
+    - target: {fileID: 2950015229259691962, guid: 9a477fbd05d5636aaa0b337eb4e9bf0a,
+        type: 3}
+      propertyPath: m_Text
+      value: All docking indicators are aligned. Docking is now possible by approaching
+        slowly.
+      objectReference: {fileID: 0}
     - target: {fileID: 3716936269402500354, guid: 9a477fbd05d5636aaa0b337eb4e9bf0a,
         type: 3}
       propertyPath: m_Name
       value: DPAI.HowtoDock
+      objectReference: {fileID: 0}
+    - target: {fileID: 3716936269402500354, guid: 9a477fbd05d5636aaa0b337eb4e9bf0a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4158733274072760430, guid: 9a477fbd05d5636aaa0b337eb4e9bf0a,
         type: 3}
