@@ -6,7 +6,7 @@ using KSP.IO;
 using System.Collections.Generic;
 
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
     public class DPAI_RPM : InternalModule
     {

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(SolutionDir)\common_settings.props" Condition="Exists('$(SolutionDir)\common_settings.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{AF91FC28-9488-4729-9581-092C55F59D88}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NavyFish.DPAI.Unity</RootNamespace>
+    <AssemblyName>DockingPortAlignmentIndicator.Unity</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>$(SolutionDir)\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>cp ${TargetFile} ../../../Unity/Assets/DPAI/Interface/</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>$(SolutionDir)\bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="DockingPortAlignmentIndicator_MainWindow.cs" />
+    <Compile Include="Interface\IDockingPortAlignmentIndicatorPanel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Unity\DockingPortAlignmentIndicator_AppWindow.cs" />
+  </ItemGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\KSP_Dev\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\KSP_Dev\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\..\KSP_Dev\KSP_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interface\" />
+    <Folder Include="Properties\" />
+    <Folder Include="Unity\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="Something" AfterTargets="Build">
+  </Target>
+  -->
+  <Target Name="CopyToKspDir" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug'">
+    <Copy SourceFiles="$(TargetDir)/$(TargetName).dll;$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(KSPDIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator" />
+  </Target>
+  <Target Name="CopyToDistDir" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release'">
+    <Copy SourceFiles="$(TargetDir)/$(TargetName).dll" DestinationFolder="$(DPAI_DIR)/GameData/NavyFish/Plugins/Docking Port Alignment Indicator" />
+  </Target>
+</Project>

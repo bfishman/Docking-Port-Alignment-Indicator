@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KSPBundleDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" UrlName="dpai" Name="dpai" CreatedTime="-8584413398798510968" AutoLoad="false">
+  <Author />
+  <Info />
+  <Assets>
+    <Asset Name="DPAI_MainWindow" Path="Assets/DPAI/Interface/DPAI_MainWindow.prefab" Type="GameObject" Url="DPAI/Interface/DPAI_MainWindow" AutoLoad="false" />
+    <Asset Name="gaugeBackground" Path="Assets/DPAI/Interface/gaugeBackground.png" Type="Texture2D" Url="DPAI/Interface/gaugeBackground" AutoLoad="false" />
+    <Asset Name="gaugeForeground" Path="Assets/DPAI/Interface/gaugeForeground.png" Type="Texture2D" Url="DPAI/Interface/gaugeForeground" AutoLoad="false" />
+  </Assets>
+  <Dependencies>
+    <Dependency>squadcore</Dependency>
+  </Dependencies>
+</KSPBundleDefinition>

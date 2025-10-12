@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
     public class GlyphData
     {
