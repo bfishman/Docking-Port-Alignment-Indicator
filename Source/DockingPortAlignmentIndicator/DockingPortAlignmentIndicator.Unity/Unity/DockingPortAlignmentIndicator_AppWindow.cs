@@ -1,7 +1,10 @@
-﻿/*
- *    LogWrapper.cs
+#if false
+
+#region License
+/*
+ *    DockingPortAlignmentIndicator_AppWindow - script for controlling the app window
  * 
- *    Copyright (C) 2019, Michael WERLE
+ *    Copyright (C) 2025, Michael Werle
  *    
  *    Permission is hereby granted, free of charge, to any person obtaining a copy
  *    of this software and associated documentation files (the "Software"), to deal
@@ -25,38 +28,39 @@
  *    project is in no way associated with nor endorsed by Squad.
  */
 
+#endregion
 
+using System;
+using NavyFish.DPAI.Unity.Interface;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-namespace NavyFish.DPAI
+namespace NavyFish.DPAI.Unity.Unity
 {
-/// <summary>
-/// A small static class to wrap the UnityEngine.Debug logger.
-/// </summary>
-/// The main purpose of this wrapper is to prevent output logs in release
-/// builds without the need to edit the code.
-static class LogWrapper
+
+public class DockingPortAlignmentIndicator_AppWindow : 
+    IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
-    /// <summary>
-    /// Prefix to each logging message.
-    /// </summary>
-    const string LogPrefix = "[DPAI.";
+    private Interface.IDockingPortAlignmentIndicatorPanel m_interface;
+    private bool m_initialized = false;
 
-    [System.Diagnostics.Conditional("DEBUG")]
-    public static void LogD(object message)
+    public DockingPortAlignmentIndicator_AppWindow ()
     {
-        Debug.Log(LogPrefix + "DBG] " + message);
+        
     }
+    
+    public void Initialize(Interface.IDockingPortAlignmentIndicatorPanel f_interface)
+    {
+        if (dpaiPanel == null) {
+            return;
+        }
+        m_interface = f_interface;
 
-    public static void LogE(object message)
-    {
-        Debug.LogError(LogPrefix + "ERR] "  + message);
+        m_initialized = true;
     }
-
-    public static void LogW(object message)
-    {
-        Debug.LogWarning(LogPrefix + "WRN] "  + message);
-    }
+}
 
 }
-}
+
+#endif

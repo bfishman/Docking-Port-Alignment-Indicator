@@ -1,4 +1,4 @@
-/*
+﻿/*
  *    DockingPortAlignment.cs
  * 
  *    Copyright (C) 2014, Bryan Fishman
@@ -33,10 +33,10 @@ using KSP.Localization;
 using KSPAssets.KSPedia;
 using System.Collections.Generic;
 
-using static NavyFish.LogWrapper;
+using static NavyFish.DPAI.LogWrapper;
 using System.Linq;
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class DockingPortAlignmentIndicator : MonoBehaviour
@@ -254,11 +254,28 @@ namespace NavyFish
             }
         }
 
+        private DPAI_Panel m_mainWindow = null;
+
         // Callback for toolbar button click
         private void onShowGUI()
         {
             LogD("onShowGUI()");
             gaugeVisiblityToggledOn = true;
+            DPAI_Panel.Instance?.OnShowGUI();
+
+            #if false            
+            if (DPAI_Panel_Loader.PanelPrefab != null) {
+                GameObject obj = Instantiate(DPAI_Panel_Loader.PanelPrefab) as GameObject;
+                if (obj != null) {
+                    obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform);
+                    m_mainWindow = obj.GetComponent<DPAI_Panel>();
+                    Unity.DockingPortAlignmentIndicator.Initialize(m_mainWindow);
+                }
+            }
+            #endif
+        }
+        public DPAI_Panel MainWindow {
+            get { return m_mainWindow; }
         }
 
         // Callback for toolbar button click
@@ -266,6 +283,8 @@ namespace NavyFish
         {
             LogD("onHideGUI()");
             gaugeVisiblityToggledOn = false;
+            
+            DPAI_Panel.Instance?.OnHideGUI();
         }
 
         bool wasVisible = false;
@@ -1048,8 +1067,8 @@ namespace NavyFish
 
                     calculateCDIvalues0to1(ref xVal, ref yVal);
 
-                    NavyFish.Drawing.DrawVerticalLineGraphics(glassCenter.x + (xVal - .5f) * screenRect.width, rpmDrawableRect.yMin, rpmDrawableRect.height, 2f, colorCDI);
-                    NavyFish.Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal - .5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 2f, colorCDI);
+                    Drawing.DrawVerticalLineGraphics(glassCenter.x + (xVal - .5f) * screenRect.width, rpmDrawableRect.yMin, rpmDrawableRect.height, 2f, colorCDI);
+                    Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal - .5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 2f, colorCDI);
                 }
 
                 
@@ -1265,7 +1284,7 @@ namespace NavyFish
                 GUILayout.EndHorizontal();
                 if (targetHUDiconSize != lastFloat)
                 {
-                    configDirty =  true;
+                    configDirty = true;
                 }
             }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
     public class Drawing
     {

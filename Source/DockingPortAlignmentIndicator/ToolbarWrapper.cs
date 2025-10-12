@@ -28,9 +28,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-
-// TODO: Change to your plugin's namespace here.
-namespace NavyFish
+// This must be set to your namespace
+namespace NavyFish.DPAI
 {
 
 

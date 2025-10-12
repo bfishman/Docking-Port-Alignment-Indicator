@@ -1,7 +1,9 @@
-﻿/*
- *    LogWrapper.cs
+#region License
+/*
+ *    IDockingPortAlignmentIndicatorPanel - interface for transferring information
+ *        between the DPAI panel UI and the DPAI KSP assembly.
  * 
- *    Copyright (C) 2019, Michael WERLE
+ *    Copyright (C) 2025, Michael Werle
  *    
  *    Permission is hereby granted, free of charge, to any person obtaining a copy
  *    of this software and associated documentation files (the "Software"), to deal
@@ -25,38 +27,29 @@
  *    project is in no way associated with nor endorsed by Squad.
  */
 
-
+#endregion
 using UnityEngine;
 
-namespace NavyFish.DPAI
+namespace NavyFish.DPAI.Unity.Interface
 {
-/// <summary>
-/// A small static class to wrap the UnityEngine.Debug logger.
-/// </summary>
-/// The main purpose of this wrapper is to prevent output logs in release
-/// builds without the need to edit the code.
-static class LogWrapper
+
+// This interface should be implemented by the KSP Assembly to transmit and receive information from the Unity UI.
+public interface IDockingPortAlignmentIndicatorPanel
 {
-    /// <summary>
-    /// Prefix to each logging message.
-    /// </summary>
-    const string LogPrefix = "[DPAI.";
-
-    [System.Diagnostics.Conditional("DEBUG")]
-    public static void LogD(object message)
-    {
-        Debug.Log(LogPrefix + "DBG] " + message);
-    }
-
-    public static void LogE(object message)
-    {
-        Debug.LogError(LogPrefix + "ERR] "  + message);
-    }
-
-    public static void LogW(object message)
-    {
-        Debug.LogWarning(LogPrefix + "WRN] "  + message);
-    }
-
+    // For updating the version string in the title bar
+    string Version { get; }
+    
+    // For updating the currently targetted port name
+    string PortName { get; }
+    
+    // Callback when the Prev button is clicked
+    void onPrevClicked();
+    
+    // Callback when the Next button is clicked
+    void onNextClicked();
+    
+    // Callback when the window was dragged to a new position
+    void OnWindowDragged(RectTransform rect);
 }
-}
+
+} // End namespace DockingPortAlignmentIndicator.Unity.Interface
