@@ -125,8 +125,8 @@
     <!-- Copy KSPedia 
       NOTE: the filename must end in ".ksp" for KSP to recognise it -->
     <Copy
-      SourceFiles="$(DistDir)\KSPedia\AssetBundles\kspedia_dpai"
-      DestinationFiles="$(BuildDir)\GameData\KSPedia\kspedia_dpai.ksp" />
+      SourceFiles="$(DistDir)\Unity\AssetBundles\kspedia_dpai"
+      DestinationFiles="$(BuildDir)\GameData\GameData\Assets\kspedia_dpai.ksp" />
   </Target>
 
   <!-- create zip file with content of release\bin folder -->
