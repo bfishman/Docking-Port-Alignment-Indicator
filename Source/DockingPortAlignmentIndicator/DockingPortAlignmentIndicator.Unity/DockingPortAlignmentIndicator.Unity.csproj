@@ -21,7 +21,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>cp ${TargetFile} ../../../Unity/Assets/DPAI/Interface/</command>
+          <command>cp ${TargetFile} ../../../Unity/Assets/DPAI_Interface/</command>
         </Command>
       </CustomCommands>
     </CustomCommands>

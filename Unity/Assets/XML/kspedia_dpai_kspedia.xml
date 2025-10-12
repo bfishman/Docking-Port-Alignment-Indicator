@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<KSPedia xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="kspedia_dpai" CreatedTime="-8584413399211368058">
+<KSPedia xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="kspedia_dpai" CreatedTime="-8584413331395666208">
   <Categories>
     <Category Name="dpai">
       <Title>Docking Port Alignment Indicator</Title>
@@ -13,7 +13,7 @@
   <Screens>
     <Screen Name="DPAI.Title">
       <BundleName>kspedia_dpai</BundleName>
-      <AssetPath>Assets/DPAI/DPAI.Title.prefab</AssetPath>
+      <AssetPath>Assets/DPAI_KSPedia/DPAI.Title.prefab</AssetPath>
       <Title>Docking Port Alignment Indicator</Title>
       <Background />
       <Text>
@@ -24,15 +24,49 @@
         <Text Name="txt.PageHeading/txt.PageIntro">
           <Text>The Docking Port Alignment Indicator helps your docking by providing you with a comprehensive docking dispay.</Text>
         </Text>
+        <Text Name="Image.dpai_panel_in_space/Img.PrevNextLine/Image.line2 (2)/Img.PrevNextLine (1)/Image.line2 (1)/Img.PrevNextLine (2)/Image.dot (1)/txt.Body (1)">
+          <Text>Select Prev/Next docking port on currently targetted vessel.</Text>
+        </Text>
         <Text Name="Image.toolbar/Image.line3/Image.line2/Image.line1/Image.dot/txt.Body (1)">
           <Text>Toggle the Docking Port Alignment Indicator panel by clicking on the toolbar button.</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading">
+          <Text>Markers:</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody">
+          <Text>The Docking Port Alignment Indicator panel contains serveral markers and pieces of information which display all the information required to perform an instrument-only docking approach.</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody/txt.lblMarkerAlign">
+          <Text>Position Indicator
+</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody/txt.lblMarkerShipHeading">
+          <Text> Heading Indicator</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody/txt.lblMarkerShipVel">
+          <Text>Velocity Indicator (fwd/rev)</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody/txt.lblMarkerRot">
+          <Text>Rotation Indicator</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody/txt.lblMarkerTxtCVEL">
+          <Text>Closing Velocity</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody/txt.lblMarkerTxtDST">
+          <Text>Absolute Distance</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody/txt.lblMarkerTxtRot">
+          <Text>Relative Rotation</Text>
+        </Text>
+        <Text Name="txt.MarkersHeading/txt.MarkersBody/txt.lblCDST">
+          <Text>Closing Distance</Text>
         </Text>
       </Text>
       <Tooltips />
     </Screen>
     <Screen Name="DPAI.HowtoDock">
       <BundleName>kspedia_dpai</BundleName>
-      <AssetPath>Assets/DPAI/DPAI.HowtoDock.prefab</AssetPath>
+      <AssetPath>Assets/DPAI_KSPedia/DPAI.HowtoDock.prefab</AssetPath>
       <Title>How to Dock</Title>
       <Background />
       <Text>
@@ -48,7 +82,7 @@
 • When all markers are aligned in the center, your docking port is aligned with the target docking port.</Text>
         </Text>
         <Text Name="Image.dpai_panel_in_space/Img.LineRelPos/Img.LineRelPos_1/Image.DotRelPos/txt.RelPosHeading">
-          <Text>Relative Position Indicator</Text>
+          <Text>Position Indicator</Text>
         </Text>
         <Text Name="Image.dpai_panel_in_space/Img.LineRelPos/Img.LineRelPos_1/Image.DotRelPos/txt.RelPosHeading/txt.RelPosBody">
           <Text>No direct control, moves according to velocity vector.</Text>

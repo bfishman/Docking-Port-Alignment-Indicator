@@ -21,7 +21,7 @@ public class DPAI_Panel_Loader : MonoBehaviour
     
     private void Awake()
     {
-        string path = KSPUtil.ApplicationRootPath+ "GameData/NavyFish/";
+        string path = KSPUtil.ApplicationRootPath+ "GameData/NavyFish/AssetBundles/";
         AssetBundle prefabs = AssetBundle.LoadFromFile(path + "dpai");
         m_panelPrefab = prefabs.LoadAsset("DPAI_MainWindow") as GameObject;
     }
