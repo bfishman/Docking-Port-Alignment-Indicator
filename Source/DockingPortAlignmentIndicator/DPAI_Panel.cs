@@ -87,7 +87,7 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
 
     public string PortName
     {
-        get { return DockingPortAlignmentIndicator.getReferencePortName(); }
+        get { return DockingPortAlignmentIndicator.determineTargetPortName(); }
     }
 
     // Callback when the "Prev" button is clicked
@@ -110,6 +110,14 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         get { return DockingPortAlignmentIndicator.guiRenderTexture; }
     }
     #endregion
+
+    public void OnTargetUpdated()
+    {
+        m_window?.setDockingPortName(PortName);
+    }
+    public void OnTargetPortRenamed(string portName) {
+        m_window?.setDockingPortName(portName);
+    }
 }
 
 } // End namespace NavyFish.DPAI

@@ -31,11 +31,13 @@ using System.Collections.Generic;
 using KSP;
 using KSPAssets;
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
     public class ModuleDockingNodeNamed : PartModule
     {
         public static RenameWindow renameWindow = null;
+        public delegate void OnPortRenamed(ModuleDockingNodeNamed renamedNode);
+        public static OnPortRenamed onPortRenamed;
 
         public ModuleDockingNodeNamed() {}
 
@@ -101,7 +103,10 @@ namespace NavyFish
 
         internal void renameModule(string newName)
         {
-            portName = newName;
+            if (newName != null && newName != portName) {
+                portName = newName;
+                onPortRenamed?.Invoke(this);
+            }
         }
     }
 }

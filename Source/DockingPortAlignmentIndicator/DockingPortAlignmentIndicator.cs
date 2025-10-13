@@ -254,28 +254,23 @@ namespace NavyFish.DPAI
             }
         }
 
-        private DPAI_Panel m_mainWindow = null;
-
         // Callback for toolbar button click
         private void onShowGUI()
         {
             LogD("onShowGUI()");
             gaugeVisiblityToggledOn = true;
-            DPAI_Panel.Instance?.OnShowGUI();
+            MainWindow?.OnShowGUI();
 
-            #if false            
-            if (DPAI_Panel_Loader.PanelPrefab != null) {
-                GameObject obj = Instantiate(DPAI_Panel_Loader.PanelPrefab) as GameObject;
-                if (obj != null) {
-                    obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform);
-                    m_mainWindow = obj.GetComponent<DPAI_Panel>();
-                    Unity.DockingPortAlignmentIndicator.Initialize(m_mainWindow);
-                }
-            }
-            #endif
+            ModuleDockingNodeNamed.onPortRenamed += OnPortRenamed;
         }
         public DPAI_Panel MainWindow {
-            get { return m_mainWindow; }
+            get { return DPAI_Panel.Instance; }
+        }
+        private void OnPortRenamed(ModuleDockingNodeNamed renamedNode)
+        {
+            if (renamedNode == targetNamedModule) {
+                MainWindow?.OnTargetPortRenamed(determineTargetPortName());
+            };
         }
 
         // Callback for toolbar button click
@@ -502,7 +497,12 @@ namespace NavyFish.DPAI
 
             if (showIndicator || (RPMPageActive && isIVA()))
             {
+                var lastTargetedDockingModule = targetedDockingModule;
                 determineTargetPort();
+                if (targetedDockingModule  != lastTargetedDockingModule) {
+                    // TODO: Make event
+                    MainWindow?.OnTargetUpdated();
+                }
                 if (targetedDockingModule != null) calculateGaugeData();
                 drawIndicatorContentsToTexture();
             }
@@ -1446,7 +1446,7 @@ namespace NavyFish.DPAI
             }
         }
 
-        private static String determineTargetPortName()
+        public static String determineTargetPortName()
         {
             String targetDisplayName;
 
