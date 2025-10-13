@@ -52,7 +52,7 @@ namespace NavyFish.DPAI
             DontDestroyOnLoad(this);
             RenameWindow.instance = this;
 
-            DPAI = Type.GetType("NavyFish.DockingPortAlignmentIndicator, DockingPortAlignmentIndicator");
+            DPAI = Type.GetType("NavyFish.DPAI.DockingPortAlignmentIndicator, DockingPortAlignmentIndicator");
         }
 
         public void DisplayForNode(ModuleDockingNodeNamed namedNode)
