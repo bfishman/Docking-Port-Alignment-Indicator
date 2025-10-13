@@ -1,18 +1,18 @@
-﻿/*
+/*
  *    DockingPortAlignment.cs
- * 
+ *
  *    Copyright (C) 2014, Bryan Fishman
- *    
+ *
  *    Permission is hereby granted, free of charge, to any person obtaining a copy
  *    of this software and associated documentation files (the "Software"), to deal
  *    in the Software without restriction, including without limitation the rights
  *    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *    copies of the Software, and to permit persons to whom the Software is
  *    furnished to do so, subject to the following conditions:
- *    
+ *
  *    The above copyright notice and this permission notice shall be included in
  *    all copies or substantial portions of the Software.
- *    
+ *
  *    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,7 @@
  *    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *    THE SOFTWARE.
- * 
+ *
  *    Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  *    project is in no way associated with nor endorsed by Squad.
  */
@@ -48,9 +48,9 @@ namespace NavyFish.DPAI
         private static Rect windowPosition = new Rect();
         private static Rect lastPosition = new Rect();
         private static Rect debugWindowPosition = new Rect(50,200,350,200);
-        
+
         static Rect selectedPortHUDRect = new Rect(0, 0, targetHUDiconSize, targetHUDiconSize);
-        
+
         public static float gaugeScale = .86f;
         private static int backgroundTextureWidth = 317;
         private static int backgroundTextureHeight = 317;
@@ -133,14 +133,14 @@ namespace NavyFish.DPAI
         private static bool forceStockAppLauncher = true;
 
         public static bool RPMPageActive = false;
-        
+
         static IButton toolbarButton;
 
         private static ApplicationLauncherButton appLauncherButton;
 
         static List<ITargetable> dockingModulesList = new List<ITargetable>();
         static int dockingModulesListIndex = -1;
-        
+
         static ITargetable currentTarget = null;
         static ITargetable lastTarget = null;
         static Vessel currentTargetVessel = null;
@@ -193,7 +193,7 @@ namespace NavyFish.DPAI
                 else
                 {
                     return null;
-                }   
+                }
             }
         }
 
@@ -283,7 +283,7 @@ namespace NavyFish.DPAI
         {
             LogD("onHideGUI()");
             gaugeVisiblityToggledOn = false;
-            
+
             DPAI_Panel.Instance?.OnHideGUI();
         }
 
@@ -319,7 +319,7 @@ namespace NavyFish.DPAI
             LogD($"Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             loadTextures();
         }
-        
+
         /// <summary>
         /// Called once only per object just before the first frame.
         /// </summary>
@@ -348,7 +348,7 @@ namespace NavyFish.DPAI
             LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
 
             saveConfigSettings();
-            
+
             if (forceStockAppLauncher || !blizzyToolbarAvailable)
             {
                 destroyAppLauncherButton();
@@ -459,7 +459,7 @@ namespace NavyFish.DPAI
                 //print("DPAI_DEBUG !FlightGlobals.ActiveVessel.isEVA: " + !FlightGlobals.ActiveVessel.isEVA);
                 //print("DPAI_DEBUG !MapView.MapIsEnabled: " + !MapView.MapIsEnabled);
             }
-            
+
 
             //if (Input.GetKeyDown(KeyCode.B)){
             //        cycledModuleIndex = dockingModulesListIndex + 1;
@@ -478,7 +478,7 @@ namespace NavyFish.DPAI
             {
                 showIndicator = true;
 
-   
+
 
                 //mousePos.Set(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
                 //print(mousePos);
@@ -497,7 +497,7 @@ namespace NavyFish.DPAI
             else
             {
                 showIndicator = false;
-                
+
             }
 
             if (showIndicator || (RPMPageActive && isIVA()))
@@ -628,7 +628,7 @@ namespace NavyFish.DPAI
             if (!isInMap && wasLastMap)
             {
                 justLeftMap = true;
-            }             
+            }
             wasLastMap = isInMap;
 
             bool isInIVA = isIVA();
@@ -648,7 +648,7 @@ namespace NavyFish.DPAI
 
                     if(justEnteredIVA || justLeftMap){
                         //print("DPAI: Was not previously IVA - tick " + tickCount);
-                        
+
                         if (FlightGlobals.ActiveVessel.Parts.Contains(lastReferencePart))
                         {
                             FlightGlobals.ActiveVessel.SetReferenceTransform(lastReferencePart);
@@ -696,7 +696,7 @@ namespace NavyFish.DPAI
                                         LogD($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
                                         // MKW: if node was attached in the VAB, state is "PreAttached"
                                         if (excludeDockedPorts &&
-                                                (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) || 
+                                                (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) ||
                                                 port.state.StartsWith("PreAttached", StringComparison.OrdinalIgnoreCase))
                                             )
                                         {
@@ -852,14 +852,14 @@ namespace NavyFish.DPAI
         private static void calculateGaugeData()
         {
             Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
-         
+
             ITargetable targetPort = targetedDockingModule as ITargetable;
 
             Transform targetTransform = targetPort.GetTransform();
 
 			Vector3 targetPortOutVector = targetTransform.forward.normalized;
 			Vector3 targetPortRollReferenceVector = -targetTransform.up;
-            
+
             orientationDeviation.x = AngleAroundNormal(-targetPortOutVector, selfTransform.up, selfTransform.forward);
             orientationDeviation.y = AngleAroundNormal(-targetPortOutVector, selfTransform.up, -selfTransform.right);
             orientationDeviation.z = AngleAroundNormal(targetPortRollReferenceVector, selfTransform.forward, selfTransform.up);
@@ -896,11 +896,11 @@ namespace NavyFish.DPAI
 
             float normalVelocity = Vector3.Dot(FlightGlobals.ship_tgtVelocity, targetPortOutVector);
             closureV = -normalVelocity*negativeOnBackHemisphere;
-            
+
 
             Vector3 globalTransverseVelocity = FlightGlobals.ship_tgtVelocity - normalVelocity * targetPortOutVector;
             transverseVelocity.x = Vector3.Dot(globalTransverseVelocity, selfTransform.right);
-            transverseVelocity.y = Vector3.Dot(globalTransverseVelocity, selfTransform.forward);            
+            transverseVelocity.y = Vector3.Dot(globalTransverseVelocity, selfTransform.forward);
 
             distanceToTarget = targetToOwnship.magnitude;
             closureD = Vector3.Dot(targetToOwnship, targetPortOutVector);
@@ -932,12 +932,12 @@ namespace NavyFish.DPAI
                     drawTargetPortHUDIndicator();
                 }
             }
-            
+
             if (showIndicator)
             {
                 windowPosition.width = foregroundTextureWidth * gaugeScale;
                 windowPosition.height = foregroundTextureHeight * gaugeScale;
-      
+
                 windowPosition = constrainToScreen(GUI.Window(1773, windowPosition, drawRenderedGaugeTexture, Localizer.GetStringByTag("#dpai"), labelStyle));
 
                 leftButtonRect.yMin = (402 * gaugeScale);
@@ -955,7 +955,7 @@ namespace NavyFish.DPAI
                     settingsWindowPosition.x = windowPosition.x;
                     settingsWindowPosition.y = windowPosition.yMax;
                     if (!settingsWindowOverflow) settingsWindowPosition.width = windowPosition.width;
-                 
+
                     settingsWindowPosition = GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, Localizer.GetStringByTag("#dpai_settings"), windowStyle);
                     if (settingsWindowPosition.width > windowPosition.width)
                     {
@@ -965,7 +965,7 @@ namespace NavyFish.DPAI
                     {
                         settingsWindowOverflow = false;
                     }
-                    
+
                 }
             }
         }
@@ -984,7 +984,7 @@ namespace NavyFish.DPAI
             float virtualHeight = rpmTgtRefTextHeight;
             float heightScale = virtualHeight / (stringDimensions.height);
             textTargetRefNameScale = Math.Min(widthScale, heightScale);
-            
+
             float x = tgtX + rtLabelSpacing + virtualWidth * .5f - (stringDimensions.width * textTargetRefNameScale / 2f);
             float y = fullScreenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetRefNameScale;
 
@@ -1019,10 +1019,10 @@ namespace NavyFish.DPAI
         private static Rect fullScreenRect = new Rect();
         static float screenPercentRPM = 1f;//.935f;
         static Rect rpmDrawableRect = new Rect();
-        
+
         static Rect visibleRect = new Rect(40, 44, 319, 319);
         public static RenderTexture guiRenderTexture = null;
-        
+
         public static void drawIndicatorContentsToTexture()
         {
             //var cam = KSP.UI.UIMainCamera.Camera;
@@ -1030,7 +1030,7 @@ namespace NavyFish.DPAI
             guiRenderTexture.DiscardContents();
 
             var previousRenderTexture = RenderTexture.active;
-            
+
             RenderTexture.active = guiRenderTexture;
 
             GL.PushMatrix();
@@ -1073,7 +1073,7 @@ namespace NavyFish.DPAI
                     Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal - .5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 2f, colorCDI);
                 }
 
-                
+
                 if (Math.Abs(orientationDeviation.x) > alignmentGaugeRange || Math.Abs(orientationDeviation.y) > alignmentGaugeRange)
                 {
                     Vector2 normDir = new Vector2(orientationDeviation.x, orientationDeviation.y).normalized;
@@ -1111,9 +1111,9 @@ namespace NavyFish.DPAI
 
                     float scaledRollWidth = roll.width * baseScale * rollMarkerScale;
                     float scaledRollHeight = roll.height * baseScale * rollMarkerScale;
-                    
+
                     GL.PushMatrix();
-                   
+
                     GL.MultMatrix(Matrix4x4.TRS(glassCenterV3, Quaternion.Euler(0, 0, -orientationDeviation.z * (rollFlipAxis ? -1 : 1)), identityScaleV3));
 
                     Graphics.DrawTexture(new Rect(-scaledRollWidth / 2f, (scaledRollHeight + rollOffset - screenRect.height) / 2f, scaledRollWidth, scaledRollHeight), roll);
@@ -1411,7 +1411,7 @@ namespace NavyFish.DPAI
             GUILayout.EndHorizontal();
         }
         Rect centeredToggleRect = new Rect(0,0,0,0);
-    
+
         private static void drawTargetPortName(Rect positionRect)
         {
             String targetDisplayName = determineTargetPortName();
@@ -1421,10 +1421,10 @@ namespace NavyFish.DPAI
             textTargetRefNameScale = Math.Min(widthScale, heightScale);
             float x = positionRect.center.x - stringDimensions.width * textTargetRefNameScale / 2f;
             float y = positionRect.yMax - (targetNameBoxYOffset * gaugeScale) - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetRefNameScale;
-            
+
             drawGlyphStringGUI(targetDisplayName, x, y, textTargetRefNameScale, BitmapFont.HorizontalAlignment.LEFT);
         }
-                
+
         //private static List<ModuleDockingNodeNamed> refNamedModules = new List<ModuleDockingNodeNamed>();
 
         public static string getReferencePortName()
@@ -1542,7 +1542,7 @@ namespace NavyFish.DPAI
             if (negativeOnBackHemisphere < 0) return colorCDIReverse;
             return colorCDINormal;
         }
-        
+
         private static void calculateCDIvalues0to1(ref float xVal, ref float yVal)
         {
             float gaugeX = xTranslationNegativeOnBackHemi * wrapRange(translationDeviation.x / 90f);
@@ -1566,7 +1566,7 @@ namespace NavyFish.DPAI
             xVal = (scaleExponentially(gaugeX, exponent) + 1)/2f;
             yVal = (scaleExponentially(gaugeY, exponent) + 1)/2f;
         }
-      
+
         private static float wrapRange(float a)
         {
             return ((((a + 1f) % 2) + 2) % 2) - 1f;
@@ -1823,7 +1823,7 @@ namespace NavyFish.DPAI
         }
         #endregion
 
-        
+
         #region Resources
 
         //public static Material mat_background;
@@ -1916,7 +1916,7 @@ namespace NavyFish.DPAI
         #region Debugging
 
         private static bool shouldDebug = false;
-        
+
         private void OnDrawDebug()
         {
             debugWindowPosition = GUILayout.Window(1338, debugWindowPosition, drawDebugWindowContents, "Debug", GUILayout.MinWidth(400), GUILayout.MaxWidth(800));
@@ -1948,7 +1948,7 @@ namespace NavyFish.DPAI
 
         static int _dstXpos = 47;
         static int _dstYpos = 292;
-                
+
         static int _DSTLABEL_x = 7;
 
         static int _cvelXpos = 304;
@@ -1959,8 +1959,8 @@ namespace NavyFish.DPAI
         static int _CLOSURED_y = 267;
 
         static int _CDSTLABEL_x = 226;
-        static int _CDSTLABEL_y = 267;     
-        
+        static int _CDSTLABEL_y = 267;
+
         static int _rDegXPos = 304;
         static int _rDegYPos = -1;
 
