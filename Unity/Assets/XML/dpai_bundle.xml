@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<KSPBundleDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" UrlName="dpai" Name="dpai" CreatedTime="-8584412617690961618" AutoLoad="false">
+<KSPBundleDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" UrlName="dpai" Name="dpai" CreatedTime="-8584412556136468658" AutoLoad="false">
   <Author>Michael Werle</Author>
   <Info>Unity Interface for Docking Port Alignment Indicator</Info>
   <Assets>

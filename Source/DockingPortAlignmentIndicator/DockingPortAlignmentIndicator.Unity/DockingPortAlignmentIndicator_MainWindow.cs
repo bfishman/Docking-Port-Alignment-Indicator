@@ -4,19 +4,19 @@
  *
  *    This script implements the GUI logic to handle the main window of the Docking
  *    Port Alignment Indicator.
- * 
+ *
  *    Copyright (C) 2025, Michael Werle
- *    
+ *
  *    Permission is hereby granted, free of charge, to any person obtaining a copy
  *    of this software and associated documentation files (the "Software"), to deal
  *    in the Software without restriction, including without limitation the rights
  *    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *    copies of the Software, and to permit persons to whom the Software is
  *    furnished to do so, subject to the following conditions:
- *    
+ *
  *    The above copyright notice and this permission notice shall be included in
  *    all copies or substantial portions of the Software.
- *    
+ *
  *    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +24,7 @@
  *    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *    THE SOFTWARE.
- * 
+ *
  *    Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  *    project is in no way associated with nor endorsed by Squad.
  */
@@ -43,13 +43,13 @@ public class RawImageTexture : MonoBehaviour
 {
     private RawImage m_rawImage;
     private Texture m_texture;
-    
+
     void Start()
     {
         m_rawImage = GetComponent<RawImage>();
         m_rawImage.texture = m_texture;
     }
-    
+
     public Texture Texture {
         get { return m_texture; }
         set { m_texture = value; }
@@ -65,7 +65,7 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     // The communications interface instance on the KSP side
     private Interface.IDockingPortAlignmentIndicatorPanel m_interface;
     private bool m_initialized = false;
-    
+
     public void Awake()
     {
         m_rect = GetComponent<RectTransform>();
@@ -82,13 +82,13 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
             return;
         }
         m_interface = f_interface;
-        
+
         setVersionString(m_interface.Version);
         setDockingPortName(m_interface.PortName);
 
         m_initialized = true;
     }
-    
+
     public void Update()
     {
         if (m_interface != null) {
@@ -111,7 +111,9 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     private Text m_txtPortName = null;
     [SerializeField]
     private RawImage m_imgGaugeMarkers = null;
-    
+    [SerializeField]
+    private Button m_btnSettings = null;
+
     public void setVersionString(string f_strVersion)
     {
         Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.setVersionString()");
@@ -120,7 +122,7 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
         }
         m_txtVersion.text = f_strVersion;
     }
-    
+
     public void setDockingPortName(string f_name)
     {
         Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.setDockingPortName()");
@@ -129,21 +131,28 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
         }
         m_txtPortName.text = f_name;
     }
-    
+
     public void onPrevClicked()
     {
         Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.onPrevClicked()");
         // Forward the button click to the interface implementation
         m_interface?.onPrevClicked();
     }
-    
+
     public void onNextClicked()
     {
         Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.onPrevClicked()");
         // Forward the button click to the interface implementation
         m_interface?.onNextClicked();
     }
-    
+
+    public void onSettingsClicked()
+    {
+        Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.onSettingsClicked()");
+        // Forward the button click to the interface implementation
+        m_interface?.onSettingsClicked();
+    }
+
     public void setGaugeMarkers(Texture t)
     {
         if (m_imgGaugeMarkers != null) {
@@ -161,40 +170,40 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     private void updateRect(PointerEventData eventData)
     {
         if (m_rect == null) return;
-        
+
         m_rect.position = m_windowStart + (Vector3)(eventData.position - m_mouseStart);
     }
-    
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (m_rect == null) return;
-        
+
         m_mouseStart = eventData.position;
         m_windowStart = m_rect.position;
     }
-    
+
     public void OnDrag(PointerEventData eventData)
     {
         updateRect(eventData);
     }
-    
+
     public void OnEndDrag(PointerEventData eventData)
     {
         if (m_rect == null) return;
-        
+
         updateRect(eventData);
-        
+
         m_interface?.OnWindowDragged(m_rect);
     }
     #endregion
-    
+
     #region Utily Functions
     public void clearGaugeMarkers()
     {
         // Defaults
         int w = 318;
         int h = 318;
-        
+
         if (m_imgGaugeMarkers == null) {
             Debug.LogError("[DPAI.MainWindow] clearGauageMarkers() error - gauge markers image not set");
             return;
@@ -213,7 +222,7 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
         m_imgGaugeMarkers.texture = target;
         UnityEngine.RenderTexture.ReleaseTemporary(target);
     }
-    
+
     #endregion
 
     } // End class DockingPortAlignmentIndicator

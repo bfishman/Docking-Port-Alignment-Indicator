@@ -104,6 +104,13 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         DockingPortAlignmentIndicator.cyclePortRight();
     }
 
+    // Callback when the "Next" button is clicked
+    public void onSettingsClicked()
+    {
+        LogD("DPAI_Panel.onSettingsClicked()");
+        // TODO: open the settings window and attach it
+    }
+
     // Called during the main window Update() function
     public Texture GaugeMarkers
     {
