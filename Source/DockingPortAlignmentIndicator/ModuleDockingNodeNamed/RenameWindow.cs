@@ -29,7 +29,7 @@ using System;
 using KSP.Localization;
 using UnityEngine;
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
     [KSPAddon(KSPAddon.Startup.EveryScene, true)]
     public class RenameWindow : MonoBehaviour
@@ -40,8 +40,12 @@ namespace NavyFish
         private ModuleDockingNodeNamed portModuleToRename = null;
         private bool windowOpen = false;
         private Vessel lastActiveVessel;
-        private string windowTitle = Localizer.GetStringByTag("#rename_docking_port");
+        private string windowTitle = getLocalisationString("#rename_docking_port", "Rename Docking Port");
+        private static string sName = getLocalisationString("#name", "Name");
+        private static string sOk = getLocalisationString("#ok", "Ok");
+        private static string sCancel = getLocalisationString("#cancel", "Cancel");
         private Type DPAI;
+        private string m_newPortName = null;
         public void Start()
         {
             //Debug.Log("RenameWindow: Start");
@@ -76,6 +80,7 @@ namespace NavyFish
 
             windowOpen = true;
             portModuleToRename = namedNode;
+            m_newPortName = portModuleToRename.portName;
 
         }
 
@@ -109,16 +114,16 @@ namespace NavyFish
             if (portModuleToRename != null && (HighLogic.LoadedSceneIsEditor || portModuleToRename.vessel.loaded) && !activeVesselChanged)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(Localizer.GetStringByTag("#name"), GUILayout.Width(50));
-                string newName = GUILayout.TextField(portModuleToRename.portName, GUILayout.ExpandWidth(true));
-                portModuleToRename.renameModule(newName);
+                GUILayout.Label(sName, GUILayout.Width(50));
+                m_newPortName = GUILayout.TextField(m_newPortName, GUILayout.ExpandWidth(true));
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
-                bool isDone = GUILayout.Button(Localizer.GetStringByTag("#ok"));
+                bool isDone = GUILayout.Button(sOk);
+                bool isCancel = GUILayout.Button(sCancel);
                 GUILayout.EndHorizontal();
-                if (isDone)
-                {
-                    closeWindow();
+
+                if (isDone || isCancel) {
+                    closeWindow(isDone);
                 }
             }
             else
@@ -127,10 +132,13 @@ namespace NavyFish
             }
         }
 
-        public void closeWindow()
+        public void closeWindow(bool ok = false)
         {
             if (portModuleToRename != null)
             {
+                if (ok) {
+                    portModuleToRename.renameModule(m_newPortName);
+                }
 
                 if (DPAI != null)
                 {
@@ -146,6 +154,24 @@ namespace NavyFish
             windowOpen = false;
 
             //RenderingManager.RemoveFromPostDrawQueue(0, DrawRenameDialog);
+        }
+
+        // Return the localised string from tag f_tag.
+        // If there is no localisation for f_tag, return f_default. If f_default is invalid,
+        // return f_tag.
+        public static string getLocalisationString(string f_tag, string f_default = "")
+        {
+            string s = f_default;
+
+            Debug.Assert(!string.IsNullOrWhiteSpace(f_tag));
+
+            bool ok = Localizer.TryGetStringByTag(f_tag, out s);
+            if (!ok) {
+                Debug.LogWarning("[DPAI.RenameWindow] Warning: localisation string missing - " + f_tag);
+                s = string.IsNullOrWhiteSpace(f_default) ? f_tag : f_default;
+            }
+
+            return s;
         }
     }
 }
