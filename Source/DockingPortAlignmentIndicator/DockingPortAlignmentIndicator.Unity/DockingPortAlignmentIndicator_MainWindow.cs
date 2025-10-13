@@ -38,11 +38,67 @@ using UnityEngine.EventSystems;
 namespace NavyFish.DPAI.Unity
 {
 
+// Attach this script to the rawimage whose texture we want to draw
+public class RawImageTexture : MonoBehaviour
+{
+    private RawImage m_rawImage;
+    private Texture m_texture;
+    
+    void Start()
+    {
+        m_rawImage = GetComponent<RawImage>();
+        m_rawImage.texture = m_texture;
+    }
+    
+    public Texture Texture {
+        get { return m_texture; }
+        set { m_texture = value; }
+    }
+}
+
 // This class is attached to the Panel component of the Unity GUI
 [RequireComponent(typeof(RectTransform))]
 public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    #region Lifetime
+    // The communications interface instance on the KSP side
+    private Interface.IDockingPortAlignmentIndicatorPanel m_interface;
+    private bool m_initialized = false;
+    
+    public void Awake()
+    {
+        m_rect = GetComponent<RectTransform>();
+
+        // Set up a reference to the gauge markers texture and clear it
+        // m_imgGaugeMarkers = GetComponentInChildren<RawImage>();
+        clearGaugeMarkers();
+    }
+
+    //This must be called by the KSP side to pass in the communications instance.    
+    public void Initialize(Interface.IDockingPortAlignmentIndicatorPanel f_interface)
+    {
+        if (f_interface == null) {
+            return;
+        }
+        m_interface = f_interface;
+        
+        setVersionString(m_interface.Version);
+        setDockingPortName(m_interface.PortName);
+
+        m_initialized = true;
+    }
+    
+    public void Update()
+    {
+        if (m_interface != null) {
+            setGaugeMarkers(m_interface.GaugeMarkers);
+        }
+    }
+    #endregion
+
+    #region UI_Interface
+    // These fields and methods are applied directly in the Unity UI
     [SerializeField]
     private Text m_txtTitle = null;
     [SerializeField]
@@ -53,36 +109,12 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     private Button m_btnNext = null;
     [SerializeField]
     private Text m_txtPortName = null;
+    [SerializeField]
+    private RawImage m_imgGaugeMarkers = null;
     
-    // Window handling support
-    private RectTransform rect;
-    private Vector2 mouseStart;
-    private Vector3 windowStart;
-
-    // The communications interface instance on the KSP side
-    private Interface.IDockingPortAlignmentIndicatorPanel m_interface;
-    private bool m_initialized = false;
-    
-    public void Awake()
-    {
-        rect = GetComponent<RectTransform>();
-    }
-
-    //This must be called by the KSP side to pass in the communications instance.    
-    public void Initialize(Interface.IDockingPortAlignmentIndicatorPanel f_interface)
-    {
-        if (f_interface == null) {
-            return;
-        }
-        m_interface = f_interface;
-
-        m_initialized = true;
-    }
-
-    #region UI_Interface
     public void setVersionString(string f_strVersion)
     {
-        Debug.Log("Unity.DockingPortAlignmentIndicator.setVersionString()");
+        Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.setVersionString()");
         if (m_txtVersion == null) {
             return;
         }
@@ -91,7 +123,7 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     
     public void setDockingPortName(string f_name)
     {
-        Debug.Log("Unity.DockingPortAlignmentIndicator.setDockingPortName()");
+        Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.setDockingPortName()");
         if (m_txtPortName == null) {
             return;
         }
@@ -100,33 +132,45 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     
     public void onPrevClicked()
     {
-        Debug.Log("Unity.DockingPortAlignmentIndicator.onPrevClicked()");
+        Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.onPrevClicked()");
         // Forward the button click to the interface implementation
         m_interface?.onPrevClicked();
     }
     
     public void onNextClicked()
     {
-        Debug.Log("Unity.DockingPortAlignmentIndicator.onPrevClicked()");
+        Debug.Log("[DPAI] Unity.DockingPortAlignmentIndicator.onPrevClicked()");
         // Forward the button click to the interface implementation
         m_interface?.onNextClicked();
+    }
+    
+    public void setGaugeMarkers(Texture t)
+    {
+        if (m_imgGaugeMarkers != null) {
+            m_imgGaugeMarkers.texture = t;
+        }
     }
     #endregion
 
     #region DragHandler
+    // Window handling support
+    private RectTransform m_rect;
+    private Vector2 m_mouseStart;
+    private Vector3 m_windowStart;
+
     private void updateRect(PointerEventData eventData)
     {
-        if (rect == null) return;
+        if (m_rect == null) return;
         
-        rect.position = windowStart + (Vector3)(eventData.position - mouseStart);
+        m_rect.position = m_windowStart + (Vector3)(eventData.position - m_mouseStart);
     }
     
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (rect == null) return;
+        if (m_rect == null) return;
         
-        mouseStart = eventData.position;
-        windowStart = rect.position;
+        m_mouseStart = eventData.position;
+        m_windowStart = m_rect.position;
     }
     
     public void OnDrag(PointerEventData eventData)
@@ -136,12 +180,40 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (rect == null) return;
+        if (m_rect == null) return;
         
         updateRect(eventData);
         
-        m_interface?.OnWindowDragged(rect);
+        m_interface?.OnWindowDragged(m_rect);
     }
+    #endregion
+    
+    #region Utily Functions
+    public void clearGaugeMarkers()
+    {
+        // Defaults
+        int w = 318;
+        int h = 318;
+        
+        if (m_imgGaugeMarkers == null) {
+            Debug.LogError("[DPAI.MainWindow] clearGauageMarkers() error - gauge markers image not set");
+            return;
+        }
+        if (m_imgGaugeMarkers.texture == null) {
+            Debug.LogWarning("[DPAI.MainWindow] clearGauageMarkers() error - gauge markers image has no texture");
+        } else {
+            w = m_imgGaugeMarkers.texture.width;
+            h = m_imgGaugeMarkers.texture.height;
+        }
+        RenderTexture prevTex = UnityEngine.RenderTexture.active;
+        RenderTexture target = RenderTexture.GetTemporary(w, h, 0, RenderTextureFormat.ARGB32);
+        GL.Viewport(new Rect(0f, 0f, w, h));
+        GL.Clear(true, true, Color.clear);
+        UnityEngine.RenderTexture.active = prevTex;
+        m_imgGaugeMarkers.texture = target;
+        UnityEngine.RenderTexture.ReleaseTemporary(target);
+    }
+    
     #endregion
 
     } // End class DockingPortAlignmentIndicator
