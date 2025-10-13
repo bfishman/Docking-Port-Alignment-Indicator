@@ -53,10 +53,15 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         LogD("DPAI_Panel.OnShowGUI()");
         if (m_window == null && DPAI_Panel_Loader.PanelPrefab != null) {
             GameObject obj = Instantiate(DPAI_Panel_Loader.PanelPrefab) as GameObject;
-            if (obj != null) {
+            if (obj == null) {
+                LogE("ERROR - could not instantiate the DPAI Panel prefab.");
+            } else {
                 obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform);
                 m_window = obj.GetComponent<Unity.DockingPortAlignmentIndicator_MainWindow>();
-                m_window.Initialize(Instance);
+                if (m_window == null) {
+                    LogE("ERROR - could not access the script object on the panel object");
+                }
+                m_window?.Initialize(Instance);
             }
         }
         m_window?.gameObject.SetActive(true);
@@ -81,18 +86,27 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     
     public string PortName
     {
-        // TODO: implement
-        get { return "Dummy Port Name"; }
+        get { return DockingPortAlignmentIndicator.getReferencePortName(); }
     }
     
+    // Callback when the "Prev" button is clicked
     public void onPrevClicked()
     {
         LogD("DPAI_Panel.onPrevClicked()");
+        DockingPortAlignmentIndicator.cyclePortLeft();
     }
     
+    // Callback when the "Next" button is clicked
     public void onNextClicked()
     {
         LogD("DPAI_Panel.onNextClicked()");
+        DockingPortAlignmentIndicator.cyclePortRight();
+    }
+
+    // Called during the main window Update() function
+    public Texture GaugeMarkers
+    {
+        get { return DockingPortAlignmentIndicator.guiRenderTexture; }
     }
     #endregion
 }

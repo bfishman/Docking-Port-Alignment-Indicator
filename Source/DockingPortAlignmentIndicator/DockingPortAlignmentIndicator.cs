@@ -361,6 +361,7 @@ namespace NavyFish.DPAI
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
         }
 
+        #region Toolbar
         /// <summary>
         /// Creates the ToolbarButton on the Stock Toolbar (AppLauncher)
         /// </summary>
@@ -438,6 +439,7 @@ namespace NavyFish.DPAI
                 createBlizzyButton();
             }
         }
+        #endregion // Toolbar
 
         private void OnGUI()
         {

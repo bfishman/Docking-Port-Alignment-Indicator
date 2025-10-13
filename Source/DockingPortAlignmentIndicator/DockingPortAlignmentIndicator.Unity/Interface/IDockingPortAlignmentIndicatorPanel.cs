@@ -50,6 +50,9 @@ public interface IDockingPortAlignmentIndicatorPanel
     
     // Callback when the window was dragged to a new position
     void OnWindowDragged(RectTransform rect);
+    
+    // For updating the gauge markers
+    Texture GaugeMarkers { get; }
 }
 
 } // End namespace DockingPortAlignmentIndicator.Unity.Interface
