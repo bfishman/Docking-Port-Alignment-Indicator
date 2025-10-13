@@ -64,7 +64,6 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     #region Lifetime
     // The communications interface instance on the KSP side
     private Interface.IDockingPortAlignmentIndicatorPanel m_interface;
-    private bool m_initialized = false;
 
     public void Awake()
     {
@@ -75,7 +74,7 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
         clearGaugeMarkers();
     }
 
-    //This must be called by the KSP side to pass in the communications instance.    
+    //This must be called by the KSP side to pass in the communications instance.
     public void Initialize(Interface.IDockingPortAlignmentIndicatorPanel f_interface)
     {
         if (f_interface == null) {
@@ -85,8 +84,6 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
 
         setVersionString(m_interface.Version);
         setDockingPortName(m_interface.PortName);
-
-        m_initialized = true;
     }
 
     public void Update()
@@ -99,6 +96,9 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
 
     #region UI_Interface
     // These fields and methods are applied directly in the Unity UI
+    // Some of them are only for setting up links to the UI elements but are otherwise unused, so suppress the
+    // warnings in this part of the code.
+    #pragma warning disable 0414
     [SerializeField]
     private Text m_txtTitle = null;
     [SerializeField]
@@ -113,6 +113,7 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     private RawImage m_imgGaugeMarkers = null;
     [SerializeField]
     private Button m_btnSettings = null;
+    #pragma warning restore 0414
 
     public void setVersionString(string f_strVersion)
     {
