@@ -1,5 +1,7 @@
 #region License
 /*
+ *    This file is part of Docking Port Alignment Indicator by NavyFish.
+ *
  *    IDockingPortAlignmentIndicatorPanel - interface for transferring information
  *        between the DPAI panel UI and the DPAI KSP assembly.
  *
@@ -27,7 +29,8 @@
  *    project is in no way associated with nor endorsed by Squad.
  */
 
-#endregion
+#endregion License
+
 using UnityEngine;
 
 namespace NavyFish.DPAI.Unity.Interface

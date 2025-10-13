@@ -1,5 +1,7 @@
 #region License
 /*
+ *    This file is part of Docking Port Alignment Indicator by NavyFish.
+ *
  *    DockingPortAlignmentIndicator_MainWindow - script to interface with the Unity UI
  *
  *    This script implements the GUI logic to handle the main window of the Docking
@@ -28,8 +30,7 @@
  *    Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  *    project is in no way associated with nor endorsed by Squad.
  */
-
-#endregion
+#endregion License
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -161,6 +162,10 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
         }
     }
     #endregion
+
+    #region GettersSetters
+    public RectTransform RectTransform { get { return m_rect; } }
+    #endregion GettersSetters
 
     #region DragHandler
     // Window handling support

@@ -1,3 +1,34 @@
+#region License
+/*
+ *    This file is part of Docking Port Alignment Indicator by NavyFish.
+ *
+ *    DPAI_Panel - class interfacing between the GUI and the main logic
+ *
+ *    Copyright (C) 2025, Michael Werle
+ *
+ *    Permission is hereby granted, free of charge, to any person obtaining a copy
+ *    of this software and associated documentation files (the "Software"), to deal
+ *    in the Software without restriction, including without limitation the rights
+ *    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *    copies of the Software, and to permit persons to whom the Software is
+ *    furnished to do so, subject to the following conditions:
+ *
+ *    The above copyright notice and this permission notice shall be included in
+ *    all copies or substantial portions of the Software.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *    THE SOFTWARE.
+ *
+ *    Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
+ *    project is in no way associated with nor endorsed by Squad.
+ */
+#endregion License
+
 using System;
 using UnityEngine;
 using KSP.UI;
@@ -34,12 +65,14 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     private string m_version;
     private static DPAI_Panel m_instance = null;
     private static Unity.DockingPortAlignmentIndicator_MainWindow m_window = null;
+    private static Settings.SettingsWindow m_settingsWindow = null;
 
     public static DPAI_Panel Instance
     {
         get { return m_instance; }
     }
 
+    #region MonoBehaviour Lifecycle
     private void Awake()
     {
         LogD("DPAI_Panel.Awake()");
@@ -47,6 +80,22 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         // TODO: retrieve version from assembly
         m_version = "1.12.0";
     }
+
+    private void Update()
+    {
+    }
+
+    private void OnGUI()
+    {
+        m_settingsWindow?.OnGUI();
+    }
+
+    private void OnDestroy()
+    {
+        m_settingsWindow?.Close();
+        m_settingsWindow = null;
+    }
+    #endregion MonoBehaviour Lifecycle
 
     public void OnShowGUI()
     {
@@ -71,6 +120,7 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     {
         LogD("DPAI_Panel.OnHideGUI()");
         m_window?.gameObject.SetActive(false);
+        m_settingsWindow?.Close();
     }
 
     #region IDockingPortAlignmentIndicatorPanel
@@ -108,7 +158,14 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     public void onSettingsClicked()
     {
         LogD("DPAI_Panel.onSettingsClicked()");
-        // TODO: open the settings window and attach it
+        if (m_settingsWindow == null) {
+            m_settingsWindow = new Settings.SettingsWindow();
+        }
+        if (m_settingsWindow.IsOpen()) {
+            m_settingsWindow.Close();
+        } else {
+            m_settingsWindow.Open(m_window?.RectTransform);
+        }
     }
 
     // Called during the main window Update() function
