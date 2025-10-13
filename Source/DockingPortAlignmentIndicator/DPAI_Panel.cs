@@ -13,12 +13,12 @@ namespace NavyFish.DPAI
 public class DPAI_Panel_Loader : MonoBehaviour
 {
     private static GameObject m_panelPrefab;
-    
+
     public static GameObject PanelPrefab
     {
         get { return m_panelPrefab; }
     }
-    
+
     private void Awake()
     {
         string path = KSPUtil.ApplicationRootPath+ "GameData/NavyFish/AssetBundles/";
@@ -34,12 +34,12 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     private string m_version;
     private static DPAI_Panel m_instance = null;
     private static Unity.DockingPortAlignmentIndicator_MainWindow m_window = null;
-    
+
     public static DPAI_Panel Instance
     {
         get { return m_instance; }
     }
-    
+
     private void Awake()
     {
         LogD("DPAI_Panel.Awake()");
@@ -47,7 +47,7 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         // TODO: retrieve version from assembly
         m_version = "1.12.0";
     }
-    
+
     public void OnShowGUI()
     {
         LogD("DPAI_Panel.OnShowGUI()");
@@ -66,36 +66,37 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         }
         m_window?.gameObject.SetActive(true);
     }
-    
+
     public void OnHideGUI()
     {
         LogD("DPAI_Panel.OnHideGUI()");
         m_window?.gameObject.SetActive(false);
     }
-    
+
     #region IDockingPortAlignmentIndicatorPanel
     public void OnWindowDragged(RectTransform rect)
     {
         UIMasterController.ClampToScreen(rect, Vector2.zero);
+        // TODO: save window position so it can be applied in future
     }
-    
+
     public string Version
     {
         get { return m_version; }
     }
-    
+
     public string PortName
     {
-        get { return DockingPortAlignmentIndicator.getReferencePortName(); }
+        get { return DockingPortAlignmentIndicator.determineTargetPortName(); }
     }
-    
+
     // Callback when the "Prev" button is clicked
     public void onPrevClicked()
     {
         LogD("DPAI_Panel.onPrevClicked()");
         DockingPortAlignmentIndicator.cyclePortLeft();
     }
-    
+
     // Callback when the "Next" button is clicked
     public void onNextClicked()
     {
@@ -109,6 +110,14 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         get { return DockingPortAlignmentIndicator.guiRenderTexture; }
     }
     #endregion
+
+    public void OnTargetUpdated()
+    {
+        m_window?.setDockingPortName(PortName);
+    }
+    public void OnTargetPortRenamed(string portName) {
+        m_window?.setDockingPortName(portName);
+    }
 }
 
 } // End namespace NavyFish.DPAI
