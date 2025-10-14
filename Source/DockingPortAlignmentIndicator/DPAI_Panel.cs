@@ -129,10 +129,14 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     }
 
     #region IDockingPortAlignmentIndicatorPanel
-    public void OnWindowDragged(RectTransform rect)
+    public Vector2 Position {
+        get { return Settings.Configuration.Instance.WindowPosition; }
+        set { Settings.Configuration.Instance.WindowPosition = value; }
+    }
+
+    public void ClampToScreen(RectTransform rect)
     {
         UIMasterController.ClampToScreen(rect, Vector2.zero);
-        // TODO: save window position so it can be applied in future
     }
 
     public string Version

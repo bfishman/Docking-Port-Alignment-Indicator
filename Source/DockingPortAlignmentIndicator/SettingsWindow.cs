@@ -223,6 +223,16 @@ public sealed class Configuration
             }
         }
     }
+
+    public Vector2 WindowPosition {
+        get { return config.GetValue<Vector2>("windowPosition", new Vector2(0,0)); }
+        set {
+            if (WindowPosition != value) {
+                config.SetValue("windowPosition", value);
+                dirty = true;
+            }
+        }
+    }
     #endregion
 
 }

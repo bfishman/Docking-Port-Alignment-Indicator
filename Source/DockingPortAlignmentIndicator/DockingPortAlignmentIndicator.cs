@@ -912,8 +912,6 @@ namespace NavyFish.DPAI
             return Vector3.Angle(v1, v2);
         }
 
-        private bool settingsWindowOverflow = false;
-
         private void onGaugeDraw()
         {
             if (c.DrawHudIcon)

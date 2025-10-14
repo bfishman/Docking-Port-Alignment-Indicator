@@ -69,6 +69,7 @@
     <ProjectReference Include="DockingPortAlignmentIndicator.Unity\DockingPortAlignmentIndicator.Unity.csproj">
       <Project>{AF91FC28-9488-4729-9581-092C55F59D88}</Project>
       <Name>DockingPortAlignmentIndicator.Unity</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -54,11 +54,14 @@ public interface IDockingPortAlignmentIndicatorPanel
     // Callback when the Settings button is clicked
     void onSettingsClicked();
 
-    // Callback when the window was dragged to a new position
-    void OnWindowDragged(RectTransform rect);
+    // For saving/restoring the screen position
+    Vector2 Position { get; set; }
 
     // For updating the gauge markers
     Texture GaugeMarkers { get; }
+
+    // Clamps the rectangle to the screen
+    void ClampToScreen(RectTransform rect);
 }
 
 } // End namespace DockingPortAlignmentIndicator.Unity.Interface

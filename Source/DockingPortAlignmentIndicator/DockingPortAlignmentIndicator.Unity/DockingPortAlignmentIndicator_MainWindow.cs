@@ -85,6 +85,7 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
 
         setVersionString(m_interface.Version);
         setDockingPortName(m_interface.PortName);
+        setPosition(m_interface.Position);
     }
 
     public void Update()
@@ -97,6 +98,14 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
 
     #region UI_Interface
     // These methods can be used to control the window
+    private void setPosition(Vector2 pos)
+    {
+        if (m_rect == null) {
+            return;
+        }
+        m_rect.anchoredPosition = new Vector3(pos.x, pos.y, 0);
+    }
+
     public void Open()
     {
         gameObject.SetActive(true);
@@ -212,7 +221,9 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
 
         updateRect(eventData);
 
-        m_interface?.OnWindowDragged(m_rect);
+        if (m_interface == null) return;
+        m_interface.ClampToScreen(m_rect);
+        m_interface.Position = new Vector2(m_rect.anchoredPosition.x, m_rect.anchoredPosition.y);
     }
     #endregion
 
