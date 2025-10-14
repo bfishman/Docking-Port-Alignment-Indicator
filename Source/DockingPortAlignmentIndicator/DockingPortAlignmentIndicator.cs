@@ -266,7 +266,7 @@ namespace NavyFish.DPAI
             LogD("onHideGUI()");
             gaugeVisiblityToggledOn = false;
 
-            DPAI_Panel.Instance?.OnHideGUI();
+            MainWindow?.OnHideGUI();
         }
 
         bool wasVisible = false;

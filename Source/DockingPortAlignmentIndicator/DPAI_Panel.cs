@@ -79,27 +79,8 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         m_instance = this;
         // TODO: retrieve version from assembly
         m_version = "1.12.0";
-    }
 
-    private void Update()
-    {
-    }
-
-    private void OnGUI()
-    {
-        m_settingsWindow?.OnGUI();
-    }
-
-    private void OnDestroy()
-    {
-        m_settingsWindow?.Close();
-        m_settingsWindow = null;
-    }
-    #endregion MonoBehaviour Lifecycle
-
-    public void OnShowGUI()
-    {
-        LogD("DPAI_Panel.OnShowGUI()");
+        // Load the Unity window from the prefab
         if (m_window == null && DPAI_Panel_Loader.PanelPrefab != null) {
             GameObject obj = Instantiate(DPAI_Panel_Loader.PanelPrefab) as GameObject;
             if (obj == null) {
@@ -113,13 +94,37 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
                 m_window?.Initialize(Instance);
             }
         }
-        m_window?.gameObject.SetActive(true);
+        m_window?.gameObject.SetActive(false);
+        m_settingsWindow?.Close();
+    }
+
+    private void Update()
+    {
+    }
+
+    private void OnGUI()
+    {
+        m_settingsWindow?.OnGUI();
+    }
+
+    private void OnDestroy()
+    {
+        m_window.Close();
+        m_settingsWindow?.Close();
+        m_settingsWindow = null;
+    }
+    #endregion MonoBehaviour Lifecycle
+
+    public void OnShowGUI()
+    {
+        LogD("DPAI_Panel.OnShowGUI()");
+        m_window?.Open();
     }
 
     public void OnHideGUI()
     {
         LogD("DPAI_Panel.OnHideGUI()");
-        m_window?.gameObject.SetActive(false);
+        m_window?.Close();
         m_settingsWindow?.Close();
     }
 

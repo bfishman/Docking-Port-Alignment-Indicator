@@ -96,6 +96,19 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
     #endregion
 
     #region UI_Interface
+    // These methods can be used to control the window
+    public void Open()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public void Close()
+    {
+        gameObject.SetActive(false);
+    }
+    #endregion UI_Interface
+
+    #region Unity_Interface
     // These fields and methods are applied directly in the Unity UI
     // Some of them are only for setting up links to the UI elements but are otherwise unused, so suppress the
     // warnings in this part of the code.
