@@ -43,23 +43,12 @@ namespace NavyFish.DPAI
     {
         private static Settings.Configuration c = null;
         private static bool hasInitializedStyles = false;
-        private static GUIStyle windowStyle, labelStyle, settingsButtonStyle;
-        private static Rect windowPosition = new Rect();
-        private static Rect lastPosition = new Rect();
         private static Rect debugWindowPosition = new Rect(50,200,350,200);
 
         static Rect selectedPortHUDRect;
 
         private static int backgroundTextureWidth = 317;
         private static int backgroundTextureHeight = 317;
-        private static Rect backgroundRect;
-
-        private static int foregroundTextureWidth = 400;
-        private static int foregroundTextureHeight = 457;
-        private static Rect foregroundRect;
-
-        private static Rect leftButtonRect = new Rect();
-        private static Rect rightButtonRect = new Rect();
 
         private static Vector3 orientationDeviation = new Vector3();
         private static Vector2 translationDeviation = new Vector3();
@@ -88,12 +77,9 @@ namespace NavyFish.DPAI
 
         private static Color colorCDINormal = new Color(.064f, .642f, 0f);
         private static Color colorCDIReverse = new Color(.747f, 0f, .05f);
-        private static Color colorsettingsButtonActivated = new Color(.11f, .66f, .11f, 1f);
-        private static Color colorsettingsButtonDeactivated = new Color(.22f, .26f, .29f, 1f);
         private static Color colorTargetPortHUDicon = new Color(.989f, .329f, .953f);
         private static Color colorGaugeLabels = new Color(.41f, .41f, .41f, 1f);
 
-        public static Texture2D gaugeForegroundTex = null;
         public static Texture2D gaugeBackgroundTex = null;
         public static Texture2D rpmBackgroundTex = null;
         public static Texture2D alignmentTex = null;
@@ -109,7 +95,6 @@ namespace NavyFish.DPAI
         public static BitmapFont bitmapFont;
         private static float textTargetRefNameScale = .77f;
 
-        private static bool showSettings = false;
         private static bool useCDI = true;
         private static bool drawRollDigits = true;
         private static bool showIndicator;
@@ -304,8 +289,6 @@ namespace NavyFish.DPAI
             c = Settings.Configuration.Instance;
             c.Load();
             selectedPortHUDRect = new Rect(0, 0, c.HudIconSize, c.HudIconSize);
-            backgroundRect = new Rect(0, 0f, backgroundTextureWidth * c.GaugeScale, backgroundTextureHeight * c.GaugeScale);
-            foregroundRect = new Rect(0, 0f, foregroundTextureWidth * c.GaugeScale, foregroundTextureHeight * c.GaugeScale);
 
             loadTextures();
         }
@@ -318,10 +301,6 @@ namespace NavyFish.DPAI
             LogD($"Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
 
             updateToolBarButton();
-
-            if ( !hasInitializedStyles ) initStyles();
-
-            //GameEvents.debugEvents = true;
 
             GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
@@ -411,8 +390,6 @@ namespace NavyFish.DPAI
             LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
             blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
 
-            //Debug.Log("DPAI START");
-
             if (c.ForceStockAppLauncher || !blizzyToolbarAvailable)
             {
                 // Destroy blizzy button
@@ -436,8 +413,6 @@ namespace NavyFish.DPAI
 
         public void Update()
         {
-            //print("DPAI_DEBUG Update()");
-
             if ( !HighLogic.LoadedSceneIsFlight ) {
                 //print("DPAI_DEBUG update: returning, lodaed scene is not flight");
                 return;
@@ -458,28 +433,9 @@ namespace NavyFish.DPAI
 
             bool sceneElligibleForIndicator = (HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
 
-            //print("DPAI_DEBUG sceneElligble:" + sceneElligibleForIndicator);
-            //print("DPAI_DEBUG guageVisibility" + gaugeVisiblityToggledOn);
-
             if (sceneElligibleForIndicator && gaugeVisiblityToggledOn)
             {
                 showIndicator = true;
-
-
-
-                //mousePos.Set(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-                //print(mousePos);
-                //if (windowPosition.Contains(mousePos))
-                //{
-                //    //print("Contains Mouse");
-                //    containsMouse = true;
-                //    //InputLockManager.SetControlLock(ControlTypes.All, "DPAI_LOCK");
-                //}
-                //else
-                //{
-                //    containsMouse = false;
-                //    //InputLockManager.RemoveControlLock("DPAI_LOCK");
-                //}
             }
             else
             {
@@ -922,25 +878,6 @@ namespace NavyFish.DPAI
                     drawTargetPortHUDIndicator();
                 }
             }
-
-            if (showIndicator)
-            {
-                var gaugeScale = c.GaugeScale;
-                windowPosition.width = foregroundTextureWidth * gaugeScale;
-                windowPosition.height = foregroundTextureHeight * gaugeScale;
-
-                windowPosition = constrainToScreen(GUI.Window(1773, windowPosition, drawRenderedGaugeTexture, Localizer.GetStringByTag("#dpai"), labelStyle));
-
-                leftButtonRect.yMin = (402 * gaugeScale);
-                leftButtonRect.yMax = (446 * gaugeScale);
-                leftButtonRect.xMin = (21 * gaugeScale);
-                leftButtonRect.xMax = (66 * gaugeScale);
-
-                rightButtonRect.yMin = leftButtonRect.yMin;
-                rightButtonRect.yMax = leftButtonRect.yMax;
-                rightButtonRect.xMin = (334 * gaugeScale);
-                rightButtonRect.xMax = (380 * gaugeScale);
-            }
         }
 
         public static void drawRPMText(int screenWidth, int screenHeight)
@@ -998,8 +935,6 @@ namespace NavyFish.DPAI
 
         public static void drawIndicatorContentsToTexture()
         {
-            //var cam = KSP.UI.UIMainCamera.Camera;
-
             guiRenderTexture.DiscardContents();
 
             var previousRenderTexture = RenderTexture.active;
@@ -1028,6 +963,7 @@ namespace NavyFish.DPAI
 
             rpmDrawableRect.Set(xOffset, vertLineHeaderChop, virtualWidth, virtualHeight - vertLineFooterChop - vertLineHeaderChop);
 
+            // MW: Are we rendering the background _and_ the gauges, or just the gauges here?
             Graphics.DrawTexture(screenRect, gaugeBackgroundTex);
 
             float baseScale = 1f;
@@ -1132,67 +1068,6 @@ namespace NavyFish.DPAI
             RenderTexture.active = previousRenderTexture;
         }
 
-        public static void drawRenderedGaugeTexture(int windowID)
-        {
-            var gaugeScale = c.GaugeScale;
-            Rect gaugeRect = new Rect(0, 0, foregroundTextureWidth * gaugeScale, foregroundTextureHeight* gaugeScale);
-
-            backgroundRect.Set(visibleRect.x * gaugeScale,
-                                visibleRect.y * gaugeScale,
-                                visibleRect.width * gaugeScale,
-                                visibleRect.height * gaugeScale);
-
-
-            GUI.DrawTexture(backgroundRect, guiRenderTexture);
-
-            GUI.DrawTexture(gaugeRect, gaugeForegroundTex);
-
-            drawTargetPortName(gaugeRect);
-
-            Color lastBackColor = GUI.backgroundColor;
-            if (showSettings)
-            {
-                GUI.backgroundColor = colorsettingsButtonActivated;
-            }
-            else
-            {
-                GUI.backgroundColor = colorsettingsButtonDeactivated;
-            }
-
-            Rect settingsButtonRect = new Rect(settingsButtonX * gaugeScale, settingsButtonY * gaugeScale, settingsButtonWidth * gaugeScale, settingsButtonHeight * gaugeScale);
-            bool settingsButtonClicked = GUI.Button(settingsButtonRect, "", settingsButtonStyle);
-
-            drawGlyphStringGUI(Localizer.GetStringByTag("#settings"), settingsTextX * gaugeScale, settingsTextY * gaugeScale, settingsTextScale * gaugeScale, BitmapFont.HorizontalAlignment.LEFT);
-
-            if (settingsButtonClicked) showSettings = !showSettings;
-
-            if (c.AllowAutoPortTargeting)
-            {
-                Event ev = Event.current;
-                if (ev.type == EventType.MouseDown && ev.button == 0)
-                {
-                    if (rightButtonRect.Contains(ev.mousePosition))
-                    {
-                        cyclePortRight();
-
-                    }
-                    else if (leftButtonRect.Contains(ev.mousePosition))
-                    {
-                        cyclePortLeft();
-
-                    }
-                }
-            }
-
-            GUI.DragWindow();
-
-            if (windowPosition.x != lastPosition.x || windowPosition.y != lastPosition.y)
-            {
-                lastPosition.x = windowPosition.x;
-                lastPosition.y = windowPosition.y;
-            }
-        }
-
         public static void cyclePortLeft()
         {
             if (!c.AllowAutoPortTargeting || dockingModulesList.Count < 2) {
@@ -1213,22 +1088,6 @@ namespace NavyFish.DPAI
             cycledModuleIndex = dockingModulesListIndex + 1;
             cycledModuleIndex %= dockingModulesList.Count;
             portWasCycled = true;
-        }
-
-        Rect centeredToggleRect = new Rect(0,0,0,0);
-
-        private static void drawTargetPortName(Rect positionRect)
-        {
-            var gaugeScale = c.GaugeScale;
-            String targetDisplayName = determineTargetPortName();
-            BitmapFont.StringDimensions stringDimensions = bitmapFont.getStringDimensions(targetDisplayName, 1f);
-            float widthScale = targetNameBoxWidth * gaugeScale / stringDimensions.width;
-            float heightScale = targetNameBoxHeight * gaugeScale / (stringDimensions.height);
-            textTargetRefNameScale = Math.Min(widthScale, heightScale);
-            float x = positionRect.center.x - stringDimensions.width * textTargetRefNameScale / 2f;
-            float y = positionRect.yMax - (targetNameBoxYOffset * gaugeScale) - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetRefNameScale;
-
-            drawGlyphStringGUI(targetDisplayName, x, y, textTargetRefNameScale, BitmapFont.HorizontalAlignment.LEFT);
         }
 
         //private static List<ModuleDockingNodeNamed> refNamedModules = new List<ModuleDockingNodeNamed>();
@@ -1579,9 +1438,6 @@ namespace NavyFish.DPAI
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("RPM_background.png", null);
             rpmBackgroundTex = new Texture2D(317, 317, TextureFormat.ARGB32, false);
             rpmBackgroundTex.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("gaugeForeground.png", null);
-            gaugeForegroundTex = new Texture2D(foregroundTextureWidth, foregroundTextureHeight, TextureFormat.ARGB32, false);
-            gaugeForegroundTex.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("alignment.png", null);
             alignmentTex = new Texture2D(207, 207, TextureFormat.ARGB32, false);
             alignmentTex.LoadImage(arrBytes);
@@ -1622,49 +1478,34 @@ namespace NavyFish.DPAI
             guiRenderTexture = new RenderTexture((int)visibleRect.width, (int)visibleRect.height, 0, RenderTextureFormat.ARGB32);
         }
 
+        #endregion
+
+        #region Debugging
+
+        private static bool shouldDebug = false;
+        private static GUIStyle labelStyle = null;
+
         private void initStyles()
         {
             Color lightGrey = new Color(.8f, .8f, .85f);
-
-            windowStyle = new GUIStyle(HighLogic.Skin.window);
-            windowStyle.stretchWidth = true;
-            windowStyle.stretchHeight = true;
 
             labelStyle = new GUIStyle(HighLogic.Skin.label);
             labelStyle.stretchWidth = true;
             labelStyle.stretchHeight = true;
             labelStyle.normal.textColor = lightGrey;
 
-            settingsButtonStyle = new GUIStyle(HighLogic.Skin.button);
-            settingsButtonStyle.padding = new RectOffset(1, 1, 1, 1);
-            settingsButtonStyle.stretchHeight = true;
-            settingsButtonStyle.stretchWidth = false;
-            settingsButtonStyle.fontSize = 11;
-            settingsButtonStyle.normal.textColor = lightGrey;
-
             hasInitializedStyles = true;
         }
-        #endregion
-
-        #region Debugging
-
-        private static bool shouldDebug = false;
 
         private void OnDrawDebug()
         {
-            debugWindowPosition = GUILayout.Window(1338, debugWindowPosition, drawDebugWindowContents, "Debug", GUILayout.MinWidth(400), GUILayout.MaxWidth(800));
+            if (!hasInitializedStyles) {
+                initStyles();
+            }
+            debugWindowPosition = GUILayout.Window(1338, debugWindowPosition, drawDebugWindowContents, "DPAI Debug", GUILayout.MinWidth(400), GUILayout.MaxWidth(800));
         }
 
         static int vertLineFooterChop = 50;
-
-        private static float settingsButtonX = 150;
-        private static float settingsButtonY = 376;
-        private static float settingsButtonWidth = 100;
-        private static float settingsButtonHeight = 14;
-
-        static float settingsTextX = 178;
-        static float settingsTextY = 374;
-        static float settingsTextScale = .47f;
 
         private static int _rpmTextYTop = 19;
         private static int rpmTgtRefTextHeight = 19;
@@ -1708,17 +1549,7 @@ namespace NavyFish.DPAI
         static float gaugeAlignmentMarkerScale = .9f;
         private static float arrowLengthOffsetMult = 1.6f, arrowLengthMult = .2f;
 
-        static float targetNameBoxWidth = 205;
-        static float targetNameBoxHeight = 40;
-        static float targetNameBoxYOffset = 37;
-
         public static int RPMbottomGutter = 30;
-
-        //public static bool alignmentFlipXAxis = false;
-        //public static bool alignmentFlipYAxis = false;
-        //public static bool translationFlipXAxis = false;
-        //public static bool translationFlipYAxis = false;
-        //public static bool rollFlipAxis = false;
 
         private void drawDebugWindowContents(int windowID)
         {
