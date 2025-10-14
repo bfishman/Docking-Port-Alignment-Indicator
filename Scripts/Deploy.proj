@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Deploy" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.8">
   <ImportGroup Label="PropertySheets">
     <Import Project="..\Source\DockingPortAlignmentIndicator\common_settings.props" />
@@ -122,7 +122,13 @@
       <DistFiles Remove="@(DistFiles)" />
     </ItemGroup>
 
-    <!-- Copy KSPedia 
+
+    <!-- Copy DPAI asset bundle containing the GUI -->
+    <Copy
+      SourceFiles="$(DistDir)\Unity\AssetBundles\dpai"
+      DestinationFiles="$(BuildDir)\GameData\GameData\Assets\kspedia_dpai.ksp" />
+
+    <!-- Copy KSPedia
       NOTE: the filename must end in ".ksp" for KSP to recognise it -->
     <Copy
       SourceFiles="$(DistDir)\Unity\AssetBundles\kspedia_dpai"

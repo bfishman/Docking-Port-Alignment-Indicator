@@ -11,24 +11,17 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>$(SolutionDir)\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>AfterBuild</type>
-          <command>cp ${TargetFile} ../../../Unity/Assets/DPAI_Interface/</command>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>$(SolutionDir)\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -41,21 +34,9 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\KSP_Dev\KSP_Data\Managed\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\..\..\KSP_Dev\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\..\..\KSP_Dev\KSP_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interface\" />
@@ -68,7 +49,10 @@
   </Target>
   -->
   <Target Name="CopyToKspDir" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug'">
-    <Copy SourceFiles="$(TargetDir)/$(TargetName).dll;$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(KSPDIR)\GameData\NavyFish\Plugins\Docking Port Alignment Indicator" />
+    <Copy SourceFiles="$(TargetDir)/$(TargetName).dll;$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(KSPDIR)/GameData/NavyFish/Plugins/Docking Port Alignment Indicator" />
+  </Target>
+  <Target Name="CopyToUnityDir" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetDir)/$(TargetName).dll" DestinationFolder="$(DPAI_DIR)/Unity/Assets/DPAI_Interface/" />
   </Target>
   <Target Name="CopyToDistDir" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release'">
     <Copy SourceFiles="$(TargetDir)/$(TargetName).dll" DestinationFolder="$(DPAI_DIR)/GameData/NavyFish/Plugins/Docking Port Alignment Indicator" />

@@ -11,6 +11,7 @@ repos:
     rev: v6.0.0  # Use the latest stable release
     hooks:
       - id: check-added-large-files
+        args: ["--maxkb=800"] # Needs to be large enough for the asset bundles
       - id: check-case-conflict
       - id: check-executables-have-shebangs
       - id: check-illegal-windows-names
