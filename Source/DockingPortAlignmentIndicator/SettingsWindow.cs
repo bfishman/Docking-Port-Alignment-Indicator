@@ -36,7 +36,7 @@
 using KSP.IO;
 using KSP.Localization;
 using UnityEngine;
-using System;
+using UnityEngine.EventSystems;
 
 namespace NavyFish.DPAI.Settings
 {
@@ -51,6 +51,15 @@ public sealed class Configuration
         get { return instance; }
     }
     #endregion Singleton
+
+    #region Events
+    public delegate void OnPropertyChanged(string propertyName);
+    public static OnPropertyChanged onPropertyChanged;
+    private void NotifyPropertyChanged(string propertyName)
+    {
+        onPropertyChanged?.Invoke(propertyName);
+    }
+    #endregion Events
 
     #region PluginConfigurationWrapper
     private PluginConfiguration config = PluginConfiguration.CreateForType<DockingPortAlignmentIndicator>(null);
@@ -100,6 +109,7 @@ public sealed class Configuration
             if (GaugeScale != value) {
                 config.SetValue("gui_scale", value);
                 dirty = true;
+                NotifyPropertyChanged("GaugeScale");
             }
         }
     }
@@ -110,6 +120,7 @@ public sealed class Configuration
             if (DrawHudIcon != value) {
                 config.SetValue("drawHudIcon", value);
                 dirty = true;
+                NotifyPropertyChanged("DrawHudIcon");
             }
         }
     }
@@ -120,6 +131,7 @@ public sealed class Configuration
             if (ShowHudIconWhileIva != value) {
                 config.SetValue("showHUDIconWhileEva", value);
                 dirty = true;
+                NotifyPropertyChanged("ShowHudIconWhileIva");
             }
         }
     }
@@ -130,6 +142,7 @@ public sealed class Configuration
             if (HudIconSize != value) {
                 config.SetValue("HudIconSize", value);
                 dirty = true;
+                NotifyPropertyChanged("HudIconSize");
             }
         }
     }
@@ -140,6 +153,7 @@ public sealed class Configuration
             if (AllowAutoPortTargeting != value) {
                 config.SetValue("allowAutoPortTargeting", value);
                 dirty = true;
+                NotifyPropertyChanged("AllowAutoPortTargeting");
             }
         }
     }
@@ -150,6 +164,7 @@ public sealed class Configuration
             if (ExcludeDockedPorts != value) {
                 config.SetValue("excludeDockedPorts", value);
                 dirty = true;
+                NotifyPropertyChanged("ExcludeDockedPorts");
             }
         }
     }
@@ -160,6 +175,7 @@ public sealed class Configuration
             if (RestrictDockingPorts != value) {
                 config.SetValue("restrictDockingPorts", value);
                 dirty = true;
+                NotifyPropertyChanged("RestrictDockingPorts");
             }
         }
     }
@@ -170,6 +186,7 @@ public sealed class Configuration
             if (AlignmentFlipXAxis != value) {
                 config.SetValue("alignmentFlipXAxis", value);
                 dirty = true;
+                NotifyPropertyChanged("AlignmentFlipXAxis");
             }
         }
     }
@@ -180,6 +197,7 @@ public sealed class Configuration
             if (AlignmentFlipYAxis != value) {
                 config.SetValue("alignmentFlipYAxis", value);
                 dirty = true;
+                NotifyPropertyChanged("AlignmentFlipYAxis");
             }
         }
     }
@@ -190,6 +208,7 @@ public sealed class Configuration
             if (TranslationFlipXAxis != value) {
                 config.SetValue("translationFlipXAxis", value);
                 dirty = true;
+                NotifyPropertyChanged("TranslationFlipXAxis");
             }
         }
     }
@@ -200,6 +219,7 @@ public sealed class Configuration
             if (TranslationFlipYAxis != value) {
                 config.SetValue("translationFlipYAxis", value);
                 dirty = true;
+                NotifyPropertyChanged("TranslationFlipYAxis");
             }
         }
     }
@@ -210,6 +230,7 @@ public sealed class Configuration
             if (RollFlipAxis != value) {
                 config.SetValue("rollFlipAxis", value);
                 dirty = true;
+                NotifyPropertyChanged("RollFlipAxis");
             }
         }
     }
@@ -220,6 +241,7 @@ public sealed class Configuration
             if (ForceStockAppLauncher != value) {
                 config.SetValue("forceStockAppLauncher", value);
                 dirty = true;
+                NotifyPropertyChanged("ForceStockAppLauncher");
             }
         }
     }
@@ -230,6 +252,7 @@ public sealed class Configuration
             if (WindowPosition != value) {
                 config.SetValue("windowPosition", value);
                 dirty = true;
+                NotifyPropertyChanged("WindowPosition");
             }
         }
     }
@@ -282,11 +305,8 @@ public class SettingsWindow
     private void drawSettingsWindowContents(int id)
     {
         var c = Configuration.Instance;
-        bool last;
-        float lastFloat;
 
         GUILayout.BeginHorizontal();
-        last = c.DrawHudIcon;
         c.DrawHudIcon = GUILayout.Toggle(c.DrawHudIcon, Localizer.GetStringByTag("#display_hud_target_port_icon"));
         GUILayout.EndHorizontal();
 
@@ -306,33 +326,15 @@ public class SettingsWindow
         }
 
         GUILayout.BeginHorizontal();
-        last = c.AllowAutoPortTargeting;
         c.AllowAutoPortTargeting = GUILayout.Toggle(c.AllowAutoPortTargeting, Localizer.GetStringByTag("#enable_auto_targeting_and_cycling"));
-        if (c.AllowAutoPortTargeting != last)
-        {
-            // TODO: reset target
-            //resetTarget = true;
-        }
         GUILayout.EndHorizontal();
 
         if (c.AllowAutoPortTargeting)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(14f);
-            last = c.ExcludeDockedPorts;
             c.ExcludeDockedPorts = GUILayout.Toggle(c.ExcludeDockedPorts, Localizer.GetStringByTag("#exlude_docked_ports"));
-            if (c.ExcludeDockedPorts != last)
-            {
-                // TODO: reset target
-                //resetTarget = true;
-            }
-            last = c.RestrictDockingPorts;
             c.RestrictDockingPorts = GUILayout.Toggle(c.RestrictDockingPorts, Localizer.GetStringByTag("#restrict_docking_ports"));
-            if (c.RestrictDockingPorts != last)
-            {
-                // TODO: reset target
-                //resetTarget = true;
-            }
             GUILayout.EndHorizontal();
         }
 
@@ -340,17 +342,8 @@ public class SettingsWindow
         GUILayout.Label(Localizer.GetStringByTag("#gui_scale"));
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
-        lastFloat = c.GaugeScale;
         c.GaugeScale = GUILayout.HorizontalSlider(c.GaugeScale, 0.4f, 3.0f);
         GUILayout.EndHorizontal();
-        if (c.GaugeScale != lastFloat)
-        {
-            // TODO rescale UI
-            //windowPosition.width = foregroundTextureWidth * gaugeScale;
-            //windowPosition.height = foregroundTextureHeight * gaugeScale;
-            //windowPosition.y = settingsWindowPosition.y - windowPosition.height;
-            //configDirty = true;
-        }
 
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
@@ -376,13 +369,7 @@ public class SettingsWindow
 
 
         GUILayout.BeginHorizontal();
-        last = c.ForceStockAppLauncher;
         c.ForceStockAppLauncher = GUILayout.Toggle(c.ForceStockAppLauncher, Localizer.GetStringByTag("#always_use_stock_toolbar"));
-        if (c.ForceStockAppLauncher != last)
-        {
-            // TODO: update toolbar
-            //updateToolBarButton();
-        }
         GUILayout.EndHorizontal();
 
         GUI.DragWindow();

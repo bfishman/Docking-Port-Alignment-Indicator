@@ -175,6 +175,29 @@ namespace NavyFish.DPAI
         }
 
         /// <summary>
+        /// Handle additional functionality on setting changes
+        /// </summary>
+        /// <param name="setting">Name of the setting that was changed.</param>
+        void OnSettingChanged(string setting)
+        {
+            switch(setting) {
+            case "ForceStockAppLauncher":
+                updateToolBarButton();
+                break;
+            case "AllowAutoPortTargeting":
+            case "ExcludeDockedPorts":
+            case "RestrictDockingPorts":
+                resetTarget = true;
+                break;
+            case "GaugeScale":
+                // TODO rescale UI
+                //windowPosition.width = foregroundTextureWidth * gaugeScale;
+                //windowPosition.height = foregroundTextureHeight * gaugeScale;
+                //windowPosition.y = settingsWindowPosition.y - windowPosition.height;
+                break;
+            }
+        }
+        /// <summary>
         /// Adds the toolbar button from the Stock toolbar (AppLauncher)
         /// </summary>
         /// Called directly and also as a GameEvent callback.
@@ -302,6 +325,7 @@ namespace NavyFish.DPAI
 
             updateToolBarButton();
 
+            Settings.Configuration.onPropertyChanged += OnSettingChanged;
             GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
         }
@@ -323,6 +347,7 @@ namespace NavyFish.DPAI
             {
                 destroyBlizzyButton();
             }
+            Settings.Configuration.onPropertyChanged -= OnSettingChanged;
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
         }
@@ -1554,6 +1579,7 @@ namespace NavyFish.DPAI
         private void drawDebugWindowContents(int windowID)
         {
             //stuff here
+            var c = Settings.Configuration.Instance;
 
             //intTextField(ref tgtX, "tgtX");
             //intTextField(ref refX, "refX");
@@ -1566,8 +1592,39 @@ namespace NavyFish.DPAI
             label<Boolean>(isIVA(), "isIVA()");
             label<Boolean>(showIndicator, "showIndicator");
             GUILayout.BeginHorizontal();
-            GUILayout.EndHorizontal();
             label<Boolean>(showIndicator || (RPMPageActive && isIVA()), "(showIndicator || (RPMPageActive && isIVA()))");
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginVertical();
+
+            GUILayout.BeginHorizontal();
+            label<bool>(c.DrawHudIcon, "Draw HUD Icon");
+            label<bool>(c.ShowHudIconWhileIva, "Show HUD Icon in IVA");
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            label<bool>(c.AllowAutoPortTargeting, "Allow Port Targetting");
+            label<bool>(c.RestrictDockingPorts, "Restrict Docking Ports");
+            label<bool>(c.ExcludeDockedPorts, "Exclude Docked Ports");
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            label<bool>(c.AlignmentFlipXAxis, "Alignment Flip X Axis");
+            label<bool>(c.AlignmentFlipYAxis, "Alignment Flip Y Axis");
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            label<bool>(c.TranslationFlipXAxis, "Translation Flip X Axis");
+            label<bool>(c.TranslationFlipYAxis, "Translation Flip Y Axis");
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            label<bool>(c.RollFlipAxis,"Roll Flip Axis");
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            label<bool>(c.ForceStockAppLauncher,"Force Stock App Launcher");
+            GUILayout.EndHorizontal();
+
+            GUILayout.EndVertical();
 
             GUI.DragWindow();
         }
