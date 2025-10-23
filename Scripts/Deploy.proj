@@ -123,16 +123,17 @@
     </ItemGroup>
 
 
-    <!-- Copy DPAI asset bundle containing the GUI -->
+    <!-- Copy DPAI asset bundle containing the GUI
+         NOTE: We do not want a ".ksp" extension to prevent KSP auto-loading this as we load it manually in the code. -->
     <Copy
       SourceFiles="$(DistDir)\Unity\AssetBundles\dpai"
-      DestinationFiles="$(BuildDir)\GameData\GameData\Assets\kspedia_dpai.ksp" />
+      DestinationFolder="$(BuildDir)\GameData\NavyFish\AssetBundles\" />
 
     <!-- Copy KSPedia
-      NOTE: the filename must end in ".ksp" for KSP to recognise it -->
+         NOTE: the filename must end in ".ksp" for KSP to recognise it -->
     <Copy
       SourceFiles="$(DistDir)\Unity\AssetBundles\kspedia_dpai"
-      DestinationFiles="$(BuildDir)\GameData\GameData\Assets\kspedia_dpai.ksp" />
+      DestinationFiles="$(BuildDir)\GameData\NavyFish\AssetBundles\kspedia_dpai.ksp" />
   </Target>
 
   <!-- create zip file with content of release\bin folder -->
