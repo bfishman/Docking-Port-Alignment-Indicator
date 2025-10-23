@@ -339,7 +339,7 @@ public class SettingsWindow
         }
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label(Localizer.GetStringByTag("#gui_scale"));
+        GUILayout.Label(Localizer.GetStringByTag("#gui_scale") + $" {c.GaugeScale,4:#0%}");
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         c.GaugeScale = GUILayout.HorizontalSlider(c.GaugeScale, 0.4f, 3.0f);

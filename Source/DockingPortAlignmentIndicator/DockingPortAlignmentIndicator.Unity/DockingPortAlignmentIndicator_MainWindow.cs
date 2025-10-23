@@ -86,6 +86,7 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
         setVersionString(m_interface.Version);
         setDockingPortName(m_interface.PortName);
         setPosition(m_interface.Position);
+        SetScale(m_interface.Scale);
     }
 
     public void Update()
@@ -104,6 +105,11 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
             return;
         }
         m_rect.anchoredPosition = new Vector3(pos.x, pos.y, 0);
+    }
+
+    public void SetScale(float scale)
+    {
+        Scale = scale;
     }
 
     public void Open()
@@ -187,6 +193,16 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
 
     #region GettersSetters
     public RectTransform RectTransform { get { return m_rect; } }
+
+    public float Scale
+    {
+        get { return (m_rect != null) ? m_rect.localScale.x : 1.0f; }
+        set {
+            if (m_rect) {
+                m_rect.localScale = new Vector3( value, value, 1.0f );
+            }
+        }
+    }
     #endregion GettersSetters
 
     #region DragHandler

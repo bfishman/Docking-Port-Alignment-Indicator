@@ -57,6 +57,9 @@ public interface IDockingPortAlignmentIndicatorPanel
     // For saving/restoring the screen position
     Vector2 Position { get; set; }
 
+    // For accessing the window scale
+    float Scale { get; }
+
     // For updating the gauge markers
     Texture GaugeMarkers { get; }
 

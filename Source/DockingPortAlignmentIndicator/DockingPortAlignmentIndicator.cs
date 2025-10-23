@@ -235,6 +235,7 @@ namespace NavyFish.DPAI
                 //windowPosition.width = foregroundTextureWidth * gaugeScale;
                 //windowPosition.height = foregroundTextureHeight * gaugeScale;
                 //windowPosition.y = settingsWindowPosition.y - windowPosition.height;
+                MainWindow?.OnScaleChanged(c.GaugeScale);
                 break;
             }
         }

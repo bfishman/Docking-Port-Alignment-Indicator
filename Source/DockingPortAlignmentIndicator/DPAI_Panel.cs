@@ -128,10 +128,24 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         m_settingsWindow?.Close();
     }
 
+    public void OnScaleChanged(float scale)
+    {
+        Scale = scale;
+    }
+
     #region IDockingPortAlignmentIndicatorPanel
     public Vector2 Position {
         get { return Settings.Configuration.Instance.WindowPosition; }
         set { Settings.Configuration.Instance.WindowPosition = value; }
+    }
+
+    public float Scale
+    {
+        get => Settings.Configuration.Instance.GaugeScale;
+        set {
+            Settings.Configuration.Instance.GaugeScale = value;
+            m_window?.SetScale(value);
+        }
     }
 
     public void ClampToScreen(RectTransform rect)
