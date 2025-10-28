@@ -59,6 +59,7 @@
     <Compile Include="ToolbarWrapper.cs" />
     <Compile Include="DPAI_Panel.cs" />
     <Compile Include="SettingsWindow.cs" />
+    <Compile Include="Toolbar.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="ModuleDockingNodeNamed\ModuleDockingNodeNamed.csproj">

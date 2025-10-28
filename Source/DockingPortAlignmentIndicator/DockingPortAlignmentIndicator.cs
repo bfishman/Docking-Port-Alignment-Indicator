@@ -89,8 +89,6 @@ namespace NavyFish.DPAI
         public static Texture2D roll = null;
         public static Texture2D targetPort = null;
         public static Texture2D fontTexture = null;
-        public static Texture2D appLauncherIcon = null;
-        public static Texture2D customToolbarIcon;
 
         public static BitmapFont bitmapFont;
         private static float textTargetRefNameScale = .77f;
@@ -103,13 +101,8 @@ namespace NavyFish.DPAI
         public static bool gaugeVisiblityToggledOn = false;
         private static bool targetOutOfRange = false;
         private static bool resetTarget = false;
-        private static bool blizzyToolbarAvailable = false;
 
         public static bool RPMPageActive = false;
-
-        static IButton toolbarButton;
-
-        private static ApplicationLauncherButton appLauncherButton;
 
         static List<ITargetable> dockingModulesList = new List<ITargetable>();
         static int dockingModulesListIndex = -1;
@@ -202,7 +195,6 @@ namespace NavyFish.DPAI
                 onShowGUI();
             }
 
-            c.IsWindowVisible = gaugeVisiblityToggledOn;
         }
 
 
@@ -244,128 +236,18 @@ namespace NavyFish.DPAI
 
         #region Toolbar
         /// <summary>
-        /// GameEvent callback whenever the AppLauncher becomes ready and DPAI is configured to use the stock AppLauncher
-        /// </summary>
-        private void OnAppLauncherReady()
-        {
-            LogD($"OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
-            if (HighLogic.LoadedSceneIsFlight)
-            {
-                addToolBarButtonToStockAppLauncher();
-            }
-            else
-            {
-                removeToolBarButtonFromAppLauncher();
-            }
-        }
-
-        /// <summary>
-        /// Adds the toolbar button from the Stock toolbar (AppLauncher)
-        /// </summary>
-        /// Called directly and also as a GameEvent callback.
-        private void addToolBarButtonToStockAppLauncher ()
-        {
-            LogD($"addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
-            if (HighLogic.LoadedSceneIsFlight && appLauncherButton == null) {
-                Callback onTrueCallback = new Callback(onToggleGUI);
-                Callback onFalseCallback = onTrueCallback;
-                appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
-                    onTrueCallback,
-                    onFalseCallback,
-                    null, null, null, null,
-                    ApplicationLauncher.AppScenes.FLIGHT,
-                    appLauncherIcon);
-            }
-        }
-
-        /// <summary>
-        /// Removes the toolbar button from the Stock toolbar (AppLauncher)
-        /// </summary>
-        /// Called directly and also as a GameEvent callback.
-        private void removeToolBarButtonFromAppLauncher()
-        {
-            LogD("removeToolBarButtonFromAppLauncher (appLauncherButton=={appLauncherButton})");
-            if (appLauncherButton != null)
-            {
-                ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-                appLauncherButton = null;
-            }
-        }
-
-        /// <summary>
-        /// Creates the ToolbarButton on the Stock Toolbar (AppLauncher)
-        /// </summary>
-        private void createAppLauncherButton()
-        {
-            // Various "GameEvents" exist for the ApplicationLauncher, but it seems only one is
-            // actually called in KSP1.8.x - onGUIApplicationLauncherReady
-            GameEvents.onGUIApplicationLauncherReady.Add(OnAppLauncherReady);
-            if (ApplicationLauncher.Ready && HighLogic.LoadedSceneIsFlight)
-            {
-                addToolBarButtonToStockAppLauncher();
-            }
-        }
-
-        /// <summary>
-        /// Destroys the ToolbarButton on the Stock Toolbar (AppLauncher)
-        /// </summary>
-        private void destroyAppLauncherButton()
-        {
-            GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
-            removeToolBarButtonFromAppLauncher();
-        }
-
-        /// <summary>
-        /// Creates the ToolbarButton on the Blizzy Toolbar
-        /// </summary>
-        private void createBlizzyButton()
-        {
-            if (toolbarButton == null)
-            {
-                toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
-                toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
-                toolbarButton.ToolTip = "Show/Hide Docking Port Alignment Indicator";
-                toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
-                toolbarButton.Visible = true;
-                toolbarButton.Enabled = true;
-                toolbarButton.OnClick += (e) => {
-                    onToggleGUI();
-                };
-            }
-        }
-
-        /// <summary>
-        /// Destroys the ToolbarButton on the Blizzy Toolbar
-        /// </summary>
-        private void destroyBlizzyButton()
-        {
-            if (toolbarButton != null)
-            {
-                toolbarButton.Destroy();
-                toolbarButton = null;
-            }
-        }
-
-        /// <summary>
         /// Dynamically switches the ToolbarButton between the Stock and Blizzy tool bars.
         /// </summary>
         private void updateToolBarButton()
         {
-            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
-            blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
+            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, ForceStockAppLauncher=={c.ForceStockAppLauncher})");
+            Toolbar.Toolbar.Instance.SetToolbarButtons(c.ForceStockAppLauncher, !c.ForceStockAppLauncher);
+        }
 
-            if (c.ForceStockAppLauncher || !blizzyToolbarAvailable)
-            {
-                // Destroy blizzy button
-                destroyBlizzyButton();
-                createAppLauncherButton();
-            }
-            else
-            {
-                // Destroy stock launcher button
-                destroyAppLauncherButton();
-                createBlizzyButton();
-            }
+        private void OnToolbarButtonClicked()
+        {
+            onToggleGUI();
+            c.IsWindowVisible = gaugeVisiblityToggledOn;
         }
         #endregion // Toolbar
 
@@ -396,7 +278,7 @@ namespace NavyFish.DPAI
         /// </summary>
         public void Awake()
         {
-            LogD($"Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"Awake (GameScene=={HighLogic.LoadedScene})");
 
             // Initialize all the things that rely on an initialized Unity environment
             c = Settings.Configuration.Instance;
@@ -411,8 +293,9 @@ namespace NavyFish.DPAI
         /// </summary>
         public void Start()
         {
-            LogD($"Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"Start (GameScene=={HighLogic.LoadedScene})");
 
+            Toolbar.Toolbar.Instance.onToolbarButtonClicked += OnToolbarButtonClicked;
             updateToolBarButton();
 
             Settings.Configuration.onPropertyChanged += OnSettingChanged;
@@ -429,19 +312,14 @@ namespace NavyFish.DPAI
         /// </summary>
         private void OnDestroy()
         {
-            LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, ForceStockAppLauncher=={c.ForceStockAppLauncher})");
 
             onHideGUI();
             c.Save();
 
-            if (c.ForceStockAppLauncher || !blizzyToolbarAvailable)
-            {
-                destroyAppLauncherButton();
-            }
-            else
-            {
-                destroyBlizzyButton();
-            }
+            // TODO: destroy toolbar buttons?
+
+            Toolbar.Toolbar.Instance.onToolbarButtonClicked -= OnToolbarButtonClicked;
             Settings.Configuration.onPropertyChanged -= OnSettingChanged;
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
@@ -1505,9 +1383,6 @@ namespace NavyFish.DPAI
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("targetPort.png", null);
             targetPort = new Texture2D(40, 40, TextureFormat.ARGB32, false);
             targetPort.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("appLauncherIcon.png", null);
-            appLauncherIcon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
-            appLauncherIcon.LoadImage(arrBytes);
             TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("DialogPlain.dat", null);
             List<string> textStrings = new List<string>();
             while (!tr.EndOfStream)
