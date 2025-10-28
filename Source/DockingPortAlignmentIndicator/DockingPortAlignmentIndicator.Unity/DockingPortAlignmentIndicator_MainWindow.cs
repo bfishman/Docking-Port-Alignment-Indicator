@@ -251,11 +251,11 @@ public class DockingPortAlignmentIndicator_MainWindow : MonoBehaviour,
         int h = 318;
 
         if (m_imgGaugeMarkers == null) {
-            Debug.LogError("[DPAI.MainWindow] clearGauageMarkers() error - gauge markers image not set");
+            Debug.LogError("[DPAI.MainWindow] clearGaugeMarkers() error - gauge markers image not set");
             return;
         }
         if (m_imgGaugeMarkers.texture == null) {
-            Debug.LogWarning("[DPAI.MainWindow] clearGauageMarkers() error - gauge markers image has no texture");
+            Debug.LogWarning("[DPAI.MainWindow] clearGaugeMarkers() error - gauge markers image has no texture");
         } else {
             w = m_imgGaugeMarkers.texture.width;
             h = m_imgGaugeMarkers.texture.height;

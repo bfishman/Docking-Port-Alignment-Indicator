@@ -1,3 +1,4 @@
+#region License
 /*
  *    DockingPortAlignment.cs
  *
@@ -24,6 +25,7 @@
  *    Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  *    project is in no way associated with nor endorsed by Squad.
  */
+#endregion
 
 using System;
 using UnityEngine;
@@ -32,12 +34,13 @@ using KSP.UI.Screens;
 using KSP.Localization;
 using KSPAssets.KSPedia;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 using static NavyFish.DPAI.LogWrapper;
 using System.Linq;
 
 namespace NavyFish.DPAI
 {
+
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class DockingPortAlignmentIndicator : MonoBehaviour
     {
@@ -194,7 +197,13 @@ namespace NavyFish.DPAI
             } else {
                 onShowGUI();
             }
+        }
 
+        private bool IsSceneEligibleForIndicator {
+            get {
+                //return HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled;
+                return HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA;
+            }
         }
 
 
@@ -216,21 +225,21 @@ namespace NavyFish.DPAI
         void OnSettingChanged(string setting)
         {
             switch(setting) {
-            case "ForceStockAppLauncher":
-                updateToolBarButton();
-                break;
-            case "AllowAutoPortTargeting":
-            case "ExcludeDockedPorts":
-            case "RestrictDockingPorts":
-                resetTarget = true;
-                break;
-            case "GaugeScale":
-                // TODO rescale UI
-                //windowPosition.width = foregroundTextureWidth * gaugeScale;
-                //windowPosition.height = foregroundTextureHeight * gaugeScale;
-                //windowPosition.y = settingsWindowPosition.y - windowPosition.height;
-                MainWindow?.OnScaleChanged(c.GaugeScale);
-                break;
+                case "ForceStockAppLauncher":
+                    updateToolBarButton();
+                    break;
+                case "AllowAutoPortTargeting":
+                case "ExcludeDockedPorts":
+                case "RestrictDockingPorts":
+                    resetTarget = true;
+                    break;
+                case "GaugeScale":
+                    // TODO rescale UI
+                    //windowPosition.width = foregroundTextureWidth * gaugeScale;
+                    //windowPosition.height = foregroundTextureHeight * gaugeScale;
+                    //windowPosition.y = settingsWindowPosition.y - windowPosition.height;
+                    MainWindow?.OnScaleChanged(c.GaugeScale);
+                    break;
             }
         }
 
@@ -334,14 +343,8 @@ namespace NavyFish.DPAI
         public void Update()
         {
             if ( !HighLogic.LoadedSceneIsFlight ) {
-                //print("DPAI_DEBUG update: returning, lodaed scene is not flight");
                 return;
-            } else {
-                //print("DPAI_DEBUG loadedsceneisflight: " + HighLogic.LoadedSceneIsFlight);
-                //print("DPAI_DEBUG !FlightGlobals.ActiveVessel.isEVA: " + !FlightGlobals.ActiveVessel.isEVA);
-                //print("DPAI_DEBUG !MapView.MapIsEnabled: " + !MapView.MapIsEnabled);
             }
-
 
             //if (Input.GetKeyDown(KeyCode.B)){
             //        cycledModuleIndex = dockingModulesListIndex + 1;
@@ -349,25 +352,13 @@ namespace NavyFish.DPAI
             //        portWasCycled = true;
             //}
 
-            //determineTargetPort();
-
-            bool sceneElligibleForIndicator = (HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
-
-            if (sceneElligibleForIndicator && gaugeVisiblityToggledOn)
-            {
-                showIndicator = true;
-            }
-            else
-            {
-                showIndicator = false;
-
-            }
+            showIndicator = IsSceneEligibleForIndicator && gaugeVisiblityToggledOn;
 
             if (showIndicator || (RPMPageActive && isIVA()))
             {
                 var lastTargetedDockingModule = targetedDockingModule;
                 determineTargetPort();
-                if (targetedDockingModule  != lastTargetedDockingModule) {
+                if (targetedDockingModule != lastTargetedDockingModule) {
                     // TODO: Make event
                     MainWindow?.OnTargetUpdated();
                 }
@@ -379,11 +370,7 @@ namespace NavyFish.DPAI
 
         private static bool isIVA()
         {
-            if (InternalCamera.Instance != null)
-            {
-                return InternalCamera.Instance.isActive;
-            }
-            else return false;
+            return InternalCamera.Instance?.isActive ?? false;
         }
 
         /// <summary>
@@ -492,38 +479,19 @@ namespace NavyFish.DPAI
             determineReferencePoint();
             tickCount++;
 
-            bool isInMap = MapView.MapIsEnabled;
-            bool justLeftMap = false;
-            if (!isInMap && wasLastMap)
-            {
-                justLeftMap = true;
-            }
-            wasLastMap = isInMap;
+            var justLeftMap = !MapView.MapIsEnabled && wasLastMap;
+            wasLastMap = MapView.MapIsEnabled;
 
-            bool isInIVA = isIVA();
-            bool justEnteredIVA = false;
-            if (isInIVA && !wasLastIVA)
-            {
-                justEnteredIVA = true;
-            }
-            wasLastIVA = isInIVA;
+            var justEnteredIVA = isIVA() && !wasLastIVA;
+            wasLastIVA = isIVA();
 
             if (lastReferencePart != referencePart)
             {
-                //print("DPAI: Reference Part Changed - tick " + tickCount);
-                bool isCurrentlyIVA = isIVA();
-                if (isCurrentlyIVA){
-                    //print("DPAI: Is currently IVA - tick " + tickCount);
-
-                    if(justEnteredIVA || justLeftMap){
-                        //print("DPAI: Was not previously IVA - tick " + tickCount);
-
-                        if (FlightGlobals.ActiveVessel.Parts.Contains(lastReferencePart))
-                        {
-                            FlightGlobals.ActiveVessel.SetReferenceTransform(lastReferencePart);
-                            //print("DPAI: Re-setting Reference Part - tick " + tickCount);
-                            findReferencePoints();
-                        }
+                if (isIVA() && (justEnteredIVA || justLeftMap)) {
+                    if (FlightGlobals.ActiveVessel.Parts.Contains(lastReferencePart))
+                    {
+                        FlightGlobals.ActiveVessel.SetReferenceTransform(lastReferencePart);
+                        findReferencePoints();
                     }
                 }
                 lastReferencePart = referencePart;
@@ -565,9 +533,9 @@ namespace NavyFish.DPAI
                                         LogD($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
                                         // MKW: if node was attached in the VAB, state is "PreAttached"
                                         if (c.ExcludeDockedPorts &&
-                                                (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) ||
-                                                port.state.StartsWith("PreAttached", StringComparison.OrdinalIgnoreCase))
-                                            )
+                                            (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) ||
+                                             port.state.StartsWith("PreAttached", StringComparison.OrdinalIgnoreCase))
+                                           )
                                         {
                                             //print("continue");
                                             //do not add to list if module is already docked
@@ -576,8 +544,8 @@ namespace NavyFish.DPAI
 
                                         if(c.RestrictDockingPorts && !isCompatiblePort(port))
                                         {
-                                          // Do not add to list if destination port doesn't match
-                                          continue;
+                                            // Do not add to list if destination port doesn't match
+                                            continue;
                                         }
 
                                         //print("1stAdd");
@@ -658,24 +626,15 @@ namespace NavyFish.DPAI
                         {
                             lastTarget = currentTarget;
 
-                            //if (portWasCycled)
-                            //{
-                            //    portWasCycled = false;
-                            //}
-                            //else
-                            //{
-                                // This will happen either when the user manually selects a new target port by
-                                // right-clicking on it, OR when a targetable part is targeted beyond 200m
-                                // (because its parent vessel will be automatically re-targeted by KSP)
-                                //if (currentTarget is ModuleDockingNode)
-                                if (currentTarget is PartModule)
-                                {
-                                    // Likely caused by user right-click a port and setting as target
-                                    //targetedDockingModule = currentTarget as ModuleDockingNode;
-                                    targetedDockingModule = currentTarget;
-                                    dockingModulesListIndex = dockingModulesList.FindIndex(m => m.Equals(targetedDockingModule));
-                                }
-                            //}
+                            // This will happen either when the user manually selects a new target port by
+                            // right-clicking on it, OR when a targetable part is targeted beyond 200m
+                            // (because its parent vessel will be automatically re-targeted by KSP)
+                            if (currentTarget is PartModule)
+                            {
+                                // Likely caused by user right-click a port and setting as target
+                                targetedDockingModule = currentTarget;
+                                dockingModulesListIndex = dockingModulesList.FindIndex(m => m.Equals(targetedDockingModule));
+                            }
                         }
 
                         currentTargetVesselWasLastSeenLoaded = true;
@@ -726,8 +685,8 @@ namespace NavyFish.DPAI
 
             Transform targetTransform = targetPort.GetTransform();
 
-			Vector3 targetPortOutVector = targetTransform.forward.normalized;
-			Vector3 targetPortRollReferenceVector = -targetTransform.up;
+            Vector3 targetPortOutVector = targetTransform.forward.normalized;
+            Vector3 targetPortRollReferenceVector = -targetTransform.up;
 
             orientationDeviation.x = AngleAroundNormal(-targetPortOutVector, selfTransform.up, selfTransform.forward);
             orientationDeviation.y = AngleAroundNormal(-targetPortOutVector, selfTransform.up, -selfTransform.right);
@@ -793,8 +752,7 @@ namespace NavyFish.DPAI
         {
             if (c.DrawHudIcon)
             {
-                bool isCurrentlyIVA = isIVA();
-                if ((showIndicator && !isCurrentlyIVA) || (c.ShowHudIconWhileIva && RPMPageActive && isCurrentlyIVA))
+                if ((showIndicator && !isIVA()) || (c.ShowHudIconWhileIva && RPMPageActive && isIVA()))
                 {
                     drawTargetPortHUDIndicator();
                 }
@@ -932,9 +890,9 @@ namespace NavyFish.DPAI
                     float scaledMarkerSize = markerSize * gaugeAlignmentMarkerScale;
 
                     Rect markerRect = new Rect(glassCenter.x * (1 + displayX) - scaledMarkerSize * .5f,
-                                            glassCenter.y * (1 + displayY) - scaledMarkerSize * .5f,
-                                            scaledMarkerSize,
-                                            scaledMarkerSize);
+                        glassCenter.y * (1 + displayY) - scaledMarkerSize * .5f,
+                        scaledMarkerSize,
+                        scaledMarkerSize);
 
                     Graphics.DrawTexture(markerRect, alignmentTex);
 
@@ -1010,8 +968,6 @@ namespace NavyFish.DPAI
             cycledModuleIndex %= dockingModulesList.Count;
             portWasCycled = true;
         }
-
-        //private static List<ModuleDockingNodeNamed> refNamedModules = new List<ModuleDockingNodeNamed>();
 
         public static string getReferencePortName()
         {
@@ -1112,10 +1068,10 @@ namespace NavyFish.DPAI
             float scaledVelocityVectorHalfSize = scaledVelocityVectorSize * .5f;
 
             Graphics.DrawTexture(new Rect(gaugeRect.xMin + .5f * gaugeRect.width * (1 + gaugeX) - scaledVelocityVectorHalfSize,
-                                        gaugeRect.yMin + .5f * gaugeRect.height * (1 + gaugeY) - scaledVelocityVectorHalfSize,
-                                        scaledVelocityVectorSize,
-                                        scaledVelocityVectorSize),
-                                        velocityVectorTexture);
+                    gaugeRect.yMin + .5f * gaugeRect.height * (1 + gaugeY) - scaledVelocityVectorHalfSize,
+                    scaledVelocityVectorSize,
+                    scaledVelocityVectorSize),
+                velocityVectorTexture);
         }
 
         private static float scaleExponentially(float value, float exponent)
@@ -1163,8 +1119,6 @@ namespace NavyFish.DPAI
 
         private static void drawTargetPortHUDIndicator()
         {
-            //print("drawTargetPortIndicator: Start");
-
             // When we exit a scene with the DPAI window showing, the underlying GameObject
             // has already been destroyed but targetedDockingModule is not null and, being
             // an interface variable, does not use the Unity operator == overload.  So we
@@ -1177,7 +1131,6 @@ namespace NavyFish.DPAI
             }
 
             Camera cam = FlightCamera.fetch.mainCamera;
-            //Vector3 portToCamera = targetedDockingModule.transform.position - cam.transform.position;
             Vector3 portToCamera = tdmTransform.position - cam.transform.position;
 
             if (Vector3.Dot(cam.transform.forward, portToCamera) < 0)
@@ -1216,7 +1169,6 @@ namespace NavyFish.DPAI
             GUI.color = iconColor;
             GUI.DrawTexture(selectedPortHUDRect, targetPort, ScaleMode.ScaleToFit, true);
             GUI.color = originalColor;
-            //print("drawTargetPortIndicator: End");
         }
 
         public static void cycleReferencePoint(int direction)
@@ -1400,7 +1352,7 @@ namespace NavyFish.DPAI
 
         #region Debugging
 
-        private static bool shouldDebug = false;
+        private static bool shouldDebug = true;
         private static GUIStyle labelStyle = null;
 
         private void initStyles()
@@ -1415,6 +1367,7 @@ namespace NavyFish.DPAI
             hasInitializedStyles = true;
         }
 
+        [Conditional("DEBUG")]
         private void OnDrawDebug()
         {
             if (!hasInitializedStyles) {
@@ -1472,12 +1425,10 @@ namespace NavyFish.DPAI
         private void drawDebugWindowContents(int windowID)
         {
             //stuff here
-            var c = Settings.Configuration.Instance;
 
             //intTextField(ref tgtX, "tgtX");
             //intTextField(ref refX, "refX");
-            bool sceneElligibleForIndicator = (HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
-            label<Boolean>(sceneElligibleForIndicator, "sceneElligibleForIndicator");
+            label<Boolean>(IsSceneEligibleForIndicator, "sceneEligibleForIndicator");
             label<Boolean>(gaugeVisiblityToggledOn, "gaugeVisiblityToggledOn");
 
 
@@ -1576,4 +1527,5 @@ namespace NavyFish.DPAI
 
         #endregion
     }
-}
+
+} // End namespace NavyFish.DPAI
