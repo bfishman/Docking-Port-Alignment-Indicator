@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.1321
@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Localization", "Localizatio
 	ProjectSection(SolutionItems) = preProject
 		..\..\GameData\NavyFish\Localization\dpai_dictionary_en.cfg = ..\..\GameData\NavyFish\Localization\dpai_dictionary_en.cfg
 		..\..\GameData\NavyFish\Localization\dpai_dictionary_de.cfg = ..\..\GameData\NavyFish\Localization\dpai_dictionary_de.cfg
+		..\..\GameData\NavyFish\Localization\dpai_dictionary_fr.cfg = ..\..\GameData\NavyFish\Localization\dpai_dictionary_fr.cfg
+		..\..\GameData\NavyFish\Localization\dpai_dictionary_ru.cfg = ..\..\GameData\NavyFish\Localization\dpai_dictionary_ru.cfg
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockingPortAlignmentIndicator.Unity", "DockingPortAlignmentIndicator.Unity\DockingPortAlignmentIndicator.Unity.csproj", "{AF91FC28-9488-4729-9581-092C55F59D88}"

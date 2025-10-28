@@ -33,17 +33,24 @@ using UnityEngine;
 
 using static NavyFish.DPAI.LogWrapper;
 
-namespace NavyFish.DPAI.Toolbar
+namespace NavyFish.DPAI
 {
 
 public class Toolbar
 {
+    private bool _stock = false;
+    private bool _blizzy = false;
+
     public void Dispose() {
+        LogD($"Toolbar.Dispose(); GameScene={HighLogic.LoadedScene}, appLauncherButton={m_stbButton}, blizzyButto={m_btbButton}");
+        GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
+        GameEvents.onGUIApplicationLauncherUnreadifying.Remove(OnAppLauncherUnreadifying);
         SetToolbarButtons(false, false);
         m_instance = null;
     }
 
     private void OnButtonClicked() {
+        LogD($"Toolbar.OnButtonClicked(); GameScene={HighLogic.LoadedScene}, appLauncherButton={m_stbButton}, blizzyButto={m_btbButton}");
         onToolbarButtonClicked?.Invoke();
     }
 
@@ -51,14 +58,15 @@ public class Toolbar
     private static Toolbar m_instance = null;
 
     private Toolbar() {
+        LogD($"Toolbar(); GameScene={HighLogic.LoadedScene}");
         m_instance = this;
+        GameEvents.onGUIApplicationLauncherReady.Add(OnAppLauncherReady);
+        GameEvents.onGUIApplicationLauncherUnreadifying.Add(OnAppLauncherUnreadifying);
     }
 
     public static Toolbar Instance {
         get {
-            if (m_instance == null) {
-                m_instance = new Toolbar();
-            }
+            m_instance = m_instance ?? new Toolbar();
             return m_instance;
         }
     }
@@ -79,15 +87,15 @@ public class Toolbar
     /// <param name="stock">Show the DPAI icon on the Stock toolbar if set to <c>true</c>.</param>
     /// <param name="blizzy">Show the DPAI icon on the Blizzy toolbar if set to <c>true</c>.</param>
     public void SetToolbarButtons(bool stock, bool blizzy) {
-        stock = stock || !IsBlizzyAvailable;
-        blizzy = blizzy && IsBlizzyAvailable;
+        _blizzy = blizzy && IsBlizzyAvailable;
+        _stock = stock || !_blizzy;
 
-        if (stock) {
+        if (_stock) {
             CreateStockButton();
         } else {
             DestroyStockButton();
         }
-        if (blizzy) {
+        if (_blizzy) {
             CreateBlizzyButton();
         } else {
             DestroyBlizzyButton();
@@ -107,8 +115,8 @@ public class Toolbar
     }
 
     private void AddButtonToStockToolbar () {
-        LogD($"AddButtonToStockToolbar (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
-        if (!ApplicationLauncher.Ready || m_stbButton != null) {
+        LogD($"Toolbar.AddButtonToStockToolbar (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
+        if (!_stock || !ApplicationLauncher.Ready || !HighLogic.LoadedSceneIsFlight || m_stbButton != null) {
             return;
         }
         // Note: the stock toolbar manages internal state and alternately calls the onTrue and onFalse callbacks every
@@ -122,52 +130,67 @@ public class Toolbar
             m_stbButtonIcon);
     }
 
-    /// <summary>
-    /// Called when the ApplicationLauncher is ready. Add the button to the toolbar if we haven't already.
-    /// </summary>
-    private void OnAppLauncherReady () {
-        LogD($"OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
-        AddButtonToStockToolbar();
-    }
-
-    private void CreateStockButton ()
-    {
-        LogD($"CreateStockButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
-        if (m_stbButtonIcon == null) {
-            LoadStockToolbarIcon();
-        }
-        // Note: we may have to wait for the stock ApplicationLauncher to be ready before we can add the button to
-        // it, so add an event callback which does the actual work if it is not ready
-        if (ApplicationLauncher.Ready) {
-            AddButtonToStockToolbar();
-        } else {
-            GameEvents.onGUIApplicationLauncherReady.Add(OnAppLauncherReady);
-        }
-    }
-
-    private void DestroyStockButton ()
-    {
-        LogD($"DestroyStockButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
-        GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
+    private void RemoveButtonFromStockToolbar() {
+        LogD($"Toolbar.RemoveButtonFromStockToolbar (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
         if (m_stbButton == null) {
             return;
         }
         ApplicationLauncher.Instance?.RemoveModApplication(m_stbButton);
         m_stbButton = null;
     }
+
+    /// <summary>
+    /// Called when the ApplicationLauncher is ready. Add the button to the toolbar if we haven't already.
+    /// </summary>
+    private void OnAppLauncherReady () {
+        LogD($"Toolbar.OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
+        AddButtonToStockToolbar();
+    }
+
+    /// <summary>
+    /// Called when the ApplicationLauncher is about to be destroyed.
+    /// </summary>
+    /// This is supposed to happen when the game transitions back to the main menu. If we don't remove the button from
+    /// the stock toolbar it is rendered in the main menu despite there not being a stock toolbar ready! Or perhaps it
+    /// is but it's empty by default and thus invisible.
+    /// <param name="nextGameScene"></param>
+    private void OnAppLauncherUnreadifying(GameScenes nextGameScene) {
+        LogD($"Toolbar.OnAppLauncherUnreadifying (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
+        RemoveButtonFromStockToolbar();
+    }
+
+    private void CreateStockButton ()
+    {
+        LogD($"Toolbar.CreateStockButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
+        if (m_stbButtonIcon == null) {
+            LoadStockToolbarIcon();
+        }
+        // Note: we may have to wait for the stock ApplicationLauncher to be ready before we can add the button to
+        // it.
+        if (ApplicationLauncher.Ready) {
+            AddButtonToStockToolbar();
+        }
+    }
+
+    private void DestroyStockButton ()
+    {
+        LogD($"Toolbar.DestroyStockButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
+        GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
+        RemoveButtonFromStockToolbar();
+    }
     #endregion
 
     #region BlizzyToolbar
     private IButton m_btbButton = null;
 
-    private bool IsBlizzyAvailable {
+    public static bool IsBlizzyAvailable {
         get { return ToolbarManager.ToolbarAvailable; }
     }
 
     public void CreateBlizzyButton ()
     {
-        LogD($"CreateBlizzyButton (GameScene=={HighLogic.LoadedScene}, blizzyButton=={m_btbButton})");
-        if (m_btbButton != null) {
+        LogD($"Toolbar.CreateBlizzyButton (GameScene=={HighLogic.LoadedScene}, blizzyButton=={m_btbButton})");
+        if (!_blizzy || m_btbButton != null) {
             return;
         }
         m_btbButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
@@ -181,7 +204,7 @@ public class Toolbar
 
     public void DestroyBlizzyButton ()
     {
-        LogD($"DestroyBlizzyButton (GameScene=={HighLogic.LoadedScene}, blizzyButton=={m_btbButton})");
+        LogD($"Toolbar.DestroyBlizzyButton (GameScene=={HighLogic.LoadedScene}, blizzyButton=={m_btbButton})");
         if (m_btbButton == null) {
             return;
         }

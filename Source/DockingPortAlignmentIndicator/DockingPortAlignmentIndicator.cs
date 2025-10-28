@@ -30,9 +30,6 @@
 using System;
 using UnityEngine;
 using KSP.IO;
-using KSP.UI.Screens;
-using KSP.Localization;
-using KSPAssets.KSPedia;
 using System.Collections.Generic;
 using System.Diagnostics;
 using static NavyFish.DPAI.LogWrapper;
@@ -225,7 +222,8 @@ namespace NavyFish.DPAI
         void OnSettingChanged(string setting)
         {
             switch(setting) {
-                case "ForceStockAppLauncher":
+                case "UseStockToolbar":
+                case "UseBlizzyToolbar":
                     updateToolBarButton();
                     break;
                 case "AllowAutoPortTargeting":
@@ -234,10 +232,6 @@ namespace NavyFish.DPAI
                     resetTarget = true;
                     break;
                 case "GaugeScale":
-                    // TODO rescale UI
-                    //windowPosition.width = foregroundTextureWidth * gaugeScale;
-                    //windowPosition.height = foregroundTextureHeight * gaugeScale;
-                    //windowPosition.y = settingsWindowPosition.y - windowPosition.height;
                     MainWindow?.OnScaleChanged(c.GaugeScale);
                     break;
             }
@@ -245,12 +239,12 @@ namespace NavyFish.DPAI
 
         #region Toolbar
         /// <summary>
-        /// Dynamically switches the ToolbarButton between the Stock and Blizzy tool bars.
+        /// Dynamically turns the Stock and Blizzy toolbarbuttons on or off.
         /// </summary>
         private void updateToolBarButton()
         {
-            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, ForceStockAppLauncher=={c.ForceStockAppLauncher})");
-            Toolbar.Toolbar.Instance.SetToolbarButtons(c.ForceStockAppLauncher, !c.ForceStockAppLauncher);
+            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}");
+            Toolbar.Instance.SetToolbarButtons(c.UseStockToolbar, c.UseBlizzyToolbar);
         }
 
         private void OnToolbarButtonClicked()
@@ -304,7 +298,7 @@ namespace NavyFish.DPAI
         {
             LogD($"Start (GameScene=={HighLogic.LoadedScene})");
 
-            Toolbar.Toolbar.Instance.onToolbarButtonClicked += OnToolbarButtonClicked;
+            Toolbar.Instance.onToolbarButtonClicked += OnToolbarButtonClicked;
             updateToolBarButton();
 
             Settings.Configuration.onPropertyChanged += OnSettingChanged;
@@ -321,14 +315,14 @@ namespace NavyFish.DPAI
         /// </summary>
         private void OnDestroy()
         {
-            LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, ForceStockAppLauncher=={c.ForceStockAppLauncher})");
+            LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, ForceStockAppLauncher=={c.UseStockToolbar})");
 
             onHideGUI();
             c.Save();
 
             // TODO: destroy toolbar buttons?
 
-            Toolbar.Toolbar.Instance.onToolbarButtonClicked -= OnToolbarButtonClicked;
+            Toolbar.Instance.onToolbarButtonClicked -= OnToolbarButtonClicked;
             Settings.Configuration.onPropertyChanged -= OnSettingChanged;
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
@@ -984,7 +978,7 @@ namespace NavyFish.DPAI
             else
             {
                 //referenceName += "None";
-                return Localizer.GetStringByTag("#none");
+                return Utils.GetStringByTag("#none");
             }
         }
 
@@ -994,17 +988,17 @@ namespace NavyFish.DPAI
 
             if (currentTargetVessel == null)
             {
-                targetDisplayName = Localizer.GetStringByTag("#no_vessel_targeted");
+                targetDisplayName = Utils.GetStringByTag("#no_vessel_targeted");
             }
             else if (targetedDockingModule == null)
             {
                 if (targetOutOfRange)
                 {
-                    targetDisplayName = Localizer.GetStringByTag("#target_out_of_range");
+                    targetDisplayName = Utils.GetStringByTag("#target_out_of_range");
                 }
                 else
                 {
-                    targetDisplayName = Localizer.GetStringByTag("#no_port_targeted");
+                    targetDisplayName = Utils.GetStringByTag("#no_port_targeted");
                 }
             }
             else if (targetNamedModule == null)
@@ -1465,7 +1459,7 @@ namespace NavyFish.DPAI
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            label<bool>(c.ForceStockAppLauncher,"Force Stock App Launcher");
+            label<bool>(c.UseStockToolbar,"Force Stock App Launcher");
             GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();

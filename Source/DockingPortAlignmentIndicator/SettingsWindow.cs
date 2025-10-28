@@ -36,7 +36,6 @@
 using KSP.IO;
 using KSP.Localization;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace NavyFish.DPAI.Settings
 {
@@ -235,13 +234,27 @@ public sealed class Configuration
         }
     }
 
-    public bool ForceStockAppLauncher {
-        get { return config.GetValue<bool>("forceStockAppLauncher", false); }
+    public bool UseStockToolbar {
+        get {
+            var legacyValue = config.GetValue<bool>("forceStockAppLauncher", true);
+            return config.GetValue<bool>("UseStockToolbar", legacyValue);
+        }
         set {
-            if (ForceStockAppLauncher != value) {
-                config.SetValue("forceStockAppLauncher", value);
+            if (UseStockToolbar != value) {
+                config.SetValue("UseStockToolbar", value);
                 dirty = true;
-                NotifyPropertyChanged("ForceStockAppLauncher");
+                NotifyPropertyChanged("UseStockToolbar");
+            }
+        }
+    }
+
+    public bool UseBlizzyToolbar {
+        get { return config.GetValue<bool>("UseBlizzyToolbar", false); }
+        set {
+            if (UseBlizzyToolbar != value) {
+                config.SetValue("UseBlizzyToolbar", value);
+                dirty = true;
+                NotifyPropertyChanged("UseBlizzyToolbar");
             }
         }
     }
@@ -309,7 +322,7 @@ public class SettingsWindow
             //pos.y -= m_parent.rect.height;
             //KSP.UI.UIMasterController.ClampToScreen(pos, Vector2.zero);
             // TODO: clamp to main window
-            m_pos = GUILayout.Window(1339, m_pos, drawSettingsWindowContents, Localizer.GetStringByTag("#dpai_settings"), m_windowStyle);
+            m_pos = GUILayout.Window(1339, m_pos, drawSettingsWindowContents, Utils.GetStringByTag("#dpai_settings"), m_windowStyle);
         }
     }
 
@@ -318,18 +331,18 @@ public class SettingsWindow
         var c = Configuration.Instance;
 
         GUILayout.BeginHorizontal();
-        c.DrawHudIcon = GUILayout.Toggle(c.DrawHudIcon, Localizer.GetStringByTag("#display_hud_target_port_icon"));
+        c.DrawHudIcon = GUILayout.Toggle(c.DrawHudIcon, Utils.GetStringByTag("#display_hud_target_port_icon"));
         GUILayout.EndHorizontal();
 
         if (c.DrawHudIcon)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(14f);
-            c.ShowHudIconWhileIva = GUILayout.Toggle(c.ShowHudIconWhileIva, Localizer.GetStringByTag("#display_when_using_rpm"));
+            c.ShowHudIconWhileIva = GUILayout.Toggle(c.ShowHudIconWhileIva, Utils.GetStringByTag("#display_when_using_rpm"));
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Localizer.GetStringByTag("#hud_target_port_icon_size"));
+            GUILayout.Label(Utils.GetStringByTag("#hud_target_port_icon_size"));
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             c.HudIconSize = GUILayout.HorizontalSlider(c.HudIconSize, 10f, 60f);
@@ -337,20 +350,20 @@ public class SettingsWindow
         }
 
         GUILayout.BeginHorizontal();
-        c.AllowAutoPortTargeting = GUILayout.Toggle(c.AllowAutoPortTargeting, Localizer.GetStringByTag("#enable_auto_targeting_and_cycling"));
+        c.AllowAutoPortTargeting = GUILayout.Toggle(c.AllowAutoPortTargeting, Utils.GetStringByTag("#enable_auto_targeting_and_cycling"));
         GUILayout.EndHorizontal();
 
         if (c.AllowAutoPortTargeting)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(14f);
-            c.ExcludeDockedPorts = GUILayout.Toggle(c.ExcludeDockedPorts, Localizer.GetStringByTag("#exlude_docked_ports"));
-            c.RestrictDockingPorts = GUILayout.Toggle(c.RestrictDockingPorts, Localizer.GetStringByTag("#restrict_docking_ports"));
+            c.ExcludeDockedPorts = GUILayout.Toggle(c.ExcludeDockedPorts, Utils.GetStringByTag("#exlude_docked_ports"));
+            c.RestrictDockingPorts = GUILayout.Toggle(c.RestrictDockingPorts, Utils.GetStringByTag("#restrict_docking_ports"));
             GUILayout.EndHorizontal();
         }
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label(Localizer.GetStringByTag("#gui_scale") + $" {c.GaugeScale,4:#0%}");
+        GUILayout.Label(Utils.GetStringByTag("#gui_scale") + $" {c.GaugeScale,4:#0%}");
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         c.GaugeScale = GUILayout.HorizontalSlider(c.GaugeScale, 0.4f, 3.0f);
@@ -358,29 +371,31 @@ public class SettingsWindow
 
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
-        c.AlignmentFlipXAxis = GUILayout.Toggle(c.AlignmentFlipXAxis, Localizer.GetStringByTag("#invert_alignment_x"));
+        c.AlignmentFlipXAxis = GUILayout.Toggle(c.AlignmentFlipXAxis, Utils.GetStringByTag("#invert_alignment_x"));
         GUILayout.FlexibleSpace();
-        c.TranslationFlipXAxis = GUILayout.Toggle(c.TranslationFlipXAxis, Localizer.GetStringByTag("#invert_translation_x"));
-        GUILayout.FlexibleSpace();
-        GUILayout.EndHorizontal();
-
-        GUILayout.BeginHorizontal();
-        GUILayout.FlexibleSpace();
-        c.AlignmentFlipYAxis = GUILayout.Toggle(c.AlignmentFlipYAxis, Localizer.GetStringByTag("#invert_alignment_y"));
-        GUILayout.FlexibleSpace();
-        c.TranslationFlipYAxis = GUILayout.Toggle(c.TranslationFlipYAxis, Localizer.GetStringByTag("#invert_translation_y"));
+        c.TranslationFlipXAxis = GUILayout.Toggle(c.TranslationFlipXAxis, Utils.GetStringByTag("#invert_translation_x"));
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
-        c.RollFlipAxis = GUILayout.Toggle(c.RollFlipAxis, Localizer.GetStringByTag("#invert_roll_direction"));
+        c.AlignmentFlipYAxis = GUILayout.Toggle(c.AlignmentFlipYAxis, Utils.GetStringByTag("#invert_alignment_y"));
+        GUILayout.FlexibleSpace();
+        c.TranslationFlipYAxis = GUILayout.Toggle(c.TranslationFlipYAxis, Utils.GetStringByTag("#invert_translation_y"));
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        c.RollFlipAxis = GUILayout.Toggle(c.RollFlipAxis, Utils.GetStringByTag("#invert_roll_direction"));
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        c.ForceStockAppLauncher = GUILayout.Toggle(c.ForceStockAppLauncher, Localizer.GetStringByTag("#always_use_stock_toolbar"));
+        c.UseStockToolbar = GUILayout.Toggle(c.UseStockToolbar, Utils.GetStringByTag("#use_stock_toolbar"));
+        if (Toolbar.IsBlizzyAvailable) {
+            c.UseBlizzyToolbar = GUILayout.Toggle(c.UseBlizzyToolbar, Utils.GetStringByTag("#use_blizzy_toolbar"));
+        }
         GUILayout.EndHorizontal();
 
         GUI.DragWindow();
