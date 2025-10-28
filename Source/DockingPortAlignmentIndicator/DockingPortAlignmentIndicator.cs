@@ -201,6 +201,8 @@ namespace NavyFish.DPAI
             } else {
                 onShowGUI();
             }
+
+            c.IsWindowVisible = gaugeVisiblityToggledOn;
         }
 
 
@@ -368,14 +370,12 @@ namespace NavyFish.DPAI
         #endregion // Toolbar
 
         #region GameEvents
-        bool wasVisible = false;
         // GameEvents.onKSPediaSpawn
         // Called when the KSPedia is shown
         private void OnKSPediaSpawn ()
         {
             LogD($"GameEvents.OnKSPediaSpawn()");
-            wasVisible = gaugeVisiblityToggledOn;
-            if (wasVisible) {
+            if (gaugeVisiblityToggledOn) {
                 onHideGUI();
             }
         }
@@ -386,9 +386,8 @@ namespace NavyFish.DPAI
         private void OnKSPediaDespawn ()
         {
             LogD($"GameEvents.OnKSPediaDespawn()");
-            if (wasVisible) {
+            if (c.IsWindowVisible) {
                 onShowGUI();
-                wasVisible = false;
             }
         }
 
@@ -419,6 +418,10 @@ namespace NavyFish.DPAI
             Settings.Configuration.onPropertyChanged += OnSettingChanged;
             GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
+
+            if (c.IsWindowVisible) {
+                onShowGUI();
+            }
         }
 
         /// <summary>
@@ -428,6 +431,7 @@ namespace NavyFish.DPAI
         {
             LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
 
+            onHideGUI();
             c.Save();
 
             if (c.ForceStockAppLauncher || !blizzyToolbarAvailable)

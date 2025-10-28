@@ -256,6 +256,17 @@ public sealed class Configuration
             }
         }
     }
+
+    public bool IsWindowVisible {
+        get { return config.GetValue<bool>("IsWindowVisible", false); }
+        set {
+            if (IsWindowVisible != value) {
+                config.SetValue("IsWindowVisible", value);
+                dirty = true;
+                NotifyPropertyChanged("IsWindowVisible");
+            }
+        }
+    }
     #endregion
 
 }
