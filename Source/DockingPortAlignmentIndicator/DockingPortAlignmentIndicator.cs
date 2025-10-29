@@ -355,7 +355,9 @@ namespace NavyFish.DPAI
         private void OnGUI()
         {
             onGaugeDraw();
-            if (shouldDebug) OnDrawDebug();
+            if (c.ShowDebugWindow) {
+                OnDrawDebug();
+            }
         }
 
         public void Update()
@@ -1370,7 +1372,6 @@ namespace NavyFish.DPAI
 
         #region Debugging
 
-        private static bool shouldDebug = true;
         private static GUIStyle labelStyle = null;
 
         private void initStyles()

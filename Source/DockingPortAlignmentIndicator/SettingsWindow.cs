@@ -33,6 +33,7 @@
 // We want the settings window to open/close
 // We want the settings window to "attach" to the parent window
 
+using System.Diagnostics;
 using KSP.IO;
 using KSP.Localization;
 using UnityEngine;
@@ -280,6 +281,17 @@ public sealed class Configuration
             }
         }
     }
+
+    public bool ShowDebugWindow {
+        get { return config.GetValue<bool>("ShowDebugWindow", false); }
+        set {
+            if (ShowDebugWindow != value) {
+                config.SetValue("ShowDebugWindow", value);
+                dirty = true;
+                NotifyPropertyChanged("ShowDebugWindow");
+            }
+        }
+    }
     #endregion
 
 }
@@ -329,6 +341,14 @@ public class SettingsWindow
     private void drawSettingsWindowContents(int id)
     {
         var c = Configuration.Instance;
+
+        // Close button
+        var rect = new Rect(m_pos.width - 20, 4, 16, 16);
+        if (GUI.Button(rect, ""))
+        {
+            Close();
+            return;
+        }
 
         GUILayout.BeginHorizontal();
         c.DrawHudIcon = GUILayout.Toggle(c.DrawHudIcon, Utils.GetStringByTag("#display_hud_target_port_icon"));
@@ -398,8 +418,20 @@ public class SettingsWindow
         }
         GUILayout.EndHorizontal();
 
+        drawSettingsWindowDebugContents();
+
         GUI.DragWindow();
     } // End drawSettingsWindowContents
+
+    [Conditional("DEBUG")]
+    private void drawSettingsWindowDebugContents()
+    {
+        var c = Configuration.Instance;
+
+        GUILayout.BeginHorizontal();
+        c.ShowDebugWindow = GUILayout.Toggle(c.ShowDebugWindow, "Show Debug Window");
+        GUILayout.EndHorizontal();
+    }
 }
 
 } // End namespace NavyFish.DPAI.Settings
