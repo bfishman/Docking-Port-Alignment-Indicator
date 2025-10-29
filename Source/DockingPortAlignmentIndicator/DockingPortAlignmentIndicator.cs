@@ -276,6 +276,26 @@ namespace NavyFish.DPAI
             }
         }
 
+        // GameEvents.onHideUI
+        // Called when F2 is pressed
+        private void OnHideUI()
+        {
+            LogD($"GameEvents.OnHideUI()");
+            if (gaugeVisiblityToggledOn) {
+                onHideGUI();
+            }
+        }
+
+        // GameEvents.onShowUI
+        // Called when the UI is shown again on pressing F2
+        private void OnShowUI()
+        {
+            LogD($"GameEvents.OnShowUI()");
+            if (c.IsWindowVisible) {
+                onShowGUI();
+            }
+        }
+
         /// <summary>
         /// Called once per object. Effectively the Constructor.
         /// </summary>
@@ -302,6 +322,8 @@ namespace NavyFish.DPAI
             updateToolBarButton();
 
             Settings.Configuration.onPropertyChanged += OnSettingChanged;
+            GameEvents.onHideUI.Add(OnHideUI);
+            GameEvents.onShowUI.Add(OnShowUI);
             GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
 
@@ -324,6 +346,8 @@ namespace NavyFish.DPAI
 
             Toolbar.Instance.onToolbarButtonClicked -= OnToolbarButtonClicked;
             Settings.Configuration.onPropertyChanged -= OnSettingChanged;
+            GameEvents.onHideUI.Remove(OnHideUI);
+            GameEvents.onShowUI.Remove(OnShowUI);
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
         }

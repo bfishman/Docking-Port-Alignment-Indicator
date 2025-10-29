@@ -66,6 +66,8 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     private static DPAI_Panel m_instance = null;
     private static Unity.DockingPortAlignmentIndicator_MainWindow m_window = null;
     private static Settings.SettingsWindow m_settingsWindow = null;
+    private static bool m_wasSettingsWindowOn = false;
+
 
     public static DPAI_Panel Instance
     {
@@ -119,12 +121,16 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     {
         LogD("DPAI_Panel.OnShowGUI()");
         m_window?.Open();
+        if (m_wasSettingsWindowOn) {
+            m_settingsWindow?.Open(m_window?.RectTransform);
+        }
     }
 
     public void OnHideGUI()
     {
         LogD("DPAI_Panel.OnHideGUI()");
         m_window?.Close();
+        m_wasSettingsWindowOn = m_settingsWindow?.IsOpen() ?? false;
         m_settingsWindow?.Close();
     }
 
