@@ -365,6 +365,9 @@ namespace NavyFish
 
             //GameEvents.debugEvents = true;
 
+			GameEvents.onShowUI.Add(onShowGUI);
+			GameEvents.onHideUI.Add(onHideGUI);
+
             GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
         }
@@ -386,6 +389,10 @@ namespace NavyFish
             {
                 destroyBlizzyButton();
             }
+
+			GameEvents.onShowUI.Remove(onShowGUI);
+			GameEvents.onHideUI.Remove(onHideGUI);
+
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
         }
