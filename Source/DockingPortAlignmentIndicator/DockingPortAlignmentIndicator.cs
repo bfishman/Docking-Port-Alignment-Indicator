@@ -338,6 +338,24 @@ namespace NavyFish
             }
         }
 
+        private void onHideUI()
+        {
+            LogD($"GameEvents.onHideUI()");
+            wasVisible = gaugeVisiblityToggledOn;
+            if (wasVisible) {
+                onHideGUI();
+            }
+        }
+
+        private void onShowUI()
+        {
+             LogD($"GameEvents.onShowUI()");
+           if (wasVisible) {
+                onShowGUI();
+                wasVisible = false;
+            }
+        }
+
         /// <summary>
         /// Called once per object. Effectively the Constructor.
         /// </summary>
@@ -365,8 +383,8 @@ namespace NavyFish
 
             //GameEvents.debugEvents = true;
 
-			GameEvents.onShowUI.Add(onShowGUI);
-			GameEvents.onHideUI.Add(onHideGUI);
+			GameEvents.onShowUI.Add(onShowUI);
+			GameEvents.onHideUI.Add(onHideUI);
 
             GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
@@ -390,8 +408,8 @@ namespace NavyFish
                 destroyBlizzyButton();
             }
 
-			GameEvents.onShowUI.Remove(onShowGUI);
-			GameEvents.onHideUI.Remove(onHideGUI);
+			GameEvents.onShowUI.Remove(onShowUI);
+			GameEvents.onHideUI.Remove(onHideUI);
 
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
