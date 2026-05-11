@@ -29,7 +29,7 @@
  */
 #endregion License
 
-using System;
+using System.Diagnostics;
 using UnityEngine;
 using KSP.UI;
 
@@ -211,6 +211,17 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     public void OnTargetPortRenamed(string portName) {
         m_window?.setDockingPortName(portName);
     }
+
+    #region Debug
+    #if DEBUG
+    public bool IsSettingsWindowOpen() {
+        return m_settingsWindow?.IsOpen() ?? false;
+    }
+    public bool WasSettingsWindowOpen() {
+        return m_wasSettingsWindowOn;
+    }
+    #endif
+    #endregion
 }
 
 } // End namespace NavyFish.DPAI

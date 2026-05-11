@@ -1455,8 +1455,12 @@ namespace NavyFish.DPAI
             label<Boolean>(isIVA(), "isIVA()");
             label<Boolean>(showIndicator, "showIndicator");
             GUILayout.BeginHorizontal();
-            label<Boolean>(showIndicator || (RPMPageActive && isIVA()), "(showIndicator || (RPMPageActive && isIVA()))");
+            bool isSettingsOpen = MainWindow?.IsSettingsWindowOpen() ?? false;
+            bool wasSettingsOpen = MainWindow?.WasSettingsWindowOpen() ?? false;
+            label<Boolean>(isSettingsOpen, "SettingsVisible");
+            label<Boolean>(wasSettingsOpen, "WasSettingsVisible");
             GUILayout.EndHorizontal();
+            label<Boolean>(showIndicator || (RPMPageActive && isIVA()), "(showIndicator || (RPMPageActive && isIVA()))");
 
             GUILayout.BeginVertical();
 
