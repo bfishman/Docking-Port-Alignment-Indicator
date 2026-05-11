@@ -123,6 +123,10 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         m_window?.Open();
         if (m_wasSettingsWindowOn) {
             m_settingsWindow?.Open(m_window?.RectTransform);
+            // Reset the flag here as OnShowGui() is being called
+            // on F3 and ESC as well and the Settings Window would
+            // otherwise be spuriously reopened.
+            m_wasSettingsWindowOn = false;
         }
     }
 
