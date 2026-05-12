@@ -1444,6 +1444,10 @@ namespace NavyFish.DPAI
         private void drawDebugWindowContents(int windowID)
         {
             //stuff here
+            GUILayout.BeginVertical();
+
+            label<String>(currentTargetVessel?.ToString() ?? "NULL", "Target Vessel");
+            label<String>(targetedDockingModule?.GetDisplayName() ?? "NULL", "Target Port");
 
             //intTextField(ref tgtX, "tgtX");
             //intTextField(ref refX, "refX");
@@ -1454,15 +1458,14 @@ namespace NavyFish.DPAI
             label<Boolean>(RPMPageActive, "RPMPageActive");
             label<Boolean>(isIVA(), "isIVA()");
             label<Boolean>(showIndicator, "showIndicator");
+            label<Boolean>(showIndicator || (RPMPageActive && isIVA()), "(showIndicator || (RPMPageActive && isIVA()))");
+
             GUILayout.BeginHorizontal();
             bool isSettingsOpen = MainWindow?.IsSettingsWindowOpen() ?? false;
             bool wasSettingsOpen = MainWindow?.WasSettingsWindowOpen() ?? false;
             label<Boolean>(isSettingsOpen, "SettingsVisible");
             label<Boolean>(wasSettingsOpen, "WasSettingsVisible");
             GUILayout.EndHorizontal();
-            label<Boolean>(showIndicator || (RPMPageActive && isIVA()), "(showIndicator || (RPMPageActive && isIVA()))");
-
-            GUILayout.BeginVertical();
 
             GUILayout.BeginHorizontal();
             label<bool>(c.DrawHudIcon, "Draw HUD Icon");
