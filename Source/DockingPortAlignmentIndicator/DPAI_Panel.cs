@@ -40,6 +40,58 @@ using static NavyFish.DPAI.LogWrapper;
 namespace NavyFish.DPAI
 {
 
+public static class RectTransformExtensions
+{
+    public static Rect GetScreenCoordinates(this RectTransform rt)
+    {
+        var worldCorners = new Vector3[4];
+        rt.GetWorldCorners(worldCorners);
+        return new Rect(
+            Screen.width * rt.pivot.x + worldCorners[0].x,
+            Screen.height * rt.pivot.y + worldCorners[0].y,
+            worldCorners[2].x - worldCorners[2].x,
+            worldCorners[2].y - worldCorners[0].y
+        );
+    }
+
+
+    public static Vector2 GetScreenPosition(this RectTransform rt)
+    {
+        var worldCorners = new Vector3[4];
+        rt.GetWorldCorners(worldCorners);
+        return new Vector2(worldCorners[0].x, worldCorners[0].y);
+    }
+#if false
+    public static Canvas GetCanvas(this RectTransform rt)
+    {
+        return rt.gameObject.GetComponentInParent<Canvas>();
+    }
+    public static float GetWidth(this RectTransform rt)
+    {
+        return (rt.anchorMax.x - rt.anchorMin.x) * Screen.width + rt.sizeDelta.x * rt.GetCanvas().scaleFactor;
+    }
+
+    public static float GetHeight(this RectTransform rt)
+    {
+        return (rt.anchorMax.y - rt.anchorMin.y) * Screen.height + rt.sizeDelta.y * rt.GetCanvas().scaleFactor;
+    }
+
+    public static Vector2 GetScreenPosition(this RectTransform rt)
+    {
+        Vector2 pos;
+        pos.x =
+    }
+
+    public Vector2 Size
+    {
+        get
+        {
+            Vector2 size;
+            size.x =
+        }
+    }
+#endif
+}
 [KSPAddon(KSPAddon.Startup.Instantly, true)]
 public class DPAI_Panel_Loader : MonoBehaviour
 {

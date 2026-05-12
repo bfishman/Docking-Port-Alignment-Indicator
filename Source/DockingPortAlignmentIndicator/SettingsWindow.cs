@@ -326,6 +326,8 @@ public class SettingsWindow
         return m_parent != null;
     }
 
+    private bool isLocked = false;
+
     public void OnGUI()
     {
         if (IsOpen())
@@ -336,6 +338,7 @@ public class SettingsWindow
             // TODO: clamp to main window
             m_pos = GUILayout.Window(1339, m_pos, drawSettingsWindowContents, Utils.GetStringByTag("#dpai_settings"), m_windowStyle);
         }
+        isLocked = Utils.PreventClickthrough(IsOpen(), m_pos, isLocked);
     }
 
     private void drawSettingsWindowContents(int id)

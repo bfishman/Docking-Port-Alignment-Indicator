@@ -22,5 +22,35 @@ namespace NavyFish.DPAI
 
             return s;
         }
+
+        #region Control Lock
+
+        private static string CONTROL_LOCK_ID = "DPAI_SettingsWindow";
+
+        public static bool PreventClickthrough(bool isVisible, Rect position, bool isLocked)
+        {
+            bool mouseOverWindow = isVisible && IsMouseOverRect(position);
+            if (!isLocked && mouseOverWindow)
+            {
+                InputLockManager.SetControlLock( ControlTypes.ALLBUTCAMERAS, CONTROL_LOCK_ID);
+                isLocked = true;
+            }
+
+            if (!isLocked || mouseOverWindow)
+            {
+                return isLocked;
+            }
+
+            InputLockManager.RemoveControlLock(CONTROL_LOCK_ID);
+            isLocked = false;
+            return false;
+        }
+
+        private static bool IsMouseOverRect(Rect position)
+        {
+            return position.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y));
+        }
+
+        #endregion
     }
 }
