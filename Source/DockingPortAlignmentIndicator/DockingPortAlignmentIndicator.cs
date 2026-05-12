@@ -376,9 +376,10 @@ namespace NavyFish.DPAI
 
             if (showIndicator || (RPMPageActive && isIVA()))
             {
+                var lastTargetedVessel = currentTargetVessel;
                 var lastTargetedDockingModule = targetedDockingModule;
                 determineTargetPort();
-                if (targetedDockingModule != lastTargetedDockingModule) {
+                if (currentTargetVessel != lastTargetedVessel || targetedDockingModule != lastTargetedDockingModule) {
                     // TODO: Make event
                     MainWindow?.OnTargetUpdated();
                 }
