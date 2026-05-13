@@ -118,8 +118,6 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     private static DPAI_Panel m_instance = null;
     private static Unity.DockingPortAlignmentIndicator_MainWindow m_window = null;
     private static Settings.SettingsWindow m_settingsWindow = null;
-    private static bool m_wasSettingsWindowOn = false;
-
 
     public static DPAI_Panel Instance
     {
@@ -173,12 +171,8 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     {
         LogD("DPAI_Panel.OnShowGUI()");
         m_window?.Open();
-        if (m_wasSettingsWindowOn) {
+        if (Settings.Configuration.Instance.ShowSettingsWindow) {
             m_settingsWindow?.Open(m_window?.RectTransform);
-            // Reset the flag here as OnShowGui() is being called
-            // on F3 and ESC as well and the Settings Window would
-            // otherwise be spuriously reopened.
-            m_wasSettingsWindowOn = false;
         }
     }
 
@@ -186,7 +180,6 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     {
         LogD("DPAI_Panel.OnHideGUI()");
         m_window?.Close();
-        m_wasSettingsWindowOn = m_settingsWindow?.IsOpen() ?? false;
         m_settingsWindow?.Close();
     }
 
@@ -248,8 +241,10 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         }
         if (m_settingsWindow.IsOpen()) {
             m_settingsWindow.Close();
+            Settings.Configuration.Instance.ShowSettingsWindow = false;
         } else {
             m_settingsWindow.Open(m_window?.RectTransform);
+            Settings.Configuration.Instance.ShowSettingsWindow = true;
         }
     }
 
@@ -267,17 +262,6 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     public void OnTargetPortRenamed(string portName) {
         m_window?.setDockingPortName(portName);
     }
-
-    #region Debug
-    #if DEBUG
-    public bool IsSettingsWindowOpen() {
-        return m_settingsWindow?.IsOpen() ?? false;
-    }
-    public bool WasSettingsWindowOpen() {
-        return m_wasSettingsWindowOn;
-    }
-    #endif
-    #endregion
 }
 
 } // End namespace NavyFish.DPAI

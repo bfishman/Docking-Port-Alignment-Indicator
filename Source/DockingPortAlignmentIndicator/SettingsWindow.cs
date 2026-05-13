@@ -44,24 +44,39 @@ namespace NavyFish.DPAI.Settings
 public sealed class Configuration
 {
     #region Singleton
+
     private static readonly Configuration instance = new Configuration();
-    static Configuration() { }
-    private Configuration() { }
-    public static Configuration Instance {
+
+    static Configuration()
+    {
+    }
+
+    private Configuration()
+    {
+    }
+
+    public static Configuration Instance
+    {
         get { return instance; }
     }
+
     #endregion Singleton
 
     #region Events
+
     public delegate void OnPropertyChanged(string propertyName);
+
     public static OnPropertyChanged onPropertyChanged;
+
     private void NotifyPropertyChanged(string propertyName)
     {
         onPropertyChanged?.Invoke(propertyName);
     }
+
     #endregion Events
 
     #region PluginConfigurationWrapper
+
     private PluginConfiguration config = PluginConfiguration.CreateForType<DockingPortAlignmentIndicator>(null);
     private bool dirty = false;
 
@@ -73,14 +88,16 @@ public sealed class Configuration
 
     public void Save()
     {
-        if (dirty) {
+        if (dirty)
+        {
             // TODO: save in a background task
             config.save();
             dirty = false;
         }
     }
 
-    public object this [string key] {
+    public object this[string key]
+    {
         get { return config[key]; }
         set { SetValue(key, value); }
     }
@@ -89,211 +106,184 @@ public sealed class Configuration
     {
         return config.GetValue<T>(key);
     }
+
     public T GetValue<T>(string key, T _default)
     {
         return config.GetValue<T>(key, _default);
     }
+
     public void SetValue(string key, object value)
     {
-        if (value != config[key]) {
+        var equal = (value.GetType().IsValueType) ? value.Equals(config[key]) : (value == config[key]);
+        if (!equal) {
             config.SetValue(key, value);
             dirty = true;
+            NotifyPropertyChanged(key);
         }
     }
     #endregion PluginConfigurationWrapper
 
     #region GettersSetters
-    public float GaugeScale {
-        get { return config.GetValue<float>("gui_scale", 0.86f); }
-        set {
-            if (GaugeScale != value) {
-                config.SetValue("gui_scale", value);
-                dirty = true;
-                NotifyPropertyChanged("GaugeScale");
-            }
+
+    public float GaugeScale
+    {
+        get
+        {
+            var legacyValue = GetValue<float>("gui_scale", 0.86f);
+            return GetValue<float>("GaugeScale", legacyValue);
         }
+        set { SetValue("GaugeScale", value); }
     }
 
-    public bool DrawHudIcon {
-        get { return config.GetValue<bool>("drawHudIcon", true); }
-        set {
-            if (DrawHudIcon != value) {
-                config.SetValue("drawHudIcon", value);
-                dirty = true;
-                NotifyPropertyChanged("DrawHudIcon");
-            }
+    public bool DrawHudIcon
+    {
+        get
+        {
+            var legacyValue = GetValue<bool>("drawHudIcon", true);
+            return GetValue<bool>("DrawHudIcon", legacyValue);
         }
+        set { SetValue("DrawHudIcon", value); }
     }
 
-    public bool ShowHudIconWhileIva {
-        get { return config.GetValue<bool>("showHUDIconWhileEva", true); }
-        set {
-            if (ShowHudIconWhileIva != value) {
-                config.SetValue("showHUDIconWhileEva", value);
-                dirty = true;
-                NotifyPropertyChanged("ShowHudIconWhileIva");
-            }
+    public bool ShowHudIconWhileIva
+    {
+        get
+        {
+            var legacyValue = GetValue<bool>("showHUDIconWhileIva", true);
+            return GetValue<bool>("ShowHUDIconWhileIva", legacyValue);
         }
+        set { SetValue("ShowHudIconWhileIva", value); }
     }
 
-    public float HudIconSize {
-        get { return config.GetValue<float>("HudIconSize", 22f); }
-        set {
-            if (HudIconSize != value) {
-                config.SetValue("HudIconSize", value);
-                dirty = true;
-                NotifyPropertyChanged("HudIconSize");
-            }
-        }
+    public float HudIconSize
+    {
+        get { return GetValue<float>("HudIconSize", 22f); }
+        set { SetValue("HudIconSize", value); }
     }
 
-    public bool AllowAutoPortTargeting {
-        get { return config.GetValue<bool>("allowAutoPortTargeting", true); }
-        set {
-            if (AllowAutoPortTargeting != value) {
-                config.SetValue("allowAutoPortTargeting", value);
-                dirty = true;
-                NotifyPropertyChanged("AllowAutoPortTargeting");
-            }
+    public bool AllowAutoPortTargeting
+    {
+        get
+        {
+            var legacyValue = GetValue<bool>("allowAutoPortTargeting", true);
+            return GetValue<bool>("AllowAutoPortTargeting", legacyValue);
         }
+        set { SetValue("AllowAutoPortTargeting", value); }
     }
 
-    public bool ExcludeDockedPorts {
-        get { return config.GetValue<bool>("excludeDockedPorts", true); }
-        set {
-            if (ExcludeDockedPorts != value) {
-                config.SetValue("excludeDockedPorts", value);
-                dirty = true;
-                NotifyPropertyChanged("ExcludeDockedPorts");
-            }
+    public bool ExcludeDockedPorts
+    {
+        get
+        {
+            var legacyValue = GetValue<bool>("excludeDockedPorts", true);
+            return GetValue<bool>("ExcludeDockedPorts", legacyValue);
         }
+        set { SetValue("ExcludeDockedPorts", value); }
     }
 
-    public bool RestrictDockingPorts {
-        get { return config.GetValue<bool>("restrictDockingPorts", true); }
-        set {
-            if (RestrictDockingPorts != value) {
-                config.SetValue("restrictDockingPorts", value);
-                dirty = true;
-                NotifyPropertyChanged("RestrictDockingPorts");
-            }
+    public bool RestrictDockingPorts
+    {
+        get
+        {
+            var legacyValue = GetValue<bool>("restrictDockingPorts", true);
+            return GetValue<bool>("RestrictDockingPorts", legacyValue);
         }
+        set { SetValue("RestrictDockingPorts", value); }
     }
 
-    public bool AlignmentFlipXAxis {
-        get { return config.GetValue<bool>("alignmentFlipXAxis", false); }
-        set {
-            if (AlignmentFlipXAxis != value) {
-                config.SetValue("alignmentFlipXAxis", value);
-                dirty = true;
-                NotifyPropertyChanged("AlignmentFlipXAxis");
-            }
+    public bool AlignmentFlipXAxis
+    {
+        get
+        {
+            var legacyValue = GetValue<bool>("alignmentFlipXAxis", false);
+            return GetValue<bool>("AlignmentFlipXAxis", legacyValue);
         }
+        set { SetValue("AlignmentFlipXAxis", value); }
     }
 
-    public bool AlignmentFlipYAxis {
-        get { return config.GetValue<bool>("alignmentFlipYAxis", false); }
-        set {
-            if (AlignmentFlipYAxis != value) {
-                config.SetValue("alignmentFlipYAxis", value);
-                dirty = true;
-                NotifyPropertyChanged("AlignmentFlipYAxis");
-            }
+    public bool AlignmentFlipYAxis
+    {
+        get
+        {
+            var legacyValue = GetValue<bool>("alignmentFlipYAxis", false);
+            return GetValue<bool>("AlignmentFlipYAxis", legacyValue);
         }
+        set { SetValue("AlignmentFlipYAxis", value); }
     }
 
-    public bool TranslationFlipXAxis {
-        get { return config.GetValue<bool>("translationFlipXAxis", false); }
-        set {
-            if (TranslationFlipXAxis != value) {
-                config.SetValue("translationFlipXAxis", value);
-                dirty = true;
-                NotifyPropertyChanged("TranslationFlipXAxis");
-            }
+    public bool TranslationFlipXAxis
+    {
+        get
+        {
+            var legacyValue = GetValue<bool>("translationFlipXAxis", false);
+            return GetValue<bool>("TranslationFlipXAxis", legacyValue);
         }
+        set { SetValue("TranslationFlipXAxis", value); }
     }
 
-    public bool TranslationFlipYAxis {
-        get { return config.GetValue<bool>("translationFlipYAxis", false); }
-        set {
-            if (TranslationFlipYAxis != value) {
-                config.SetValue("translationFlipYAxis", value);
-                dirty = true;
-                NotifyPropertyChanged("TranslationFlipYAxis");
-            }
+    public bool TranslationFlipYAxis
+    {
+        get
+        {
+            var legacyValue = config.GetValue<bool>("translationFlipYAxis", false);
+            return config.GetValue<bool>("TranslationFlipYAxis", legacyValue);
         }
+        set { SetValue("TranslationFlipYAxis", value); }
     }
 
-    public bool RollFlipAxis {
-        get { return config.GetValue<bool>("rollFlipAxis", false); }
-        set {
-            if (RollFlipAxis != value) {
-                config.SetValue("rollFlipAxis", value);
-                dirty = true;
-                NotifyPropertyChanged("RollFlipAxis");
-            }
+    public bool RollFlipAxis
+    {
+        get
+        {
+            var legacyValue = config.GetValue<bool>("rollFlipAxis", false);
+            return config.GetValue<bool>("RollFlipAxis", legacyValue);
         }
+        set { SetValue("RollFlipAxis", value); }
     }
 
-    public bool UseStockToolbar {
-        get {
+    public bool UseStockToolbar
+    {
+        get
+        {
             var legacyValue = config.GetValue<bool>("forceStockAppLauncher", true);
             return config.GetValue<bool>("UseStockToolbar", legacyValue);
         }
-        set {
-            if (UseStockToolbar != value) {
-                config.SetValue("UseStockToolbar", value);
-                dirty = true;
-                NotifyPropertyChanged("UseStockToolbar");
-            }
-        }
+        set { SetValue("UseStockToolbar", value); }
     }
 
-    public bool UseBlizzyToolbar {
+    public bool UseBlizzyToolbar
+    {
         get { return config.GetValue<bool>("UseBlizzyToolbar", false); }
-        set {
-            if (UseBlizzyToolbar != value) {
-                config.SetValue("UseBlizzyToolbar", value);
-                dirty = true;
-                NotifyPropertyChanged("UseBlizzyToolbar");
-            }
-        }
+        set { SetValue("UseBlizzyToolbar", value); }
     }
 
-    public Vector2 WindowPosition {
-        get { return config.GetValue<Vector2>("windowPosition", new Vector2(0,0)); }
-        set {
-            if (WindowPosition != value) {
-                config.SetValue("windowPosition", value);
-                dirty = true;
-                NotifyPropertyChanged("WindowPosition");
-            }
+    public Vector2 WindowPosition
+    {
+        get
+        {
+            var legacyValue = config.GetValue<Vector2>("windowPosition", new Vector2(0, 0));
+            return config.GetValue<Vector2>("WindowPosition", legacyValue);
         }
+        set { SetValue("WindowPosition", value); }
     }
 
-    public bool IsWindowVisible {
+    public bool IsWindowVisible
+    {
         get { return config.GetValue<bool>("IsWindowVisible", false); }
-        set {
-            if (IsWindowVisible != value) {
-                config.SetValue("IsWindowVisible", value);
-                dirty = true;
-                NotifyPropertyChanged("IsWindowVisible");
-            }
-        }
+        set { SetValue("IsWindowVisible", value); }
+    }
+
+    public bool ShowSettingsWindow {
+        get { return config.GetValue<bool>("ShowSettingsWindow", false); }
+        set { SetValue("ShowSettingsWindow", value); }
     }
 
     public bool ShowDebugWindow {
         get { return config.GetValue<bool>("ShowDebugWindow", false); }
-        set {
-            if (ShowDebugWindow != value) {
-                config.SetValue("ShowDebugWindow", value);
-                dirty = true;
-                NotifyPropertyChanged("ShowDebugWindow");
-            }
-        }
+        set { SetValue("ShowDebugWindow", value); }
     }
-    #endregion
 
+    #endregion
 }
 
 public class SettingsWindow
@@ -350,6 +340,7 @@ public class SettingsWindow
         if (GUI.Button(rect, ""))
         {
             Close();
+            Settings.Configuration.Instance.ShowSettingsWindow = false;
             return;
         }
 
