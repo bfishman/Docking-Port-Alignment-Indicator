@@ -41,6 +41,8 @@ using UnityEngine;
 namespace NavyFish.DPAI.Settings
 {
 
+// NOTE: The PluginConfiguration class is buggy and only supports `bool`, `int`, `double`, and `string`, despite what
+// the documentation may say. Ensure that any other types are cast to/from these supported types.
 public sealed class Configuration
 {
     #region Singleton
@@ -109,7 +111,7 @@ public sealed class Configuration
 
     public T GetValue<T>(string key, T _default)
     {
-        return config.GetValue<T>(key, _default);
+        return (config[key] != null) ? config.GetValue<T>(key) : _default;
     }
 
     public void SetValue(string key, object value)
@@ -121,6 +123,7 @@ public sealed class Configuration
             NotifyPropertyChanged(key);
         }
     }
+
     #endregion PluginConfigurationWrapper
 
     #region GettersSetters
@@ -129,10 +132,11 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = GetValue<float>("gui_scale", 0.86f);
-            return GetValue<float>("GaugeScale", legacyValue);
+            // NOTE: There seems to be a bug in the settings implementation which ignores saving float values.
+            var legacyValue = GetValue<double>("gui_scale", 0.86f);
+            return (float)GetValue<double>("GaugeScale", legacyValue);
         }
-        set { SetValue("GaugeScale", value); }
+        set { SetValue("GaugeScale", (double)value); }
     }
 
     public bool DrawHudIcon
@@ -157,8 +161,8 @@ public sealed class Configuration
 
     public float HudIconSize
     {
-        get { return GetValue<float>("HudIconSize", 22f); }
-        set { SetValue("HudIconSize", value); }
+        get { return (float)GetValue<double>("HudIconSize", 22f); }
+        set { SetValue("HudIconSize", (double)value); }
     }
 
     public bool AllowAutoPortTargeting
