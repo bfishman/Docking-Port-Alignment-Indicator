@@ -32,7 +32,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
     public class BitmapFont
     {

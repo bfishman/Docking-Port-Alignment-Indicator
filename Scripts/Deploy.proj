@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Deploy" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.8">
   <ImportGroup Label="PropertySheets">
     <Import Project="..\Source\DockingPortAlignmentIndicator\common_settings.props" />
@@ -122,11 +122,18 @@
       <DistFiles Remove="@(DistFiles)" />
     </ItemGroup>
 
-    <!-- Copy KSPedia 
-      NOTE: the filename must end in ".ksp" for KSP to recognise it -->
+
+    <!-- Copy DPAI asset bundle containing the GUI
+         NOTE: We do not want a ".ksp" extension to prevent KSP auto-loading this as we load it manually in the code. -->
     <Copy
-      SourceFiles="$(DistDir)\KSPedia\AssetBundles\kspedia_dpai"
-      DestinationFiles="$(BuildDir)\GameData\KSPedia\kspedia_dpai.ksp" />
+      SourceFiles="$(DistDir)\Unity\AssetBundles\dpai"
+      DestinationFolder="$(BuildDir)\GameData\NavyFish\AssetBundles\" />
+
+    <!-- Copy KSPedia
+         NOTE: the filename must end in ".ksp" for KSP to recognise it -->
+    <Copy
+      SourceFiles="$(DistDir)\Unity\AssetBundles\kspedia_dpai"
+      DestinationFiles="$(BuildDir)\GameData\NavyFish\AssetBundles\kspedia_dpai.ksp" />
   </Target>
 
   <!-- create zip file with content of release\bin folder -->
