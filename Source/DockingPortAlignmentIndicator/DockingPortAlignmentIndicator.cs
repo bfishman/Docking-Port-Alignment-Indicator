@@ -395,6 +395,37 @@ namespace NavyFish.DPAI
         }
 
         /// <summary>
+        /// Check if the port is ready to dock with.
+        /// </summary>
+        /// Some ports are in a not-ready state which can be toggled by the player (for example, the Shielded Docking
+        /// Port), or are already docked to something.
+        /// <param name="port"></param>
+        /// <returns></returns>
+        private static bool isPortReadyForDocking(ModuleDockingNode port)
+        {
+            // Can't dock to a port which is already docked or otherwise engaged
+            // MKW TODO: Figure out if there's a way to receive an event when a port toggles its state. Currently the
+            //           player has to manually switch vessels in order to recalculate the list of valid ports.
+            if (!port.state.StartsWith("Ready"))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Check if a port is already docked to something
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        private static bool isPortDocked(ModuleDockingNode port)
+        {
+            // "Docked (same vessel)", "Docked (dockee)", "Docked (docker)", and "PreAttached"; the latter is the state
+            // a port is in when it is docked in the VAB
+            return port.state.StartsWith("Docked") || port.state == "PreAttached";
+        }
+
+        /// <summary>
         /// Returns true if the targetPort is compatible with the current vessel.
         /// </summary>
         /// If the controlling part of the current vessel is a docking port, then it
@@ -411,6 +442,9 @@ namespace NavyFish.DPAI
             if ((dockingPorts?.Count ?? 0) == 0) {
                 dockingPorts = FlightGlobals.ActiveVessel.FindPartModulesImplementing<ModuleDockingNode>();
             }
+            // Remove all ports which are already docked
+            dockingPorts.RemoveAll(isPortDocked);
+            // Keep "not ready" ports such as closed shielded docking ports - up to the player to open them
 
             // See if one of the source ports is compatible with the target port.
             using (IEnumerator<ModuleDockingNode> dnEnumerator = dockingPorts.GetEnumerator())
@@ -419,31 +453,20 @@ namespace NavyFish.DPAI
                 {
                     var sourcePort = dnEnumerator.Current;
 
-                    // Can't dock using a disabled port
-                    if (sourcePort.IsDisabled) {
-                        continue;
-                    }
-                    if (!sourcePort.state.StartsWith("Ready")) {
-                        continue;
-                    }
-                    // If one port is gendered, they both have to be
-                    // TODO: verify with mods; stock ports are ungendered
+                    // If one port is gendered, they both have to be, and have to be opposite genders
                     if (sourcePort.gendered != targetPort.gendered) {
                         continue;
                     }
-                    // If the ports are gendered, they have to be opposite gender
-                    // TODO: Possibly if one port is gendered, but the other isn't, ignore?
                     if (sourcePort.gendered && (sourcePort.genderFemale == targetPort.genderFemale)) {
                         continue;
                     }
 
                     // Verify the ports are the same size
                     // NB: Since v1.0.5 of KSP, docking ports can be "multiport" in which case the nodeType is a comma-delimited string
-                    //if (sourcePort.nodeType != targetPort.nodeType) {
                     char [] separator = { ',' };
                     var spNodes = sourcePort.nodeType.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    var dpNodes = targetPort.nodeType.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    if (spNodes.Intersect(dpNodes).Count() == 0) {
+                    var tpNodes = targetPort.nodeType.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (spNodes.Intersect(tpNodes).Count() == 0) {
                         continue;
                     }
 
@@ -537,13 +560,10 @@ namespace NavyFish.DPAI
                         if (currentTargetVessel != lastTargetVessel || !currentTargetVesselWasLastSeenLoaded)
                         {
                             //Target Vessel has either changed or just become loaded.
-
                             lastTargetVessel = currentTargetVessel;
 
                             if (c.AllowAutoPortTargeting)
                             {
-                                //dockingModulesList = currentTargetVessel.FindPartModulesImplementing<ModuleDockingNode>();
-                                //print("list rebuilt");
                                 List<ITargetable> ITargetableList = currentTargetVessel.FindPartModulesImplementing<ITargetable>();
                                 dockingModulesList.Clear();
                                 foreach (ITargetable tgt in ITargetableList)
@@ -552,14 +572,9 @@ namespace NavyFish.DPAI
                                     {
                                         ModuleDockingNode port = tgt as ModuleDockingNode;
                                         LogD($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
-                                        // MKW: if node was attached in the VAB, state is "PreAttached"
-                                        if (c.ExcludeDockedPorts &&
-                                            (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) ||
-                                             port.state.StartsWith("PreAttached", StringComparison.OrdinalIgnoreCase))
-                                           )
+                                        if (c.ExcludeDockedPorts && isPortDocked(port))
                                         {
-                                            //print("continue");
-                                            //do not add to list if module is already docked
+                                            // Do not add to list if port is already docked
                                             continue;
                                         }
 
@@ -569,12 +584,10 @@ namespace NavyFish.DPAI
                                             continue;
                                         }
 
-                                        //print("1stAdd");
                                         dockingModulesList.Add(tgt);
                                     }
                                     else
                                     {
-                                        //print("2ndAdd");
                                         dockingModulesList.Add(tgt);
                                     }
                                 }
