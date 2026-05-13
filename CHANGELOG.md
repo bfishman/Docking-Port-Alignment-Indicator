@@ -6,9 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
 ### Added
 - Added (english) KSPedia. Fixes #17
+- Added Russian translation. Thanks to `BROtania` and `infradmin4KSP`
+- Added French translation. Thanks to `vinix38`
+
+### Changed
+- The DPAI display now uses a native Unity window, which is more performant,
+  looks better, and solves various issues. Note that the settings window is
+  still rendered using the KSP GUI. Fixes #15, and partially fixes #13 and
+  #24
 
 ### Fixed
-- fixed the DPAI window remaining visible on top of KSPedia. Fixes #27
+- Fixed the DPAI window remaining visible on top of KSPedia. Fixes #27
+- Fixed F2 not hiding the DPAI windows. Fixes #30
+
+### Notes
+- A big thank-you to `infradmin4KSP` who did a lot of testing during
+  development
 
 ## [6.12.0.0] for KSP 1.12.5 - 2025-05-15
 ### Added
