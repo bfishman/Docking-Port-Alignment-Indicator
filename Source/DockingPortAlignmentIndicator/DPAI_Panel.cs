@@ -129,8 +129,7 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
     {
         LogD("DPAI_Panel.Awake()");
         m_instance = this;
-        // TODO: retrieve version from assembly
-        m_version = "1.12.0";
+        m_version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         // Load the Unity window from the prefab
         if (m_window == null && DPAI_Panel_Loader.PanelPrefab != null) {
