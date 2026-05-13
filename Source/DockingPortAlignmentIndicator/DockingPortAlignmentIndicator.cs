@@ -198,11 +198,9 @@ namespace NavyFish.DPAI
 
         private bool IsSceneEligibleForIndicator {
             get {
-                //return HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled;
                 return HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA;
             }
         }
-
 
         public DPAI_Panel MainWindow {
             get { return DPAI_Panel.Instance; }
@@ -784,12 +782,11 @@ namespace NavyFish.DPAI
 
         private void onGaugeDraw()
         {
-            if (c.DrawHudIcon)
-            {
-                if ((showIndicator && !isIVA()) || (c.ShowHudIconWhileIva && RPMPageActive && isIVA()))
-                {
-                    drawTargetPortHUDIndicator();
-                }
+            // Only draw the target indicator if the settings allow it and we are in the correct scene to show it
+            if (c.DrawHudIcon
+                && (showIndicator && IsSceneEligibleForIndicator && !MapView.MapIsEnabled && !isIVA())
+                || (c.ShowHudIconWhileIva && RPMPageActive && isIVA())) {
+                drawTargetPortHUDIndicator();
             }
         }
 
