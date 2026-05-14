@@ -127,7 +127,7 @@ public sealed class Toolbar : IDisposable
             onButtonClickCallback,
             onButtonClickCallback,
             null, null, null, null,
-            ApplicationLauncher.AppScenes.FLIGHT|ApplicationLauncher.AppScenes.MAPVIEW,
+            ApplicationLauncher.AppScenes.FLIGHT,
             m_stbButtonIcon);
     }
 

@@ -197,8 +197,9 @@ namespace NavyFish.DPAI
         }
 
         private bool IsSceneEligibleForIndicator {
-            get {
-                return HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA;
+            get
+            {
+                return HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled;
             }
         }
 
@@ -294,6 +295,26 @@ namespace NavyFish.DPAI
             }
         }
 
+        // GameEvents.OnMapEntered
+        // Called when the user enters the map view
+        private void OnMapEntered()
+        {
+            LogD($"GameEvents.OnMapEntered()");
+            if (gaugeVisiblityToggledOn) {
+                onHideGUI();
+            }
+        }
+
+        // GameEvents.OnMapExited
+        // Called when the user leaves the map view
+        private void OnMapExited()
+        {
+            LogD($"GameEvents.OnMapExited()");
+            if (c.IsWindowVisible) {
+                onShowGUI();
+            }
+        }
+
         /// <summary>
         /// Called once per object. Effectively the Constructor.
         /// </summary>
@@ -324,6 +345,8 @@ namespace NavyFish.DPAI
             GameEvents.onShowUI.Add(OnShowUI);
             GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
+            GameEvents.OnMapEntered.Add(OnMapEntered);
+            GameEvents.OnMapExited.Add(OnMapExited);
 
             if (c.IsWindowVisible) {
                 onShowGUI();
@@ -346,6 +369,8 @@ namespace NavyFish.DPAI
             GameEvents.onShowUI.Remove(OnShowUI);
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
+            GameEvents.OnMapEntered.Remove(OnMapEntered);
+            GameEvents.OnMapExited.Remove(OnMapExited);
 
             // By destroying the toolbar here we work around an odd edge-case where the toolbar loses the
             // AppLauncherReady events when both toolbars are deselected and scenes are switched. Forcing the toolbar
@@ -787,7 +812,7 @@ namespace NavyFish.DPAI
         {
             // Only draw the target indicator if the settings allow it and we are in the correct scene to show it
             if (c.DrawHudIcon
-                && (showIndicator && IsSceneEligibleForIndicator && !MapView.MapIsEnabled && !isIVA())
+                && (showIndicator && IsSceneEligibleForIndicator && !isIVA())
                 || (c.ShowHudIconWhileIva && RPMPageActive && isIVA())) {
                 drawTargetPortHUDIndicator();
             }
