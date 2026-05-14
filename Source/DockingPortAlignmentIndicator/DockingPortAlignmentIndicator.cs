@@ -1,18 +1,19 @@
+#region License
 /*
  *    DockingPortAlignment.cs
- * 
+ *
  *    Copyright (C) 2014, Bryan Fishman
- *    
+ *
  *    Permission is hereby granted, free of charge, to any person obtaining a copy
  *    of this software and associated documentation files (the "Software"), to deal
  *    in the Software without restriction, including without limitation the rights
  *    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *    copies of the Software, and to permit persons to whom the Software is
  *    furnished to do so, subject to the following conditions:
- *    
+ *
  *    The above copyright notice and this permission notice shall be included in
  *    all copies or substantial portions of the Software.
- *    
+ *
  *    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,52 +21,34 @@
  *    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *    THE SOFTWARE.
- * 
+ *
  *    Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  *    project is in no way associated with nor endorsed by Squad.
  */
+#endregion
 
 using System;
 using UnityEngine;
 using KSP.IO;
-using KSP.UI.Screens;
-using KSP.Localization;
-using KSPAssets.KSPedia;
 using System.Collections.Generic;
-
-using static NavyFish.LogWrapper;
+using System.Diagnostics;
+using static NavyFish.DPAI.LogWrapper;
 using System.Linq;
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
+
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class DockingPortAlignmentIndicator : MonoBehaviour
     {
-        private static PluginConfiguration config;
-        private static bool configDirty = true;
+        private static Settings.Configuration c = null;
         private static bool hasInitializedStyles = false;
-        private static GUIStyle windowStyle, labelStyle, settingsButtonStyle;
-        private static Rect windowPosition = new Rect();
-        private static Rect lastPosition = new Rect();
         private static Rect debugWindowPosition = new Rect(50,200,350,200);
-        
-        static Rect selectedPortHUDRect = new Rect(0, 0, targetHUDiconSize, targetHUDiconSize);
-        
-        public static float gaugeScale = .86f;
+
+        static Rect selectedPortHUDRect;
+
         private static int backgroundTextureWidth = 317;
         private static int backgroundTextureHeight = 317;
-        private static Rect backgroundRect = new Rect(0, 0f, backgroundTextureWidth * gaugeScale, backgroundTextureHeight * gaugeScale);
-
-        private static int foregroundTextureWidth = 400;
-        private static int foregroundTextureHeight = 457;
-        private static Rect foregroundRect = new Rect(0, 0f, foregroundTextureWidth * gaugeScale, foregroundTextureHeight * gaugeScale);
-
-        private static Rect leftButtonRect = new Rect();
-        private static Rect rightButtonRect = new Rect();
-
-        private static Rect settingsWindowPosition;
-        //private static int settingsWindowWidth = 268;
-        //private static int settingsWindowHeight = 120;
 
         private static Vector3 orientationDeviation = new Vector3();
         private static Vector2 translationDeviation = new Vector3();
@@ -89,18 +72,14 @@ namespace NavyFish
         private static float CDIexponentDecreaseDoneRange = 5f;
 
         private static float markerSize = 111;
-        private static float targetHUDiconSize = 22;
         private static float pulsePeriod = 1.42f;
         private static float pulseDurationRatio = .4f;
 
         private static Color colorCDINormal = new Color(.064f, .642f, 0f);
         private static Color colorCDIReverse = new Color(.747f, 0f, .05f);
-        private static Color colorsettingsButtonActivated = new Color(.11f, .66f, .11f, 1f);
-        private static Color colorsettingsButtonDeactivated = new Color(.22f, .26f, .29f, 1f);
         private static Color colorTargetPortHUDicon = new Color(.989f, .329f, .953f);
         private static Color colorGaugeLabels = new Color(.41f, .41f, .41f, 1f);
 
-        public static Texture2D gaugeForegroundTex = null;
         public static Texture2D gaugeBackgroundTex = null;
         public static Texture2D rpmBackgroundTex = null;
         public static Texture2D alignmentTex = null;
@@ -110,13 +89,10 @@ namespace NavyFish
         public static Texture2D roll = null;
         public static Texture2D targetPort = null;
         public static Texture2D fontTexture = null;
-        public static Texture2D appLauncherIcon = null;
-        public static Texture2D customToolbarIcon;
 
         public static BitmapFont bitmapFont;
         private static float textTargetRefNameScale = .77f;
 
-        private static bool showSettings = false;
         private static bool useCDI = true;
         private static bool drawRollDigits = true;
         private static bool showIndicator;
@@ -124,30 +100,19 @@ namespace NavyFish
         private static bool currentTargetVesselWasLastSeenLoaded = false;
         public static bool gaugeVisiblityToggledOn = false;
         private static bool targetOutOfRange = false;
-        private static bool allowAutoPortTargeting = true;
-        private static bool excludeDockedPorts = true;
-        private static bool restrictDockingPorts = true; // Restrict target ports based on size etc
-        private static bool drawHudIcon = true;
         private static bool resetTarget = false;
-        private static bool blizzyToolbarAvailable = false;
-        private static bool forceStockAppLauncher = true;
 
         public static bool RPMPageActive = false;
-        
-        static IButton toolbarButton;
-
-        private static ApplicationLauncherButton appLauncherButton;
 
         static List<ITargetable> dockingModulesList = new List<ITargetable>();
         static int dockingModulesListIndex = -1;
-        
+
         static ITargetable currentTarget = null;
         static ITargetable lastTarget = null;
         static Vessel currentTargetVessel = null;
         static Vessel lastTargetVessel = null;
         static Vessel lastActiveVessel = null;
         static int cycledModuleIndex = -1;
-        static bool showHUDIconWhileIva = false;
         static bool wasLastIVA = false;
         static bool wasLastMap = false;
 
@@ -193,7 +158,7 @@ namespace NavyFish
                 else
                 {
                     return null;
-                }   
+                }
             }
         }
 
@@ -202,63 +167,14 @@ namespace NavyFish
             return target.GetTargetingMode() == VesselTargetModes.DirectionVelocityAndOrientation;
         }
 
-        /// <summary>
-        /// Adds the toolbar button from the Stock toolbar (AppLauncher)
-        /// </summary>
-        /// Called directly and also as a GameEvent callback.
-        private void addToolBarButtonToStockAppLauncher ()
-        {
-            LogD($"addToolBarButtonToStockAppLauncher (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
-            if (HighLogic.LoadedSceneIsFlight && appLauncherButton == null) {
-                //print("DPAI: adding stock appLauncher button");
-                //RUIToggleButton.OnTrue onTrueDelegate = new RUIToggleButton.OnTrue(onShowGUI);
-                //RUIToggleButton.OnFalse onFalseDelegate = new RUIToggleButton.OnFalse(onHideGUI);
-                Callback onTrueCallback = new Callback(onShowGUI);
-                Callback onFalseCallback = new Callback(onHideGUI);
-                appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
-                    onTrueCallback,
-                    onFalseCallback,
-                    null, null, null, null,
-                    ApplicationLauncher.AppScenes.FLIGHT,
-                    appLauncherIcon);
-            }
-        }
-
-        /// <summary>
-        /// Removes the toolbar button from the Stock toolbar (AppLauncher)
-        /// </summary>
-        /// Called directly and also as a GameEvent callback.
-        private void removeToolBarButtonFromAppLauncher()
-        {
-            LogD("removeToolBarButtonFromAppLauncher (appLauncherButton=={appLauncherButton})");
-            if (appLauncherButton != null)
-            {
-                ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-                appLauncherButton = null;
-            }
-        }
-
-        /// <summary>
-        /// GameEvent callback whenever the AppLauncher becomes ready.
-        /// </summary>
-        private void OnAppLauncherReady()
-        {
-            LogD($"OnAppLauncherReady (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
-            if (HighLogic.LoadedSceneIsFlight)
-            {
-                addToolBarButtonToStockAppLauncher();
-            }
-            else
-            {
-                removeToolBarButtonFromAppLauncher();
-            }
-        }
-
         // Callback for toolbar button click
         private void onShowGUI()
         {
             LogD("onShowGUI()");
             gaugeVisiblityToggledOn = true;
+            MainWindow?.OnShowGUI();
+
+            ModuleDockingNodeNamed.onPortRenamed += OnPortRenamed;
         }
 
         // Callback for toolbar button click
@@ -266,16 +182,84 @@ namespace NavyFish
         {
             LogD("onHideGUI()");
             gaugeVisiblityToggledOn = false;
+
+            ModuleDockingNodeNamed.onPortRenamed -= OnPortRenamed;
+            MainWindow?.OnHideGUI();
         }
 
-        bool wasVisible = false;
+        private void onToggleGUI()
+        {
+            if (gaugeVisiblityToggledOn) {
+                onHideGUI();
+            } else {
+                onShowGUI();
+            }
+        }
+
+        private bool IsSceneEligibleForIndicator {
+            get
+            {
+                return HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled;
+            }
+        }
+
+        public DPAI_Panel MainWindow {
+            get { return DPAI_Panel.Instance; }
+        }
+
+        private void OnPortRenamed(ModuleDockingNodeNamed renamedNode)
+        {
+            if (renamedNode == targetNamedModule) {
+                MainWindow?.OnTargetPortRenamed(determineTargetPortName());
+            };
+        }
+
+        /// <summary>
+        /// Handle additional functionality on setting changes
+        /// </summary>
+        /// <param name="setting">Name of the setting that was changed.</param>
+        void OnSettingChanged(string setting)
+        {
+            switch(setting) {
+                case "UseStockToolbar":
+                case "UseBlizzyToolbar":
+                    updateToolBarButton();
+                    break;
+                case "AllowAutoPortTargeting":
+                case "ExcludeDockedPorts":
+                case "RestrictDockingPorts":
+                    resetTarget = true;
+                    break;
+                case "GaugeScale":
+                    MainWindow?.OnScaleChanged(c.GaugeScale);
+                    break;
+            }
+        }
+
+        #region Toolbar
+        /// <summary>
+        /// Dynamically turns the Stock and Blizzy toolbarbuttons on or off.
+        /// </summary>
+        private void updateToolBarButton()
+        {
+            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene})");
+            Toolbar.Instance.SetToolbarButtons(c.UseStockToolbar, c.UseBlizzyToolbar);
+        }
+
+        private void OnToolbarButtonClicked()
+        {
+            onToggleGUI();
+            c.IsWindowVisible = gaugeVisiblityToggledOn;
+        }
+        #endregion // Toolbar
+
+        #region GameEvents
         // GameEvents.onKSPediaSpawn
         // Called when the KSPedia is shown
         private void OnKSPediaSpawn ()
         {
             LogD($"GameEvents.OnKSPediaSpawn()");
-            wasVisible = gaugeVisiblityToggledOn;
-            if (wasVisible) {
+            if (gaugeVisiblityToggledOn) {
                 onHideGUI();
             }
         }
@@ -286,9 +270,48 @@ namespace NavyFish
         private void OnKSPediaDespawn ()
         {
             LogD($"GameEvents.OnKSPediaDespawn()");
-            if (wasVisible) {
+            if (c.IsWindowVisible) {
                 onShowGUI();
-                wasVisible = false;
+            }
+        }
+
+        // GameEvents.onHideUI
+        // Called when F2 is pressed
+        private void OnHideUI()
+        {
+            LogD($"GameEvents.OnHideUI()");
+            if (gaugeVisiblityToggledOn) {
+                onHideGUI();
+            }
+        }
+
+        // GameEvents.onShowUI
+        // Called when the UI is shown again on pressing F2
+        private void OnShowUI()
+        {
+            LogD($"GameEvents.OnShowUI()");
+            if (c.IsWindowVisible) {
+                onShowGUI();
+            }
+        }
+
+        // GameEvents.OnMapEntered
+        // Called when the user enters the map view
+        private void OnMapEntered()
+        {
+            LogD($"GameEvents.OnMapEntered()");
+            if (gaugeVisiblityToggledOn) {
+                onHideGUI();
+            }
+        }
+
+        // GameEvents.OnMapExited
+        // Called when the user leaves the map view
+        private void OnMapExited()
+        {
+            LogD($"GameEvents.OnMapExited()");
+            if (c.IsWindowVisible) {
+                onShowGUI();
             }
         }
 
@@ -297,28 +320,37 @@ namespace NavyFish
         /// </summary>
         public void Awake()
         {
-            LogD($"Awake (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"Awake (GameScene=={HighLogic.LoadedScene})");
+
+            // Initialize all the things that rely on an initialized Unity environment
+            c = Settings.Configuration.Instance;
+            c.Load();
+            selectedPortHUDRect = new Rect(0, 0, c.HudIconSize, c.HudIconSize);
+
             loadTextures();
         }
-        
+
         /// <summary>
         /// Called once only per object just before the first frame.
         /// </summary>
         public void Start()
         {
-            LogD($"Start (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
-            LoadPrefs();
+            LogD($"Start (GameScene=={HighLogic.LoadedScene})");
 
+            Toolbar.Instance.onToolbarButtonClicked += OnToolbarButtonClicked;
             updateToolBarButton();
 
-            if ( !hasInitializedStyles ) initStyles();
-
-            settingsWindowPosition = new Rect(0, windowPosition.yMax, 0, 0);
-
-            //GameEvents.debugEvents = true;
-
+            Settings.Configuration.onPropertyChanged += OnSettingChanged;
+            GameEvents.onHideUI.Add(OnHideUI);
+            GameEvents.onShowUI.Add(OnShowUI);
             GameEvents.onGUIKSPediaSpawn.Add(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
+            GameEvents.OnMapEntered.Add(OnMapEntered);
+            GameEvents.OnMapExited.Add(OnMapExited);
+
+            if (c.IsWindowVisible) {
+                onShowGUI();
+            }
         }
 
         /// <summary>
@@ -326,119 +358,39 @@ namespace NavyFish
         /// </summary>
         private void OnDestroy()
         {
-            LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
+            LogD($"OnDestroy (GameScene=={HighLogic.LoadedScene}, ForceStockAppLauncher=={c.UseStockToolbar})");
 
-            saveConfigSettings();
-            
-            if (forceStockAppLauncher || !blizzyToolbarAvailable)
-            {
-                destroyAppLauncherButton();
-            }
-            else
-            {
-                destroyBlizzyButton();
-            }
+            onHideGUI();
+            c.Save();
+
+            Toolbar.Instance.onToolbarButtonClicked -= OnToolbarButtonClicked;
+            Settings.Configuration.onPropertyChanged -= OnSettingChanged;
+            GameEvents.onHideUI.Remove(OnHideUI);
+            GameEvents.onShowUI.Remove(OnShowUI);
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
-        }
+            GameEvents.OnMapEntered.Remove(OnMapEntered);
+            GameEvents.OnMapExited.Remove(OnMapExited);
 
-        /// <summary>
-        /// Creates the ToolbarButton on the Stock Toolbar (AppLauncher)
-        /// </summary>
-        private void createAppLauncherButton()
-        {
-            // Various "GameEvents" exist for the ApplicationLauncher, but it seems only one is
-            // actually called in KSP1.8.x - onGUIApplicationLauncherReady
-            GameEvents.onGUIApplicationLauncherReady.Add(OnAppLauncherReady);
-            if (ApplicationLauncher.Ready && HighLogic.LoadedSceneIsFlight)
-            {
-                addToolBarButtonToStockAppLauncher();
-            }
-        }
-
-        /// <summary>
-        /// Destroys the ToolbarButton on the Stock Toolbar (AppLauncher)
-        /// </summary>
-        private void destroyAppLauncherButton()
-        {
-            removeToolBarButtonFromAppLauncher();
-            GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
-        }
-
-        /// <summary>
-        /// Creates the ToolbarButton on the Blizzy Toolbar
-        /// </summary>
-        private void createBlizzyButton()
-        {
-            if (toolbarButton == null)
-            {
-                toolbarButton = ToolbarManager.Instance.add("DockingAlignment", "dockalign");
-                toolbarButton.TexturePath = "NavyFish/Plugins/ToolbarIcons/DPAI";
-                toolbarButton.ToolTip = "Show/Hide Docking Port Alignment Indicator";
-                toolbarButton.Visibility = new GameScenesVisibility(GameScenes.FLIGHT);
-                toolbarButton.Visible = true;
-                toolbarButton.Enabled = true;
-                toolbarButton.OnClick += (e) => {
-                    gaugeVisiblityToggledOn = !gaugeVisiblityToggledOn;
-                };
-            }
-        }
-
-        /// <summary>
-        /// Destroys the ToolbarButton on the Blizzy Toolbar
-        /// </summary>
-        private void destroyBlizzyButton()
-        {
-            if (toolbarButton != null)
-            {
-                toolbarButton.Destroy();
-                toolbarButton = null;
-            }
-        }
-
-        /// <summary>
-        /// Dynamically switches the ToolbarButton between the Stock and Blizzy tool bars.
-        /// </summary>
-        private void updateToolBarButton()
-        {
-            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={appLauncherButton})");
-            blizzyToolbarAvailable = ToolbarManager.ToolbarAvailable;
-
-            //Debug.Log("DPAI START");
-
-            if (forceStockAppLauncher || !blizzyToolbarAvailable)
-            {
-                // Destroy blizzy button
-                destroyBlizzyButton();
-                createAppLauncherButton();
-            }
-            else
-            {
-                // Destroy stock launcher button
-                destroyAppLauncherButton();
-                createBlizzyButton();
-            }
+            // By destroying the toolbar here we work around an odd edge-case where the toolbar loses the
+            // AppLauncherReady events when both toolbars are deselected and scenes are switched. Forcing the toolbar
+            // to reinitialize seems to fix this, although it is not ideal.
+            Toolbar.Instance.Dispose();
         }
 
         private void OnGUI()
         {
             onGaugeDraw();
-            if (shouldDebug) OnDrawDebug();
+            if (c.ShowDebugWindow) {
+                OnDrawDebug();
+            }
         }
 
         public void Update()
         {
-            //print("DPAI_DEBUG Update()");
-
             if ( !HighLogic.LoadedSceneIsFlight ) {
-                //print("DPAI_DEBUG update: returning, lodaed scene is not flight");
                 return;
-            } else {
-                //print("DPAI_DEBUG loadedsceneisflight: " + HighLogic.LoadedSceneIsFlight);
-                //print("DPAI_DEBUG !FlightGlobals.ActiveVessel.isEVA: " + !FlightGlobals.ActiveVessel.isEVA);
-                //print("DPAI_DEBUG !MapView.MapIsEnabled: " + !MapView.MapIsEnabled);
             }
-            
 
             //if (Input.GetKeyDown(KeyCode.B)){
             //        cycledModuleIndex = dockingModulesListIndex + 1;
@@ -446,54 +398,57 @@ namespace NavyFish
             //        portWasCycled = true;
             //}
 
-            //determineTargetPort();
-
-            bool sceneElligibleForIndicator = (HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
-
-            //print("DPAI_DEBUG sceneElligble:" + sceneElligibleForIndicator);
-            //print("DPAI_DEBUG guageVisibility" + gaugeVisiblityToggledOn);
-
-            if (sceneElligibleForIndicator && gaugeVisiblityToggledOn)
-            {
-                showIndicator = true;
-
-   
-
-                //mousePos.Set(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-                //print(mousePos);
-                //if (windowPosition.Contains(mousePos))
-                //{
-                //    //print("Contains Mouse");
-                //    containsMouse = true;
-                //    //InputLockManager.SetControlLock(ControlTypes.All, "DPAI_LOCK");
-                //}
-                //else
-                //{
-                //    containsMouse = false;
-                //    //InputLockManager.RemoveControlLock("DPAI_LOCK");
-                //}
-            }
-            else
-            {
-                showIndicator = false;
-                
-            }
+            showIndicator = IsSceneEligibleForIndicator && gaugeVisiblityToggledOn;
 
             if (showIndicator || (RPMPageActive && isIVA()))
             {
+                var lastTargetedVessel = currentTargetVessel;
+                var lastTargetedDockingModule = targetedDockingModule;
                 determineTargetPort();
+                if (currentTargetVessel != lastTargetedVessel || targetedDockingModule != lastTargetedDockingModule) {
+                    // TODO: Make event
+                    MainWindow?.OnTargetUpdated();
+                }
                 if (targetedDockingModule != null) calculateGaugeData();
                 drawIndicatorContentsToTexture();
             }
         }
+        #endregion GameEvents
 
         private static bool isIVA()
         {
-            if (InternalCamera.Instance != null)
+            return InternalCamera.Instance?.isActive ?? false;
+        }
+
+        /// <summary>
+        /// Check if the port is ready to dock with.
+        /// </summary>
+        /// Some ports are in a not-ready state which can be toggled by the player (for example, the Shielded Docking
+        /// Port), or are already docked to something.
+        /// <param name="port"></param>
+        /// <returns></returns>
+        private static bool isPortReadyForDocking(ModuleDockingNode port)
+        {
+            // Can't dock to a port which is already docked or otherwise engaged
+            // MKW TODO: Figure out if there's a way to receive an event when a port toggles its state. Currently the
+            //           player has to manually switch vessels in order to recalculate the list of valid ports.
+            if (!port.state.StartsWith("Ready"))
             {
-                return InternalCamera.Instance.isActive;
+                return false;
             }
-            else return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Check if a port is already docked to something
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        private static bool isPortDocked(ModuleDockingNode port)
+        {
+            // "Docked (same vessel)", "Docked (dockee)", "Docked (docker)", and "PreAttached"; the latter is the state
+            // a port is in when it is docked in the VAB
+            return port.state.StartsWith("Docked") || port.state == "PreAttached";
         }
 
         /// <summary>
@@ -513,6 +468,9 @@ namespace NavyFish
             if ((dockingPorts?.Count ?? 0) == 0) {
                 dockingPorts = FlightGlobals.ActiveVessel.FindPartModulesImplementing<ModuleDockingNode>();
             }
+            // Remove all ports which are already docked
+            dockingPorts.RemoveAll(isPortDocked);
+            // Keep "not ready" ports such as closed shielded docking ports - up to the player to open them
 
             // See if one of the source ports is compatible with the target port.
             using (IEnumerator<ModuleDockingNode> dnEnumerator = dockingPorts.GetEnumerator())
@@ -521,31 +479,20 @@ namespace NavyFish
                 {
                     var sourcePort = dnEnumerator.Current;
 
-                    // Can't dock using a disabled port
-                    if (sourcePort.IsDisabled) {
-                        continue;
-                    }
-                    if (!sourcePort.state.StartsWith("Ready")) {
-                        continue;
-                    }
-                    // If one port is gendered, they both have to be
-                    // TODO: verify with mods; stock ports are ungendered
+                    // If one port is gendered, they both have to be, and have to be opposite genders
                     if (sourcePort.gendered != targetPort.gendered) {
                         continue;
                     }
-                    // If the ports are gendered, they have to be opposite gender
-                    // TODO: Possibly if one port is gendered, but the other isn't, ignore?
                     if (sourcePort.gendered && (sourcePort.genderFemale == targetPort.genderFemale)) {
                         continue;
                     }
 
                     // Verify the ports are the same size
                     // NB: Since v1.0.5 of KSP, docking ports can be "multiport" in which case the nodeType is a comma-delimited string
-                    //if (sourcePort.nodeType != targetPort.nodeType) {
                     char [] separator = { ',' };
                     var spNodes = sourcePort.nodeType.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    var dpNodes = targetPort.nodeType.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    if (spNodes.Intersect(dpNodes).Count() == 0) {
+                    var tpNodes = targetPort.nodeType.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    if (spNodes.Intersect(tpNodes).Count() == 0) {
                         continue;
                     }
 
@@ -602,43 +549,24 @@ namespace NavyFish
             determineReferencePoint();
             tickCount++;
 
-            bool isInMap = MapView.MapIsEnabled;
-            bool justLeftMap = false;
-            if (!isInMap && wasLastMap)
-            {
-                justLeftMap = true;
-            }             
-            wasLastMap = isInMap;
+            var justLeftMap = !MapView.MapIsEnabled && wasLastMap;
+            wasLastMap = MapView.MapIsEnabled;
 
-            bool isInIVA = isIVA();
-            bool justEnteredIVA = false;
-            if (isInIVA && !wasLastIVA)
-            {
-                justEnteredIVA = true;
-            }
-            wasLastIVA = isInIVA;
+            var justEnteredIVA = isIVA() && !wasLastIVA;
+            wasLastIVA = isIVA();
 
             if (lastReferencePart != referencePart)
             {
-                //print("DPAI: Reference Part Changed - tick " + tickCount);
-                bool isCurrentlyIVA = isIVA();
-                if (isCurrentlyIVA){
-                    //print("DPAI: Is currently IVA - tick " + tickCount);
-
-                    if(justEnteredIVA || justLeftMap){
-                        //print("DPAI: Was not previously IVA - tick " + tickCount);
-                        
-                        if (FlightGlobals.ActiveVessel.Parts.Contains(lastReferencePart))
-                        {
-                            FlightGlobals.ActiveVessel.SetReferenceTransform(lastReferencePart);
-                            //print("DPAI: Re-setting Reference Part - tick " + tickCount);
-                            findReferencePoints();
-                        }
+                if (isIVA() && (justEnteredIVA || justLeftMap)) {
+                    if (FlightGlobals.ActiveVessel.Parts.Contains(lastReferencePart))
+                    {
+                        FlightGlobals.ActiveVessel.SetReferenceTransform(lastReferencePart);
+                        findReferencePoints();
                     }
                 }
                 lastReferencePart = referencePart;
                 // Force recalculation of possible target ports if we're restricting them
-                if (restrictDockingPorts) {
+                if (c.RestrictDockingPorts) {
                     currentTargetVesselWasLastSeenLoaded = false;
                 }
             }
@@ -658,13 +586,10 @@ namespace NavyFish
                         if (currentTargetVessel != lastTargetVessel || !currentTargetVesselWasLastSeenLoaded)
                         {
                             //Target Vessel has either changed or just become loaded.
-
                             lastTargetVessel = currentTargetVessel;
 
-                            if (allowAutoPortTargeting)
+                            if (c.AllowAutoPortTargeting)
                             {
-                                //dockingModulesList = currentTargetVessel.FindPartModulesImplementing<ModuleDockingNode>();
-                                //print("list rebuilt");
                                 List<ITargetable> ITargetableList = currentTargetVessel.FindPartModulesImplementing<ITargetable>();
                                 dockingModulesList.Clear();
                                 foreach (ITargetable tgt in ITargetableList)
@@ -673,29 +598,22 @@ namespace NavyFish
                                     {
                                         ModuleDockingNode port = tgt as ModuleDockingNode;
                                         LogD($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
-                                        // MKW: if node was attached in the VAB, state is "PreAttached"
-                                        if (excludeDockedPorts &&
-                                                (port.state.StartsWith("Docked", StringComparison.OrdinalIgnoreCase) || 
-                                                port.state.StartsWith("PreAttached", StringComparison.OrdinalIgnoreCase))
-                                            )
+                                        if (c.ExcludeDockedPorts && isPortDocked(port))
                                         {
-                                            //print("continue");
-                                            //do not add to list if module is already docked
+                                            // Do not add to list if port is already docked
                                             continue;
                                         }
 
-                                        if(restrictDockingPorts && !isCompatiblePort(port))
+                                        if(c.RestrictDockingPorts && !isCompatiblePort(port))
                                         {
-                                          // Do not add to list if destination port doesn't match
-                                          continue;
+                                            // Do not add to list if destination port doesn't match
+                                            continue;
                                         }
 
-                                        //print("1stAdd");
                                         dockingModulesList.Add(tgt);
                                     }
                                     else
                                     {
-                                        //print("2ndAdd");
                                         dockingModulesList.Add(tgt);
                                     }
                                 }
@@ -768,24 +686,15 @@ namespace NavyFish
                         {
                             lastTarget = currentTarget;
 
-                            //if (portWasCycled)
-                            //{
-                            //    portWasCycled = false;
-                            //}
-                            //else
-                            //{
-                                // This will happen either when the user manually selects a new target port by
-                                // right-clicking on it, OR when a targetable part is targeted beyond 200m
-                                // (because its parent vessel will be automatically re-targeted by KSP)
-                                //if (currentTarget is ModuleDockingNode)
-                                if (currentTarget is PartModule)
-                                {
-                                    // Likely caused by user right-click a port and setting as target
-                                    //targetedDockingModule = currentTarget as ModuleDockingNode;
-                                    targetedDockingModule = currentTarget;
-                                    dockingModulesListIndex = dockingModulesList.FindIndex(m => m.Equals(targetedDockingModule));
-                                }
-                            //}
+                            // This will happen either when the user manually selects a new target port by
+                            // right-clicking on it, OR when a targetable part is targeted beyond 200m
+                            // (because its parent vessel will be automatically re-targeted by KSP)
+                            if (currentTarget is PartModule)
+                            {
+                                // Likely caused by user right-click a port and setting as target
+                                targetedDockingModule = currentTarget;
+                                dockingModulesListIndex = dockingModulesList.FindIndex(m => m.Equals(targetedDockingModule));
+                            }
                         }
 
                         currentTargetVesselWasLastSeenLoaded = true;
@@ -831,14 +740,14 @@ namespace NavyFish
         private static void calculateGaugeData()
         {
             Transform selfTransform = FlightGlobals.ActiveVessel.ReferenceTransform;
-         
+
             ITargetable targetPort = targetedDockingModule as ITargetable;
 
             Transform targetTransform = targetPort.GetTransform();
 
-			Vector3 targetPortOutVector = targetTransform.forward.normalized;
-			Vector3 targetPortRollReferenceVector = -targetTransform.up;
-            
+            Vector3 targetPortOutVector = targetTransform.forward.normalized;
+            Vector3 targetPortRollReferenceVector = -targetTransform.up;
+
             orientationDeviation.x = AngleAroundNormal(-targetPortOutVector, selfTransform.up, selfTransform.forward);
             orientationDeviation.y = AngleAroundNormal(-targetPortOutVector, selfTransform.up, -selfTransform.right);
             orientationDeviation.z = AngleAroundNormal(targetPortRollReferenceVector, selfTransform.forward, selfTransform.up);
@@ -875,11 +784,11 @@ namespace NavyFish
 
             float normalVelocity = Vector3.Dot(FlightGlobals.ship_tgtVelocity, targetPortOutVector);
             closureV = -normalVelocity*negativeOnBackHemisphere;
-            
+
 
             Vector3 globalTransverseVelocity = FlightGlobals.ship_tgtVelocity - normalVelocity * targetPortOutVector;
             transverseVelocity.x = Vector3.Dot(globalTransverseVelocity, selfTransform.right);
-            transverseVelocity.y = Vector3.Dot(globalTransverseVelocity, selfTransform.forward);            
+            transverseVelocity.y = Vector3.Dot(globalTransverseVelocity, selfTransform.forward);
 
             distanceToTarget = targetToOwnship.magnitude;
             closureD = Vector3.Dot(targetToOwnship, targetPortOutVector);
@@ -899,53 +808,13 @@ namespace NavyFish
             return Vector3.Angle(v1, v2);
         }
 
-        private bool settingsWindowOverflow = false;
-
         private void onGaugeDraw()
         {
-            if (drawHudIcon)
-            {
-                bool isCurrentlyIVA = isIVA();
-                if ((showIndicator && !isCurrentlyIVA) || (showHUDIconWhileIva && RPMPageActive && isCurrentlyIVA))
-                {
-                    drawTargetPortHUDIndicator();
-                }
-            }
-            
-            if (showIndicator)
-            {
-                windowPosition.width = foregroundTextureWidth * gaugeScale;
-                windowPosition.height = foregroundTextureHeight * gaugeScale;
-      
-                windowPosition = constrainToScreen(GUI.Window(1773, windowPosition, drawRenderedGaugeTexture, Localizer.GetStringByTag("#dpai"), labelStyle));
-
-                leftButtonRect.yMin = (402 * gaugeScale);
-                leftButtonRect.yMax = (446 * gaugeScale);
-                leftButtonRect.xMin = (21 * gaugeScale);
-                leftButtonRect.xMax = (66 * gaugeScale);
-
-                rightButtonRect.yMin = leftButtonRect.yMin;
-                rightButtonRect.yMax = leftButtonRect.yMax;
-                rightButtonRect.xMin = (334 * gaugeScale);
-                rightButtonRect.xMax = (380 * gaugeScale);
-
-                if (showSettings)
-                {
-                    settingsWindowPosition.x = windowPosition.x;
-                    settingsWindowPosition.y = windowPosition.yMax;
-                    if (!settingsWindowOverflow) settingsWindowPosition.width = windowPosition.width;
-                 
-                    settingsWindowPosition = GUILayout.Window(1339, settingsWindowPosition, drawSettingsWindowContents, Localizer.GetStringByTag("#dpai_settings"), windowStyle);
-                    if (settingsWindowPosition.width > windowPosition.width)
-                    {
-                        settingsWindowOverflow = true;
-                    }
-                    else
-                    {
-                        settingsWindowOverflow = false;
-                    }
-                    
-                }
+            // Only draw the target indicator if the settings allow it and we are in the correct scene to show it
+            if (c.DrawHudIcon
+                && (showIndicator && IsSceneEligibleForIndicator && !isIVA())
+                || (c.ShowHudIconWhileIva && RPMPageActive && isIVA())) {
+                drawTargetPortHUDIndicator();
             }
         }
 
@@ -963,7 +832,7 @@ namespace NavyFish
             float virtualHeight = rpmTgtRefTextHeight;
             float heightScale = virtualHeight / (stringDimensions.height);
             textTargetRefNameScale = Math.Min(widthScale, heightScale);
-            
+
             float x = tgtX + rtLabelSpacing + virtualWidth * .5f - (stringDimensions.width * textTargetRefNameScale / 2f);
             float y = fullScreenRect.yMax - _rpmTextYTop - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetRefNameScale;
 
@@ -998,18 +867,16 @@ namespace NavyFish
         private static Rect fullScreenRect = new Rect();
         static float screenPercentRPM = 1f;//.935f;
         static Rect rpmDrawableRect = new Rect();
-        
+
         static Rect visibleRect = new Rect(40, 44, 319, 319);
         public static RenderTexture guiRenderTexture = null;
-        
+
         public static void drawIndicatorContentsToTexture()
         {
-            //var cam = KSP.UI.UIMainCamera.Camera;
-
             guiRenderTexture.DiscardContents();
 
             var previousRenderTexture = RenderTexture.active;
-            
+
             RenderTexture.active = guiRenderTexture;
 
             GL.PushMatrix();
@@ -1034,6 +901,7 @@ namespace NavyFish
 
             rpmDrawableRect.Set(xOffset, vertLineHeaderChop, virtualWidth, virtualHeight - vertLineFooterChop - vertLineHeaderChop);
 
+            // MW: Are we rendering the background _and_ the gauges, or just the gauges here?
             Graphics.DrawTexture(screenRect, gaugeBackgroundTex);
 
             float baseScale = 1f;
@@ -1048,16 +916,16 @@ namespace NavyFish
 
                     calculateCDIvalues0to1(ref xVal, ref yVal);
 
-                    NavyFish.Drawing.DrawVerticalLineGraphics(glassCenter.x + (xVal - .5f) * screenRect.width, rpmDrawableRect.yMin, rpmDrawableRect.height, 2f, colorCDI);
-                    NavyFish.Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal - .5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 2f, colorCDI);
+                    Drawing.DrawVerticalLineGraphics(glassCenter.x + (xVal - .5f) * screenRect.width, rpmDrawableRect.yMin, rpmDrawableRect.height, 2f, colorCDI);
+                    Drawing.DrawHorizontalLineGraphics(rpmDrawableRect.xMin, Math.Max(glassCenter.y + (yVal - .5f) * screenRect.height, visibleRect.yMin), rpmDrawableRect.width, 2f, colorCDI);
                 }
 
-                
+
                 if (Math.Abs(orientationDeviation.x) > alignmentGaugeRange || Math.Abs(orientationDeviation.y) > alignmentGaugeRange)
                 {
                     Vector2 normDir = new Vector2(orientationDeviation.x, orientationDeviation.y).normalized;
-                    float arrowX = (alignmentFlipXAxis ? -1 : 1) * normDir.x;
-                    float arrowY = (alignmentFlipYAxis ? -1 : 1) * -normDir.y;
+                    float arrowX = (c.AlignmentFlipXAxis ? -1 : 1) * normDir.x;
+                    float arrowY = (c.AlignmentFlipYAxis ? -1 : 1) * -normDir.y;
                     float angle = (float)Math.Atan2(arrowX, arrowY) * UnityEngine.Mathf.Rad2Deg;
 
                     float arrowLength = screenRect.height * arrowLengthMult;
@@ -1075,25 +943,25 @@ namespace NavyFish
                 }
                 else
                 {
-                    float displayX = (alignmentFlipXAxis ? -1 : 1) * scaleExponentially(orientationDeviation.x / alignmentGaugeRange, alignmentExponent);
-                    float displayY = (alignmentFlipYAxis ? -1 : 1) * scaleExponentially(orientationDeviation.y / alignmentGaugeRange, alignmentExponent);
+                    float displayX = (c.AlignmentFlipXAxis ? -1 : 1) * scaleExponentially(orientationDeviation.x / alignmentGaugeRange, alignmentExponent);
+                    float displayY = (c.AlignmentFlipYAxis ? -1 : 1) * scaleExponentially(orientationDeviation.y / alignmentGaugeRange, alignmentExponent);
 
                     float scaledMarkerSize = markerSize * gaugeAlignmentMarkerScale;
 
                     Rect markerRect = new Rect(glassCenter.x * (1 + displayX) - scaledMarkerSize * .5f,
-                                            glassCenter.y * (1 + displayY) - scaledMarkerSize * .5f,
-                                            scaledMarkerSize,
-                                            scaledMarkerSize);
+                        glassCenter.y * (1 + displayY) - scaledMarkerSize * .5f,
+                        scaledMarkerSize,
+                        scaledMarkerSize);
 
                     Graphics.DrawTexture(markerRect, alignmentTex);
 
 
                     float scaledRollWidth = roll.width * baseScale * rollMarkerScale;
                     float scaledRollHeight = roll.height * baseScale * rollMarkerScale;
-                    
+
                     GL.PushMatrix();
-                   
-                    GL.MultMatrix(Matrix4x4.TRS(glassCenterV3, Quaternion.Euler(0, 0, -orientationDeviation.z * (rollFlipAxis ? -1 : 1)), identityScaleV3));
+
+                    GL.MultMatrix(Matrix4x4.TRS(glassCenterV3, Quaternion.Euler(0, 0, -orientationDeviation.z * (c.RollFlipAxis ? -1 : 1)), identityScaleV3));
 
                     Graphics.DrawTexture(new Rect(-scaledRollWidth / 2f, (scaledRollHeight + rollOffset - screenRect.height) / 2f, scaledRollWidth, scaledRollHeight), roll);
                     GL.PopMatrix();
@@ -1138,262 +1006,27 @@ namespace NavyFish
             RenderTexture.active = previousRenderTexture;
         }
 
-        public static void drawRenderedGaugeTexture(int windowID)
-        {
-            Rect gaugeRect = new Rect(0, 0, foregroundTextureWidth * gaugeScale, foregroundTextureHeight* gaugeScale);
-
-            backgroundRect.Set(visibleRect.x * gaugeScale,
-                                visibleRect.y * gaugeScale,
-                                visibleRect.width * gaugeScale,
-                                visibleRect.height * gaugeScale);
-
-
-            GUI.DrawTexture(backgroundRect, guiRenderTexture);
-
-            GUI.DrawTexture(gaugeRect, gaugeForegroundTex);
-
-            drawTargetPortName(gaugeRect);
-
-            Color lastBackColor = GUI.backgroundColor;
-            if (showSettings)
-            {
-                GUI.backgroundColor = colorsettingsButtonActivated;
-            }
-            else
-            {
-                GUI.backgroundColor = colorsettingsButtonDeactivated;
-            }
-
-            Rect settingsButtonRect = new Rect(settingsButtonX * gaugeScale, settingsButtonY * gaugeScale, settingsButtonWidth * gaugeScale, settingsButtonHeight * gaugeScale);
-            bool settingsButtonClicked = GUI.Button(settingsButtonRect, "", settingsButtonStyle);
-
-            drawGlyphStringGUI(Localizer.GetStringByTag("#settings"), settingsTextX * gaugeScale, settingsTextY * gaugeScale, settingsTextScale * gaugeScale, BitmapFont.HorizontalAlignment.LEFT);
-
-            if (settingsButtonClicked) showSettings = !showSettings;
-
-            if (allowAutoPortTargeting)
-            {
-                Event ev = Event.current;
-                if (ev.type == EventType.MouseDown && ev.button == 0)
-                {
-                    if (rightButtonRect.Contains(ev.mousePosition))
-                    {
-                        cyclePortRight();
-
-                    }
-                    else if (leftButtonRect.Contains(ev.mousePosition))
-                    {
-                        cyclePortLeft();
-
-                    }
-                }
-            }
-
-            GUI.DragWindow();
-
-            if (windowPosition.x != lastPosition.x || windowPosition.y != lastPosition.y)
-            {
-                lastPosition.x = windowPosition.x;
-                lastPosition.y = windowPosition.y;
-            }
-
-        }
-
         public static void cyclePortLeft()
         {
+            if (!c.AllowAutoPortTargeting || dockingModulesList.Count < 2) {
+                return;
+            }
             cycledModuleIndex = dockingModulesListIndex - 1;
-            if (cycledModuleIndex < 0) cycledModuleIndex = (dockingModulesList.Count - 1);
+            if (cycledModuleIndex < 0) {
+                cycledModuleIndex = (dockingModulesList.Count - 1);
+            }
             portWasCycled = true;
         }
 
         public static void cyclePortRight()
         {
-            if (dockingModulesList.Count > 0)
-            {
-                cycledModuleIndex = dockingModulesListIndex + 1;
-                cycledModuleIndex %= dockingModulesList.Count;
-                portWasCycled = true;
+            if (!c.AllowAutoPortTargeting || dockingModulesList.Count < 2) {
+                return;
             }
+            cycledModuleIndex = dockingModulesListIndex + 1;
+            cycledModuleIndex %= dockingModulesList.Count;
+            portWasCycled = true;
         }
-
-        private void drawSettingsWindowContents(int id)
-        {
-            //print("Drawing Settings Window.." + settingsWindowPosition.ToString());
-            bool last;
-            float lastFloat;
-            //print("drawSettingsWindowContents: Start");
-            //GUILayout.BeginHorizontal();
-            //last = useCDI;
-            //useCDI = GUILayout.Toggle(useCDI, "Display CDI Lines");
-            //if (useCDI != last) saveConfigSettings();
-            //GUILayout.EndHorizontal();
-
-            //GUILayout.BeginHorizontal();
-            //last = drawRollDigits;
-            //drawRollDigits = GUILayout.Toggle(drawRollDigits, "Display Roll Degrees");
-            //if (drawRollDigits != last) saveConfigSettings();
-            //GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            last = drawHudIcon;
-            drawHudIcon = GUILayout.Toggle(drawHudIcon, Localizer.GetStringByTag("#display_hud_target_port_icon"));
-            if (drawHudIcon != last)
-            {
-                configDirty =  true;
-                settingsWindowPosition.height = 0;
-            }
-            GUILayout.EndHorizontal();
-
-            if (drawHudIcon)
-            {
-                GUILayout.BeginHorizontal();
-                last = showHUDIconWhileIva;
-                GUILayout.Space(14f);
-                showHUDIconWhileIva = GUILayout.Toggle(showHUDIconWhileIva, Localizer.GetStringByTag("#display_when_using_rpm"));
-                if (showHUDIconWhileIva != last)
-                {
-                    configDirty =  true;
-                }
-                GUILayout.EndHorizontal();
-
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(Localizer.GetStringByTag("#hud_target_port_icon_size"));
-                GUILayout.EndHorizontal();
-                GUILayout.BeginHorizontal();
-                lastFloat = targetHUDiconSize;
-                targetHUDiconSize = GUILayout.HorizontalSlider(targetHUDiconSize, 10f, 60f);
-                GUILayout.EndHorizontal();
-                if (targetHUDiconSize != lastFloat)
-                {
-                    configDirty =  true;
-                }
-            }
-
-            GUILayout.BeginHorizontal();
-            last = allowAutoPortTargeting;
-            allowAutoPortTargeting = GUILayout.Toggle(allowAutoPortTargeting, Localizer.GetStringByTag("#enable_auto_targeting_and_cycling"));
-            if (allowAutoPortTargeting != last)
-            {
-                configDirty =  true;
-                settingsWindowPosition.height = 0;
-                resetTarget = true;
-            }
-            GUILayout.EndHorizontal();
-
-            if (allowAutoPortTargeting)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Space(14f);
-                last = excludeDockedPorts;
-                excludeDockedPorts = GUILayout.Toggle(excludeDockedPorts, Localizer.GetStringByTag("#exlude_docked_ports"));
-                if (excludeDockedPorts != last)
-                {
-                    configDirty =  true;
-                    resetTarget = true;
-                }
-                last = restrictDockingPorts;
-                restrictDockingPorts = GUILayout.Toggle(restrictDockingPorts, Localizer.GetStringByTag("#restrict_docking_ports"));
-                if (restrictDockingPorts != last)
-                {
-                    configDirty =  true;
-                    resetTarget = true;
-                }
-                GUILayout.EndHorizontal();
-            }
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(Localizer.GetStringByTag("#gui_scale"));
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            float lastScale = gaugeScale;
-            gaugeScale = GUILayout.HorizontalSlider(gaugeScale, 0.4f, 3.0f);
-            GUILayout.EndHorizontal();
-            if (gaugeScale != lastScale)
-            {
-                windowPosition.width = foregroundTextureWidth * gaugeScale;
-                windowPosition.height = foregroundTextureHeight * gaugeScale;
-                windowPosition.y = settingsWindowPosition.y - windowPosition.height;
-                configDirty = true;
-            }
-
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-
-            last = alignmentFlipXAxis;
-            alignmentFlipXAxis = GUILayout.Toggle(alignmentFlipXAxis, Localizer.GetStringByTag("#invert_alignment_x"));
-            if (alignmentFlipXAxis != last) {
-                configDirty = true;
-            }
-
-            GUILayout.FlexibleSpace();
-            //GUILayout.EndHorizontal();
-            //GUILayout.BeginHorizontal();
-            last = translationFlipXAxis;
-            translationFlipXAxis = GUILayout.Toggle(translationFlipXAxis, Localizer.GetStringByTag("#invert_translation_x"));
-            if (translationFlipXAxis != last) {
-                configDirty = true;
-            }
-
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            last = alignmentFlipYAxis;
-            alignmentFlipYAxis = GUILayout.Toggle(alignmentFlipYAxis, Localizer.GetStringByTag("#invert_alignment_y"));
-            if (alignmentFlipYAxis != last) {
-                configDirty = true;
-            }
-
-            GUILayout.FlexibleSpace();
-            //GUILayout.EndHorizontal();
-            //GUILayout.BeginHorizontal();
-            last = translationFlipYAxis;
-            translationFlipYAxis = GUILayout.Toggle(translationFlipYAxis, Localizer.GetStringByTag("#invert_translation_y"));
-            if (translationFlipYAxis != last) {
-                configDirty = true;
-            }
-
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            last = rollFlipAxis;
-            rollFlipAxis = GUILayout.Toggle(rollFlipAxis, Localizer.GetStringByTag("#invert_roll_direction"));
-            if (rollFlipAxis != last) {
-                configDirty = true;
-            }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-
-
-            GUILayout.BeginHorizontal();
-            last = forceStockAppLauncher;
-            forceStockAppLauncher = GUILayout.Toggle(forceStockAppLauncher, Localizer.GetStringByTag("#always_use_stock_toolbar"));
-            if (forceStockAppLauncher != last)
-            {
-                configDirty = true;
-                updateToolBarButton();
-            }
-            GUILayout.EndHorizontal();
-        }
-        Rect centeredToggleRect = new Rect(0,0,0,0);
-    
-        private static void drawTargetPortName(Rect positionRect)
-        {
-            String targetDisplayName = determineTargetPortName();
-            BitmapFont.StringDimensions stringDimensions = bitmapFont.getStringDimensions(targetDisplayName, 1f);
-            float widthScale = targetNameBoxWidth * gaugeScale / stringDimensions.width;
-            float heightScale = targetNameBoxHeight * gaugeScale / (stringDimensions.height);
-            textTargetRefNameScale = Math.Min(widthScale, heightScale);
-            float x = positionRect.center.x - stringDimensions.width * textTargetRefNameScale / 2f;
-            float y = positionRect.yMax - (targetNameBoxYOffset * gaugeScale) - (stringDimensions.yOffset + .5f * stringDimensions.height) * textTargetRefNameScale;
-            
-            drawGlyphStringGUI(targetDisplayName, x, y, textTargetRefNameScale, BitmapFont.HorizontalAlignment.LEFT);
-        }
-                
-        //private static List<ModuleDockingNodeNamed> refNamedModules = new List<ModuleDockingNodeNamed>();
 
         public static string getReferencePortName()
         {
@@ -1410,27 +1043,27 @@ namespace NavyFish
             else
             {
                 //referenceName += "None";
-                return Localizer.GetStringByTag("#none");
+                return Utils.GetStringByTag("#none");
             }
         }
 
-        private static String determineTargetPortName()
+        public static String determineTargetPortName()
         {
             String targetDisplayName;
 
             if (currentTargetVessel == null)
             {
-                targetDisplayName = Localizer.GetStringByTag("#no_vessel_targeted");
+                targetDisplayName = Utils.GetStringByTag("#no_vessel_targeted");
             }
             else if (targetedDockingModule == null)
             {
                 if (targetOutOfRange)
                 {
-                    targetDisplayName = Localizer.GetStringByTag("#target_out_of_range");
+                    targetDisplayName = Utils.GetStringByTag("#target_out_of_range");
                 }
                 else
                 {
-                    targetDisplayName = Localizer.GetStringByTag("#no_port_targeted");
+                    targetDisplayName = Utils.GetStringByTag("#no_port_targeted");
                 }
             }
             else if (targetNamedModule == null)
@@ -1464,7 +1097,7 @@ namespace NavyFish
             bitmapFont.drawStringGraphics(valueString, x, y, customScale, hAlign, color);
         }
 
-           private static void drawVelocityVector(Rect gaugeRect, float baseScale)
+        private static void drawVelocityVector(Rect gaugeRect, float baseScale)
         {
             float gaugeX, gaugeY;
 
@@ -1487,17 +1120,17 @@ namespace NavyFish
                 gaugeY *= -1;
             }
 
-            gaugeX = (translationFlipXAxis ? -1 : 1) * scaleExponentially(gaugeX, velocityVectorExponent);
-            gaugeY = (translationFlipYAxis ? -1 : 1) * scaleExponentially(gaugeY, velocityVectorExponent);
+            gaugeX = (c.TranslationFlipXAxis ? -1 : 1) * scaleExponentially(gaugeX, velocityVectorExponent);
+            gaugeY = (c.TranslationFlipYAxis ? -1 : 1) * scaleExponentially(gaugeY, velocityVectorExponent);
 
             float scaledVelocityVectorSize = velocityVectorIconSize * baseScale;
             float scaledVelocityVectorHalfSize = scaledVelocityVectorSize * .5f;
 
             Graphics.DrawTexture(new Rect(gaugeRect.xMin + .5f * gaugeRect.width * (1 + gaugeX) - scaledVelocityVectorHalfSize,
-                                        gaugeRect.yMin + .5f * gaugeRect.height * (1 + gaugeY) - scaledVelocityVectorHalfSize,
-                                        scaledVelocityVectorSize,
-                                        scaledVelocityVectorSize),
-                                        velocityVectorTexture);
+                    gaugeRect.yMin + .5f * gaugeRect.height * (1 + gaugeY) - scaledVelocityVectorHalfSize,
+                    scaledVelocityVectorSize,
+                    scaledVelocityVectorSize),
+                velocityVectorTexture);
         }
 
         private static float scaleExponentially(float value, float exponent)
@@ -1510,7 +1143,7 @@ namespace NavyFish
             if (negativeOnBackHemisphere < 0) return colorCDIReverse;
             return colorCDINormal;
         }
-        
+
         private static void calculateCDIvalues0to1(ref float xVal, ref float yVal)
         {
             float gaugeX = xTranslationNegativeOnBackHemi * wrapRange(translationDeviation.x / 90f);
@@ -1534,7 +1167,7 @@ namespace NavyFish
             xVal = (scaleExponentially(gaugeX, exponent) + 1)/2f;
             yVal = (scaleExponentially(gaugeY, exponent) + 1)/2f;
         }
-      
+
         private static float wrapRange(float a)
         {
             return ((((a + 1f) % 2) + 2) % 2) - 1f;
@@ -1545,8 +1178,6 @@ namespace NavyFish
 
         private static void drawTargetPortHUDIndicator()
         {
-            //print("drawTargetPortIndicator: Start");
-
             // When we exit a scene with the DPAI window showing, the underlying GameObject
             // has already been destroyed but targetedDockingModule is not null and, being
             // an interface variable, does not use the Unity operator == overload.  So we
@@ -1559,7 +1190,6 @@ namespace NavyFish
             }
 
             Camera cam = FlightCamera.fetch.mainCamera;
-            //Vector3 portToCamera = targetedDockingModule.transform.position - cam.transform.position;
             Vector3 portToCamera = tdmTransform.position - cam.transform.position;
 
             if (Vector3.Dot(cam.transform.forward, portToCamera) < 0)
@@ -1573,8 +1203,8 @@ namespace NavyFish
             centerVec2.y = cam.pixelHeight - screenSpacePortLocation.y;
             selectedPortHUDRect.center = centerVec2;
 
-            selectedPortHUDRect.width = targetHUDiconSize;
-            selectedPortHUDRect.height = targetHUDiconSize;
+            selectedPortHUDRect.width = c.HudIconSize;
+            selectedPortHUDRect.height = c.HudIconSize;
 
             float pulsePercent = (UnityEngine.Time.fixedTime % pulsePeriod) / pulsePeriod;
 
@@ -1598,7 +1228,6 @@ namespace NavyFish
             GUI.color = iconColor;
             GUI.DrawTexture(selectedPortHUDRect, targetPort, ScaleMode.ScaleToFit, true);
             GUI.color = originalColor;
-            //print("drawTargetPortIndicator: End");
         }
 
         public static void cycleReferencePoint(int direction)
@@ -1719,67 +1348,6 @@ namespace NavyFish
             NONE
         }
 
-        #region Preferences
-        private static void saveConfigSettings()
-        {
-            LogD($"saveConfigSettings");
-            if (!configDirty) {
-                return;
-            }
-            //config.SetValue("show_cdi", useCDI);
-            //config.SetValue("show_rolldigits", drawRollDigits);
-            config.SetValue("drawHudIcon", drawHudIcon);
-            config.SetValue("showHUDIconWhileEva", showHUDIconWhileIva);
-            config.SetValue("HudIconSize", (double)targetHUDiconSize);
-            config.SetValue("allowAutoPortTargeting", allowAutoPortTargeting);
-            config.SetValue("excludeDockedPorts", excludeDockedPorts);
-            config.SetValue("restrictDockingPorts", restrictDockingPorts);
-            config.SetValue("gui_scale", (double)gaugeScale);
-            config.SetValue("alignmentFlipXAxis", alignmentFlipXAxis);
-            config.SetValue("alignmentFlipYAxis", alignmentFlipYAxis);
-            config.SetValue("translationFlipXAxis", translationFlipXAxis);
-            config.SetValue("translationFlipYAxis", translationFlipYAxis);
-            config.SetValue("rollFlipAxis", rollFlipAxis);
-            config.SetValue("forceStockAppLauncher", forceStockAppLauncher);
-            config.SetValue("window_position", windowPosition);
-            config.save();
-            configDirty = false;
-        }
-
-        public static void LoadPrefs()
-        {
-            LogD($"LoadPrefs");
-            //print("Load Prefs");
-            config = PluginConfiguration.CreateForType<DockingPortAlignmentIndicator>(null);
-            config.load();
-
-            gaugeScale = (float)config.GetValue<double>("gui_scale", 0.86);
-
-            Rect defaultWindow = new Rect(Screen.width * .75f - (backgroundTextureWidth * gaugeScale / 2f), Screen.height * .5f - (backgroundTextureHeight * gaugeScale / 2f), backgroundTextureWidth * gaugeScale, backgroundTextureHeight * gaugeScale);
-            windowPosition = config.GetValue<Rect>("window_position", defaultWindow);
-
-            windowPosition = constrainToScreen(windowPosition);
-
-            //useCDI = config.GetValue<bool>("show_cdi", true);
-            //drawRollDigits = config.GetValue("show_rolldigits", true);
-            drawHudIcon = config.GetValue<bool>("drawHudIcon", true);
-            targetHUDiconSize = (float)config.GetValue<double>("HudIconSize", 22f);
-            allowAutoPortTargeting = config.GetValue<bool>("allowAutoPortTargeting", true);
-            excludeDockedPorts = config.GetValue<bool>("excludeDockedPorts", true);
-            restrictDockingPorts = config.GetValue<bool>("restrictDockingPorts", true);
-            showHUDIconWhileIva = config.GetValue<bool>("showHUDIconWhileEva", false);
-            alignmentFlipXAxis = config.GetValue<bool>("alignmentFlipXAxis", false);
-            alignmentFlipYAxis = config.GetValue<bool>("alignmentFlipYAxis", false);
-            translationFlipXAxis = config.GetValue<bool>("translationFlipXAxis", false);
-            translationFlipYAxis = config.GetValue<bool>("translationFlipYAxis", false);
-            rollFlipAxis = config.GetValue<bool>("rollFlipAxis", false);
-            forceStockAppLauncher = config.GetValue<bool>("forceStockAppLauncher", true);
-            configDirty = false;
-            //print("End Load Prefs");
-        }
-        #endregion
-
-        
         #region Resources
 
         //public static Material mat_background;
@@ -1802,9 +1370,6 @@ namespace NavyFish
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("RPM_background.png", null);
             rpmBackgroundTex = new Texture2D(317, 317, TextureFormat.ARGB32, false);
             rpmBackgroundTex.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("gaugeForeground.png", null);
-            gaugeForegroundTex = new Texture2D(foregroundTextureWidth, foregroundTextureHeight, TextureFormat.ARGB32, false);
-            gaugeForegroundTex.LoadImage(arrBytes);
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("alignment.png", null);
             alignmentTex = new Texture2D(207, 207, TextureFormat.ARGB32, false);
             alignmentTex.LoadImage(arrBytes);
@@ -1829,9 +1394,6 @@ namespace NavyFish
             arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("targetPort.png", null);
             targetPort = new Texture2D(40, 40, TextureFormat.ARGB32, false);
             targetPort.LoadImage(arrBytes);
-            arrBytes = KSP.IO.File.ReadAllBytes<DockingPortAlignmentIndicator>("appLauncherIcon.png", null);
-            appLauncherIcon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
-            appLauncherIcon.LoadImage(arrBytes);
             TextReader tr = KSP.IO.TextReader.CreateForType<DockingPortAlignmentIndicator>("DialogPlain.dat", null);
             List<string> textStrings = new List<string>();
             while (!tr.EndOfStream)
@@ -1845,49 +1407,34 @@ namespace NavyFish
             guiRenderTexture = new RenderTexture((int)visibleRect.width, (int)visibleRect.height, 0, RenderTextureFormat.ARGB32);
         }
 
+        #endregion
+
+        #region Debugging
+
+        private static GUIStyle labelStyle = null;
+
         private void initStyles()
         {
             Color lightGrey = new Color(.8f, .8f, .85f);
-
-            windowStyle = new GUIStyle(HighLogic.Skin.window);
-            windowStyle.stretchWidth = true;
-            windowStyle.stretchHeight = true;
 
             labelStyle = new GUIStyle(HighLogic.Skin.label);
             labelStyle.stretchWidth = true;
             labelStyle.stretchHeight = true;
             labelStyle.normal.textColor = lightGrey;
 
-            settingsButtonStyle = new GUIStyle(HighLogic.Skin.button);
-            settingsButtonStyle.padding = new RectOffset(1, 1, 1, 1);
-            settingsButtonStyle.stretchHeight = true;
-            settingsButtonStyle.stretchWidth = false;
-            settingsButtonStyle.fontSize = 11;
-            settingsButtonStyle.normal.textColor = lightGrey;
-
             hasInitializedStyles = true;
         }
-        #endregion
 
-        #region Debugging
-
-        private static bool shouldDebug = false;
-        
+        [Conditional("DEBUG")]
         private void OnDrawDebug()
         {
-            debugWindowPosition = GUILayout.Window(1338, debugWindowPosition, drawDebugWindowContents, "Debug", GUILayout.MinWidth(400), GUILayout.MaxWidth(800));
+            if (!hasInitializedStyles) {
+                initStyles();
+            }
+            debugWindowPosition = GUILayout.Window(1338, debugWindowPosition, drawDebugWindowContents, "DPAI Debug", GUILayout.MinWidth(400), GUILayout.MaxWidth(800));
         }
 
         static int vertLineFooterChop = 50;
-
-        private static float settingsButtonX = 150;
-        private static float settingsButtonY = 376;
-        private static float settingsButtonWidth = 100;
-        private static float settingsButtonHeight = 14;
-
-        static float settingsTextX = 178;
-        static float settingsTextY = 374;
-        static float settingsTextScale = .47f;
 
         private static int _rpmTextYTop = 19;
         private static int rpmTgtRefTextHeight = 19;
@@ -1904,7 +1451,7 @@ namespace NavyFish
 
         static int _dstXpos = 47;
         static int _dstYpos = 292;
-                
+
         static int _DSTLABEL_x = 7;
 
         static int _cvelXpos = 304;
@@ -1915,8 +1462,8 @@ namespace NavyFish
         static int _CLOSURED_y = 267;
 
         static int _CDSTLABEL_x = 226;
-        static int _CDSTLABEL_y = 267;     
-        
+        static int _CDSTLABEL_y = 267;
+
         static int _rDegXPos = 304;
         static int _rDegYPos = -1;
 
@@ -1931,35 +1478,55 @@ namespace NavyFish
         static float gaugeAlignmentMarkerScale = .9f;
         private static float arrowLengthOffsetMult = 1.6f, arrowLengthMult = .2f;
 
-        static float targetNameBoxWidth = 205;
-        static float targetNameBoxHeight = 40;
-        static float targetNameBoxYOffset = 37;
-
         public static int RPMbottomGutter = 30;
-
-        public static bool alignmentFlipXAxis = false;
-        public static bool alignmentFlipYAxis = false;
-        public static bool translationFlipXAxis = false;
-        public static bool translationFlipYAxis = false;
-        public static bool rollFlipAxis = false;
 
         private void drawDebugWindowContents(int windowID)
         {
             //stuff here
+            GUILayout.BeginVertical();
+
+            label<String>(currentTargetVessel?.ToString() ?? "NULL", "Target Vessel");
+            label<String>(targetedDockingModule?.GetDisplayName() ?? "NULL", "Target Port");
 
             //intTextField(ref tgtX, "tgtX");
             //intTextField(ref refX, "refX");
-            bool sceneElligibleForIndicator = (HighLogic.LoadedSceneIsFlight && !FlightGlobals.ActiveVessel.isEVA && !MapView.MapIsEnabled);
-            label<Boolean>(sceneElligibleForIndicator, "sceneElligibleForIndicator");
+            label<Boolean>(IsSceneEligibleForIndicator, "sceneEligibleForIndicator");
             label<Boolean>(gaugeVisiblityToggledOn, "gaugeVisiblityToggledOn");
 
 
             label<Boolean>(RPMPageActive, "RPMPageActive");
             label<Boolean>(isIVA(), "isIVA()");
             label<Boolean>(showIndicator, "showIndicator");
-            GUILayout.BeginHorizontal();
-            GUILayout.EndHorizontal();
             label<Boolean>(showIndicator || (RPMPageActive && isIVA()), "(showIndicator || (RPMPageActive && isIVA()))");
+
+            GUILayout.BeginHorizontal();
+            label<bool>(c.DrawHudIcon, "Draw HUD Icon");
+            label<bool>(c.ShowHudIconWhileIva, "Show HUD Icon in IVA");
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            label<bool>(c.AllowAutoPortTargeting, "Allow Port Targetting");
+            label<bool>(c.RestrictDockingPorts, "Restrict Docking Ports");
+            label<bool>(c.ExcludeDockedPorts, "Exclude Docked Ports");
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            label<bool>(c.AlignmentFlipXAxis, "Alignment Flip X Axis");
+            label<bool>(c.AlignmentFlipYAxis, "Alignment Flip Y Axis");
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            label<bool>(c.TranslationFlipXAxis, "Translation Flip X Axis");
+            label<bool>(c.TranslationFlipYAxis, "Translation Flip Y Axis");
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            label<bool>(c.RollFlipAxis,"Roll Flip Axis");
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            label<bool>(c.UseStockToolbar,"Force Stock App Launcher");
+            GUILayout.EndHorizontal();
+
+            GUILayout.EndVertical();
 
             GUI.DragWindow();
         }
@@ -2018,4 +1585,5 @@ namespace NavyFish
 
         #endregion
     }
-}
+
+} // End namespace NavyFish.DPAI

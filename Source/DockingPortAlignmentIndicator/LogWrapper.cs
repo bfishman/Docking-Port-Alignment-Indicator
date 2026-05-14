@@ -28,7 +28,7 @@
 
 using UnityEngine;
 
-namespace NavyFish
+namespace NavyFish.DPAI
 {
 /// <summary>
 /// A small static class to wrap the UnityEngine.Debug logger.
