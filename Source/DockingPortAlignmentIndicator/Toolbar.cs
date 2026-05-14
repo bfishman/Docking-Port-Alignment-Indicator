@@ -36,13 +36,13 @@ using static NavyFish.DPAI.LogWrapper;
 namespace NavyFish.DPAI
 {
 
-public class Toolbar
+public sealed class Toolbar : IDisposable
 {
     private bool _stock = false;
     private bool _blizzy = false;
 
     public void Dispose() {
-        LogD($"Toolbar.Dispose(); GameScene={HighLogic.LoadedScene}, appLauncherButton={m_stbButton}, blizzyButto={m_btbButton}");
+        LogD($"Toolbar.Dispose(); GameScene={HighLogic.LoadedScene}, appLauncherButton={m_stbButton}, blizzyButton={m_btbButton}");
         GameEvents.onGUIApplicationLauncherReady.Remove(OnAppLauncherReady);
         GameEvents.onGUIApplicationLauncherUnreadifying.Remove(OnAppLauncherUnreadifying);
         SetToolbarButtons(false, false);
@@ -50,7 +50,7 @@ public class Toolbar
     }
 
     private void OnButtonClicked() {
-        LogD($"Toolbar.OnButtonClicked(); GameScene={HighLogic.LoadedScene}, appLauncherButton={m_stbButton}, blizzyButto={m_btbButton}");
+        LogD($"Toolbar.OnButtonClicked(); GameScene={HighLogic.LoadedScene}, appLauncherButton={m_stbButton}, blizzyButton={m_btbButton}");
         onToolbarButtonClicked?.Invoke();
     }
 
@@ -59,10 +59,10 @@ public class Toolbar
 
     private Toolbar() {
         LogD($"Toolbar(); GameScene={HighLogic.LoadedScene}");
-        m_instance = this;
         GameEvents.onGUIApplicationLauncherReady.Add(OnAppLauncherReady);
         GameEvents.onGUIApplicationLauncherUnreadifying.Add(OnAppLauncherUnreadifying);
     }
+
 
     public static Toolbar Instance {
         get {
@@ -115,7 +115,8 @@ public class Toolbar
     }
 
     private void AddButtonToStockToolbar () {
-        LogD($"Toolbar.AddButtonToStockToolbar (GameScene=={HighLogic.LoadedScene}, appLauncherButton=={m_stbButton})");
+        LogD($"Toolbar.AddButtonToStockToolbar (GameScene=={HighLogic.LoadedScene}, _stock={_stock}, " +
+             $"ApplicationLauncher.Ready={ApplicationLauncher.Ready}, appLauncherButton=={m_stbButton})");
         if (!_stock || !ApplicationLauncher.Ready || !HighLogic.LoadedSceneIsFlight || m_stbButton != null) {
             return;
         }

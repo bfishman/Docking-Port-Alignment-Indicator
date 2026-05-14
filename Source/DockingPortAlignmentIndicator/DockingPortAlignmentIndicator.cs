@@ -241,7 +241,7 @@ namespace NavyFish.DPAI
         /// </summary>
         private void updateToolBarButton()
         {
-            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene}");
+            LogD($"updateToolBarButton (GameScene=={HighLogic.LoadedScene})");
             Toolbar.Instance.SetToolbarButtons(c.UseStockToolbar, c.UseBlizzyToolbar);
         }
 
@@ -340,14 +340,17 @@ namespace NavyFish.DPAI
             onHideGUI();
             c.Save();
 
-            // TODO: destroy toolbar buttons?
-
             Toolbar.Instance.onToolbarButtonClicked -= OnToolbarButtonClicked;
             Settings.Configuration.onPropertyChanged -= OnSettingChanged;
             GameEvents.onHideUI.Remove(OnHideUI);
             GameEvents.onShowUI.Remove(OnShowUI);
             GameEvents.onGUIKSPediaSpawn.Remove(OnKSPediaSpawn);
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
+
+            // By destroying the toolbar here we work around an odd edge-case where the toolbar loses the
+            // AppLauncherReady events when both toolbars are deselected and scenes are switched. Forcing the toolbar
+            // to reinitialize seems to fix this, although it is not ideal.
+            Toolbar.Instance.Dispose();
         }
 
         private void OnGUI()
