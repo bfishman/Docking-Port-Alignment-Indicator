@@ -162,7 +162,7 @@ namespace NavyFish.DPAI
                 else
                 {
                     return null;
-                }   
+                }
             }
         }
 
@@ -183,7 +183,7 @@ namespace NavyFish.DPAI
                 List<ModuleDockingPortExWrapper> modules = DockingPortExHelper.FindModulesImplementing_ModuleDockingPortEx((targetedDockingModule as PartModule).part);
                 if (modules.Count > 0)
                 {
-                    ModuleDockingPortExWrapper targetDockingPortEx = DockingPortExHelper.as_ModuleDockingPortEx((PartModule)targetedDockingModule);
+                    ModuleDockingPortExWrapper targetDockingPortEx = DockingPortExHelper.as_ModuleDockingPortEx(targetedDockingModule);
 
                     if ((targetDockingPortEx != null) && modules.Count > 1)
                     {
@@ -692,29 +692,25 @@ namespace NavyFish.DPAI
 
                                         dockingModulesList.Add(tgt);
                                     }
-                                    else if (DockingPortExHelper.is_ModuleDockingPortEx((PartModule)tgt))
+                                    else if (DockingPortExHelper.is_ModuleDockingPortEx(tgt))
                                     {
-                                        ModuleDockingPortExWrapper port = DockingPortExHelper.as_ModuleDockingPortEx((PartModule)tgt);
+                                        ModuleDockingPortExWrapper port = DockingPortExHelper.as_ModuleDockingPortEx(tgt);
                                         LogD($"Adding Docking Port {port} (DockingPortEx) to list of targets.");
-                                        if (excludeDockedPorts &&
-                                                port.IsDocked()
-                                            )
+                                        if (c.ExcludeDockedPorts && port.IsDocked())
                                         {
-                                            //print("continue");
                                             //do not add to list if module is already docked
                                             continue;
                                         }
 
-                                        if(restrictDockingPorts && !isCompatiblePort(port))
+                                        if(c.RestrictDockingPorts && !isCompatiblePort(port))
                                         {
                                           // Do not add to list if destination port doesn't match
                                           continue;
                                         }
 
-                                        //print("1stAdd");
                                         dockingModulesList.Add(tgt);
                                     }
-                                    else if (!DockingPortExHelper.is_IDockable((PartModule)tgt)) // only take ModuleDockingPortEx which derive from IDockable, but no others
+                                    else if (!DockingPortExHelper.is_IDockable(tgt)) // only take ModuleDockingPortEx which derive from IDockable, but no others
                                     {
                                         dockingModulesList.Add(tgt);
                                     }
@@ -745,7 +741,7 @@ namespace NavyFish.DPAI
                                         }
                                         lastTarget = targetedDockingModule;
                                     }
-                                    else if ((DockingPortExHelper.is_ModuleDockingPortEx((PartModule)currentTarget)) && isOrientedTarget(currentTarget) && !currentTargetVessel.packed)
+                                    else if ((DockingPortExHelper.is_ModuleDockingPortEx(currentTarget)) && isOrientedTarget(currentTarget) && !currentTargetVessel.packed)
                                     {
                                         // Use the currently selected target (if it is a docking port)
                                         //targetedDockingModule = currentTarget as ModuleDockingNode;
@@ -1148,7 +1144,6 @@ namespace NavyFish.DPAI
         {
             if (referencePartNamed != null)
             {
-                //referenceName += referencePartNamed.portName;
                 return referencePartNamed.portName;
             }
             else if (referencePartDockingPortEx != null)
@@ -1157,45 +1152,34 @@ namespace NavyFish.DPAI
             }
             else if (referencePart != null)
             {
-                //referenceName += referencePart.name;
                 return referencePart.name;
             }
             else
             {
-                //referenceName += "None";
                 return Utils.GetStringByTag("#none");
             }
         }
 
         public static String determineTargetPortName()
         {
-            String targetDisplayName;
-
             if (currentTargetVessel == null)
             {
-                targetDisplayName = Utils.GetStringByTag("#no_vessel_targeted");
+                return Utils.GetStringByTag("#no_vessel_targeted");
             }
-            else if (targetedDockingModule == null)
+            if (targetedDockingModule == null)
             {
-                if (targetOutOfRange)
-                {
-                    targetDisplayName = Utils.GetStringByTag("#target_out_of_range");
-                }
-                else
-                {
-                    targetDisplayName = Utils.GetStringByTag("#no_port_targeted");
-                }
+                return targetOutOfRange? Utils.GetStringByTag("#target_out_of_range")
+                                       : Utils.GetStringByTag("#no_port_targeted");
             }
-            else
+            if (targetNamedModule != null)
             {
-                if (targetNamedModule != null)
-                    targetDisplayName = targetNamedModule.portName;
-                else if (targetDockingPortExModule != null)
-                    targetDisplayName = targetDockingPortExModule.GetName();
-                else
-                    targetDisplayName = targetedDockingModule.GetDisplayName();
+                return targetNamedModule.portName;
             }
-            return targetDisplayName;
+            if (targetDockingPortExModule != null)
+            {
+                return targetDockingPortExModule.GetName();
+            }
+            return targetedDockingModule.GetDisplayName();
         }
 
         private static void drawGlyphStringGUI(String valueString, float x, float y, float customScale, BitmapFont.HorizontalAlignment hAlign)
@@ -1375,7 +1359,7 @@ namespace NavyFish.DPAI
                 PartModule module = referencePoints[newIndex];
 
                 var node = module as ModuleDockingNode;
-                var port = DockingPortExHelper.as_ModuleDockingPortEx(module);
+                var portEx = DockingPortExHelper.as_ModuleDockingPortEx(module);
                 var pod = module as ModuleCommand;
                 var claw = module as ModuleGrappleNode;
 
@@ -1383,9 +1367,9 @@ namespace NavyFish.DPAI
                 if (node != null)
                 {
                     node.MakeReferenceTransform();
-                } else if (port != null)
+                } else if (portEx != null)
                 {
-                    port.MakeReference();
+                    portEx.MakeReference();
                 } else if (pod != null)
                 {
                     pod.MakeReference();
