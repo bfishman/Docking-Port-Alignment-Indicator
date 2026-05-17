@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
+
+## [6.13.0.0] for KSP 1.12.5 - 2026-05-17
 ### Added
 - (english) KSPedia. Fixes #17
 - Russian translation. Thanks to `BROtania` and `infradmin4KSP`
@@ -19,6 +21,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fixed the DPAI window remaining visible on top of KSPedia. Fixes #27
 - Fixed F2 not hiding the DPAI windows. Fixes #30
+
+### Known Issues
+- Settings Window is still the old GUI with all the associated issues
+- Port Indicator renders over the top of all other GUI elements
+- KSPedia uses screenshots from the old GUI
 
 ### Notes
 - A big thank-you to `infradmin4KSP` who did a lot of testing during
