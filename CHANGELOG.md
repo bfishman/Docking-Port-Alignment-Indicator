@@ -5,9 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
 ### Added
-- Added (english) KSPedia. Fixes #17
-- Added Russian translation. Thanks to `BROtania` and `infradmin4KSP`
-- Added French translation. Thanks to `vinix38`
+- (english) KSPedia. Fixes #17
+- Russian translation. Thanks to `BROtania` and `infradmin4KSP`
+- French translation. Thanks to `vinix38`
+- Support for Rudolf Meier's "Docking Functions" mod. Thanks to `Rudolf Meier`
 
 ### Changed
 - The DPAI display now uses a native Unity window, which is more performant,
