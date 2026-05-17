@@ -33,16 +33,21 @@
 // We want the settings window to open/close
 // We want the settings window to "attach" to the parent window
 
-using System.Diagnostics;
 using KSP.IO;
-using KSP.Localization;
 using UnityEngine;
 
 namespace NavyFish.DPAI.Settings
 {
 
-// NOTE: The PluginConfiguration class is buggy and only supports `bool`, `int`, `double`, and `string`, despite what
-// the documentation may say. Ensure that any other types are cast to/from these supported types.
+
+/// <summary>
+/// This is a wrapper class around PluginConfiguration to enhance safety and correctness.
+/// </summary>
+/// The PluginConfiguration class is buggy and some types are not written out, such as "float".
+/// Furthermore, the following has been determined:
+/// - PluginConfiguration.GetValue<T>(string key, T _default) - this function will create the key if it doesn't exist
+/// - PluginConfiguration.GetValue<T>(string key) - this function will return a default T if the key doesn't exist
+/// - PluginConfiguration.SetValue(string key, object value) - this will add or update the value
 public sealed class Configuration
 {
     #region Singleton
@@ -84,38 +89,93 @@ public sealed class Configuration
 
     public void Load()
     {
-        config.load();
+        try
+        {
+            // NOTE: This function throws if the XML configuration file is malformed. Since we provide sensible
+            //       defaults, we can simply log this as an error and proceed.
+            config.load();
+        }
+        catch (System.Exception e)
+        {
+            LogWrapper.LogE($"Configuration.Load() - error loading: {e}");
+        }
         dirty = false;
     }
 
     public void Save()
     {
-        if (dirty)
+        if (!dirty)
+        {
+            return;
+        }
+
+        try
         {
             // TODO: save in a background task
+            // NOTE: This function throws if an error occurs during saving, such as an illegal value in one of the
+            //       configuration entries or an IO error.
             config.save();
             dirty = false;
         }
+        catch (System.Exception e)
+        {
+            LogWrapper.LogE($"Configuration.Save() - error saving: {e}");
+        }
     }
 
-    public object this[string key]
-    {
-        get { return config[key]; }
-        set { SetValue(key, value); }
-    }
-
+    /// <summary>
+    /// Returns the configuration value stored with key "key".
+    /// </summary>
+    /// If the configuration key is not stored, a default value for the type is returned.
+    /// <param name="key"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public T GetValue<T>(string key)
     {
         return config.GetValue<T>(key);
     }
 
-    public T GetValue<T>(string key, T _default)
+    /// <summary>
+    /// Returns the configuration value stored with key "key" if it exists and is of the expected type, otherwise it
+    /// returns the defaultValue.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="defaultValue"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T GetValue<T>(string key, T defaultValue)
     {
-        return (config[key] != null) ? config.GetValue<T>(key) : _default;
+        return (config[key] != null && config[key] is T) ? (T)config[key] : defaultValue;
     }
 
+    /// <summary>
+    /// Return the configuration value stored with key "key" if it exists, otherwise the value stored with "legacyKey",
+    /// or, if neither exist, the "defaultValue".
+    /// </summary>
+    /// This function ensures that the legacy key is not added to the configuration if it doesn't already exist
+    /// <param name="legacyKey"></param>
+    /// <param name="key"></param>
+    /// <param name="defaultValue"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    private T GetValue<T>(string legacyKey, string key, T defaultValue)
+    {
+        return (config[key] != null)? GetValue<T>(key, defaultValue) : GetValue<T>(legacyKey, defaultValue);
+    }
+
+    /// <summary>
+    /// Sets a configuration item.
+    /// </summary>
+    /// WARNING: setting a configuration item to "null" will cause writing the configuration to fail.
+    /// <param name="key"></param>
+    /// <param name="value"></param>
     public void SetValue(string key, object value)
     {
+        // Setting a null key or value causes an error when saving the configuration
+        if (value == null || string.IsNullOrEmpty(key))
+        {
+            return;
+        }
         var equal = (value.GetType().IsValueType) ? value.Equals(config[key]) : (value == config[key]);
         if (!equal) {
             config.SetValue(key, value);
@@ -128,13 +188,13 @@ public sealed class Configuration
 
     #region GettersSetters
 
+
     public float GaugeScale
     {
         get
         {
             // NOTE: There seems to be a bug in the settings implementation which ignores saving float values.
-            var legacyValue = GetValue<double>("gui_scale", 0.86f);
-            return (float)GetValue<double>("GaugeScale", legacyValue);
+            return (float)GetValue<double>("gui_scale", "GaugeScale", 0.86f);
         }
         set { SetValue("GaugeScale", (double)value); }
     }
@@ -143,8 +203,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = GetValue<bool>("drawHudIcon", true);
-            return GetValue<bool>("DrawHudIcon", legacyValue);
+            return GetValue<bool>("drawHudIcon", "DrawHudIcon", true);
         }
         set { SetValue("DrawHudIcon", value); }
     }
@@ -153,24 +212,22 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = GetValue<bool>("showHUDIconWhileIva", true);
-            return GetValue<bool>("ShowHUDIconWhileIva", legacyValue);
+            return GetValue<bool>("showHUDIconWhileIva", "ShowHUDIconWhileIva", true);
         }
         set { SetValue("ShowHudIconWhileIva", value); }
     }
 
     public float HudIconSize
     {
-        get { return (float)GetValue<double>("HudIconSize", 22f); }
-        set { SetValue("HudIconSize", (double)value); }
+        get { return GetValue<float>("HudIconSize", 22f); }
+        set { SetValue("HudIconSize", value); }
     }
 
     public bool AllowAutoPortTargeting
     {
         get
         {
-            var legacyValue = GetValue<bool>("allowAutoPortTargeting", true);
-            return GetValue<bool>("AllowAutoPortTargeting", legacyValue);
+            return GetValue<bool>("allowAutoPortTargeting", "AllowAutoPortTargeting", true);
         }
         set { SetValue("AllowAutoPortTargeting", value); }
     }
@@ -179,8 +236,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = GetValue<bool>("excludeDockedPorts", true);
-            return GetValue<bool>("ExcludeDockedPorts", legacyValue);
+            return GetValue<bool>("excludeDockedPorts", "ExcludeDockedPorts", true);
         }
         set { SetValue("ExcludeDockedPorts", value); }
     }
@@ -189,8 +245,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = GetValue<bool>("restrictDockingPorts", true);
-            return GetValue<bool>("RestrictDockingPorts", legacyValue);
+            return GetValue<bool>("restrictDockingPorts", "RestrictDockingPorts", true);
         }
         set { SetValue("RestrictDockingPorts", value); }
     }
@@ -199,8 +254,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = GetValue<bool>("alignmentFlipXAxis", false);
-            return GetValue<bool>("AlignmentFlipXAxis", legacyValue);
+            return GetValue<bool>("alignmentFlipXAxis", "AlignmentFlipXAxis", false);
         }
         set { SetValue("AlignmentFlipXAxis", value); }
     }
@@ -209,8 +263,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = GetValue<bool>("alignmentFlipYAxis", false);
-            return GetValue<bool>("AlignmentFlipYAxis", legacyValue);
+            return GetValue<bool>("alignmentFlipYAxis", "AlignmentFlipYAxis", false);
         }
         set { SetValue("AlignmentFlipYAxis", value); }
     }
@@ -219,8 +272,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = GetValue<bool>("translationFlipXAxis", false);
-            return GetValue<bool>("TranslationFlipXAxis", legacyValue);
+            return GetValue<bool>("translationFlipXAxis", "TranslationFlipXAxis", false);
         }
         set { SetValue("TranslationFlipXAxis", value); }
     }
@@ -229,8 +281,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = config.GetValue<bool>("translationFlipYAxis", false);
-            return config.GetValue<bool>("TranslationFlipYAxis", legacyValue);
+            return GetValue<bool>("translationFlipYAxis", "TranslationFlipYAxis", false);
         }
         set { SetValue("TranslationFlipYAxis", value); }
     }
@@ -239,8 +290,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = config.GetValue<bool>("rollFlipAxis", false);
-            return config.GetValue<bool>("RollFlipAxis", legacyValue);
+            return GetValue<bool>("rollFlipAxis", "RollFlipAxis", false);
         }
         set { SetValue("RollFlipAxis", value); }
     }
@@ -249,8 +299,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = config.GetValue<bool>("forceStockAppLauncher", true);
-            return config.GetValue<bool>("UseStockToolbar", legacyValue);
+            return GetValue<bool>("forceStockAppLauncher", "UseStockToolbar", true);
         }
         set { SetValue("UseStockToolbar", value); }
     }
@@ -265,8 +314,7 @@ public sealed class Configuration
     {
         get
         {
-            var legacyValue = config.GetValue<Vector2>("windowPosition", new Vector2(0, 0));
-            return config.GetValue<Vector2>("WindowPosition", legacyValue);
+            return GetValue<Vector2>("windowPosition", "WindowPosition", new Vector2(0, 0));
         }
         set { SetValue("WindowPosition", value); }
     }
@@ -421,7 +469,7 @@ public class SettingsWindow
         GUI.DragWindow();
     } // End drawSettingsWindowContents
 
-    [Conditional("DEBUG")]
+    [System.Diagnostics.Conditional("DEBUG")]
     private void drawSettingsWindowDebugContents()
     {
         var c = Configuration.Instance;

@@ -100,7 +100,6 @@ namespace NavyFish.DPAI
         private static bool currentTargetVesselWasLastSeenLoaded = false;
         public static bool gaugeVisiblityToggledOn = false;
         private static bool targetOutOfRange = false;
-        private static bool resetTarget = false;
 
         public static bool RPMPageActive = false;
 
@@ -274,7 +273,7 @@ namespace NavyFish.DPAI
                 case "AllowAutoPortTargeting":
                 case "ExcludeDockedPorts":
                 case "RestrictDockingPorts":
-                    resetTarget = true;
+                    ResetTarget();
                     break;
                 case "GaugeScale":
                     MainWindow?.OnScaleChanged(c.GaugeScale);
@@ -361,6 +360,13 @@ namespace NavyFish.DPAI
             }
         }
 
+        // GameEvents.onVesselChange
+        // vwhen switching to a different vessel, loading a vessel, or launching
+        private void OnVesselChange(Vessel v)
+        {
+            ResetTarget();
+        }
+
         /// <summary>
         /// Called once per object. Effectively the Constructor.
         /// </summary>
@@ -395,6 +401,7 @@ namespace NavyFish.DPAI
             GameEvents.onGUIKSPediaDespawn.Add(OnKSPediaDespawn);
             GameEvents.OnMapEntered.Add(OnMapEntered);
             GameEvents.OnMapExited.Add(OnMapExited);
+            GameEvents.onVesselChange.Add(OnVesselChange);
 
             if (c.IsWindowVisible) {
                 onShowGUI();
@@ -419,6 +426,7 @@ namespace NavyFish.DPAI
             GameEvents.onGUIKSPediaDespawn.Remove(OnKSPediaDespawn);
             GameEvents.OnMapEntered.Remove(OnMapEntered);
             GameEvents.OnMapExited.Remove(OnMapExited);
+            GameEvents.onVesselChange.Remove(OnVesselChange);
 
             // By destroying the toolbar here we work around an odd edge-case where the toolbar loses the
             // AppLauncherReady events when both toolbars are deselected and scenes are switched. Forcing the toolbar
@@ -462,6 +470,28 @@ namespace NavyFish.DPAI
             }
         }
         #endregion GameEvents
+
+        /// <summary>
+        /// Reset all state relating to targeting a docking port.
+        /// </summary>
+        /// This should be called when the active vessel has changed, a setting which affects automatic port targeting
+        /// has changed, or similar events have occured.
+        private static void ResetTarget()
+        {
+            //LogD("resetTarget");
+            lastActiveVessel = FlightGlobals.ActiveVessel;
+            lastTarget = null;
+            lastTargetVessel = null;
+            currentTargetVesselWasLastSeenLoaded = false;
+            targetedDockingModule = null;
+            dockingModulesListIndex = -1;
+            portWasCycled = false;
+            dockingModulesList.Clear();
+            lastReferencePart = null;
+            findReferencePoints();
+            wasLastIVA = isIVA();
+            wasLastMap = MapView.MapIsEnabled;
+        }
 
         private static bool isIVA()
         {
@@ -586,6 +616,68 @@ namespace NavyFish.DPAI
 
         public static int tickCount = 0;
 
+        private static bool isPortTargetable(ModuleDockingNode dockingNode)
+        {
+            if (dockingNode is null)
+            {
+                return false;
+            }
+            if (c.ExcludeDockedPorts && isPortDocked(dockingNode))
+            {
+                // Do not add to list if port is already docked
+                return false;
+            }
+
+            if(c.RestrictDockingPorts && !isCompatiblePort(dockingNode))
+            {
+                // Do not add to list if destination port doesn't match
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool isPortTargetable(ModuleDockingPortExWrapper dockingPortEx)
+        {
+            if (c.ExcludeDockedPorts && dockingPortEx.IsDocked())
+            {
+                //do not add to list if module is already docked
+                return false;
+            }
+
+            if(c.RestrictDockingPorts && !isCompatiblePort(dockingPortEx))
+            {
+                // Do not add to list if destination port doesn't match
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool isPortTargetable(ITargetable target)
+        {
+            // Support for stock docking ports
+            if (target is ModuleDockingNode node)
+            {
+                return isPortTargetable(node);
+            }
+
+            // Support for ModuleDockingPortEx
+            if (DockingPortExHelper.is_ModuleDockingPortEx(target))
+            {
+                return isPortTargetable(DockingPortExHelper.as_ModuleDockingPortEx(target));
+            }
+
+            // Ignore IDockable's which are not DockingPortEx's
+            if (!DockingPortExHelper.is_IDockable(target))
+            {
+                return true;
+            }
+
+            LogD($"Unsupported port type - {target.GetType()}");
+            return false;
+        }
+
         private static void determineTargetPort()
         {
             if (portWasCycled && dockingModulesList.Count > 1)
@@ -606,24 +698,6 @@ namespace NavyFish.DPAI
                     FlightGlobals.fetch.SetVesselTarget(targetedDockingModule);
                 }
                 return;
-            }
-
-            if (lastActiveVessel != FlightGlobals.ActiveVessel || resetTarget)
-            {
-                //print("resetTarget");
-                resetTarget = false;
-                lastActiveVessel = FlightGlobals.ActiveVessel;
-                lastTarget = null;
-                lastTargetVessel = null;
-                currentTargetVesselWasLastSeenLoaded = false;
-                targetedDockingModule = null;
-                dockingModulesListIndex = -1;
-                portWasCycled = false;
-                dockingModulesList.Clear();
-                lastReferencePart = null;
-                findReferencePoints();
-                wasLastIVA = isIVA();
-                wasLastMap = MapView.MapIsEnabled;
             }
 
             determineReferencePoint();
@@ -670,51 +744,8 @@ namespace NavyFish.DPAI
 
                             if (c.AllowAutoPortTargeting)
                             {
-                                List<ITargetable> ITargetableList = currentTargetVessel.FindPartModulesImplementing<ITargetable>();
-                                dockingModulesList.Clear();
-                                foreach (ITargetable tgt in ITargetableList)
-                                {
-                                    if (tgt is ModuleDockingNode)
-                                    {
-                                        ModuleDockingNode port = tgt as ModuleDockingNode;
-                                        LogD($"Adding Docking Port {port} (state={port.state}, other={port.otherNode}) to list of targets.");
-                                        if (c.ExcludeDockedPorts && isPortDocked(port))
-                                        {
-                                            // Do not add to list if port is already docked
-                                            continue;
-                                        }
-
-                                        if(c.RestrictDockingPorts && !isCompatiblePort(port))
-                                        {
-                                            // Do not add to list if destination port doesn't match
-                                            continue;
-                                        }
-
-                                        dockingModulesList.Add(tgt);
-                                    }
-                                    else if (DockingPortExHelper.is_ModuleDockingPortEx(tgt))
-                                    {
-                                        ModuleDockingPortExWrapper port = DockingPortExHelper.as_ModuleDockingPortEx(tgt);
-                                        LogD($"Adding Docking Port {port} (DockingPortEx) to list of targets.");
-                                        if (c.ExcludeDockedPorts && port.IsDocked())
-                                        {
-                                            //do not add to list if module is already docked
-                                            continue;
-                                        }
-
-                                        if(c.RestrictDockingPorts && !isCompatiblePort(port))
-                                        {
-                                          // Do not add to list if destination port doesn't match
-                                          continue;
-                                        }
-
-                                        dockingModulesList.Add(tgt);
-                                    }
-                                    else if (!DockingPortExHelper.is_IDockable(tgt)) // only take ModuleDockingPortEx which derive from IDockable, but no others
-                                    {
-                                        dockingModulesList.Add(tgt);
-                                    }
-                                }
+                                List<ITargetable> targets = currentTargetVessel.FindPartModulesImplementing<ITargetable>();
+                                dockingModulesList = targets.FindAll(isPortTargetable);
 
                                 if (dockingModulesList.Count > 0)
                                 {
