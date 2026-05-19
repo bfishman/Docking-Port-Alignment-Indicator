@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [{VERSION}] for KSP {KSPVERSION} - {DATE}
 
+## [6.13.1.0] for KSP 1.12.5 - 2026-05-19
+### Fixed
+- Gear icon for the settings button not displayed in Windows
+
 ## [6.13.0.0] for KSP 1.12.5 - 2026-05-17
 ### Added
 - (english) KSPedia. Fixes #17
