@@ -58,9 +58,23 @@
     <MakeDir Directories="$(BuildDir)" Condition="!Exists('$(BuildDir)')" />
   </Target>
 
+  <!-- Update the Unity asset bundles in the distribution directory. -->
+  <Target Name="UpdateAssetBundles">
+    <!-- This AssetBundle is loaded by our code, so no ".ksp" extension -->
+    <Copy
+      SourceFiles="$(DPAI_DIR)\Unity\AssetBundles\dpai"
+      DestinationFiles="$(DistDir)\GameData\NavyFish\AssetBundles\dpai"
+      SkipUnchangedFiles="true" />
+    <!-- The KSPedia asset bundle is auto-loaded by KSP, so give it a ".ksp" extension -->
+    <Copy
+      SourceFiles="$(DPAI_DIR)\Unity\AssetBundles\kspedia_dpai"
+      DestinationFiles="$(DistDir)GameData\NavyFish\AssetBundles\kspedia_dpai.ksp"
+      SkipUnchangedFiles="true" />
+  </Target>
+
   <!-- This target deploys the build artefacts to the KSP directory -->
   <Target Name="DoDeploy"
-          DependsOnTargets="GenerateVersionFile">
+          DependsOnTargets="GenerateVersionFile;UpdateAssetBundles">
     <PropertyGroup>
       <SourceFolder>$(DistDir)\GameData\NavyFish</SourceFolder>
       <DestFolder>$(KSPDIR)\GameData\NavyFish</DestFolder>
@@ -91,7 +105,7 @@
 
   <!-- This target builds the release package -->
   <Target Name="MakeRelease"
-          DependsOnTargets="GenerateVersionFile">
+          DependsOnTargets="GenerateVersionFile;UpdateAssetBundles">
     <!-- Clean build-directory -->
     <RemoveDir Directories="$(BuildDir)"/>
     <CallTarget Targets="BuildDir"/>
