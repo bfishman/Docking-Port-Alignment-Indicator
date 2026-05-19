@@ -93,7 +93,7 @@
   </Target>
   <PropertyGroup>
     <StartAction>Program</StartAction>
-    <StartProgram>$(KSPDIR)\KSP_x64.exe</StartProgram>
+    <StartProgram>$(KSPDIR)$(KSP_BIN)</StartProgram>
     <StartWorkingDirectory>$(KSPDIR)</StartWorkingDirectory>
   </PropertyGroup>
 </Project>
