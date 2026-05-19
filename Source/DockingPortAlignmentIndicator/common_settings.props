@@ -4,10 +4,12 @@
   <PropertyGroup>
     <!-- Defaults; only the project-owner should change these. To override, use environment
        - variables or the "user_settings.props" file. -->
-    <DPAI_DIR Condition=" '$(DPAI_DIR)' == '' ">$(MSBuildThisFileDirectory)\..\..</DPAI_DIR>
-    <KSPDIR Condition=" '$(KSPDIR)' == '' ">..\..\..\..\..\..\..\Kerbal Space Program Dev</KSPDIR>
+    <DPAI_DIR Condition=" '$(DPAI_DIR)' == '' ">$(MSBuildThisFileDirectory)\..\..\</DPAI_DIR>
+    <KSPDIR Condition=" '$(KSPDIR)' == '' ">..\..\..\..\..\..\..\Kerbal Space Program Dev\</KSPDIR>
     <KSPDllDir Condition=" '$(OS)' == 'Windows_NT'">$(KSPDIR)/KSP_x64_Data/Managed/</KSPDllDir>
     <KSPDllDir Condition=" '$(OS)' != 'Windows_NT'">$(KSPDIR)/KSP_Data/Managed/</KSPDllDir>
+    <KSP_BIN Condition="'$(OS)'=='Windows_NT'">$(KSP_DIR)KSP_x64.exe</KSP_BIN>
+    <KSP_BIN Condition="'$(OS)'!='Windows_NT'">$(KSP_DIR)KSP.x86_64</KSP_BIN>
   </PropertyGroup>
   <!-- The following references all KSP related DLLs. -->
   <ItemGroup>

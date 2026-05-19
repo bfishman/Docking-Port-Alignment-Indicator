@@ -29,7 +29,6 @@
  */
 #endregion License
 
-using System.Diagnostics;
 using UnityEngine;
 using KSP.UI;
 
@@ -92,6 +91,7 @@ public static class RectTransformExtensions
     }
 #endif
 }
+
 [KSPAddon(KSPAddon.Startup.Instantly, true)]
 public class DPAI_Panel_Loader : MonoBehaviour
 {
@@ -104,9 +104,12 @@ public class DPAI_Panel_Loader : MonoBehaviour
 
     private void Awake()
     {
-        string path = KSPUtil.ApplicationRootPath+ "GameData/NavyFish/AssetBundles/";
-        AssetBundle prefabs = AssetBundle.LoadFromFile(path + "dpai");
-        m_panelPrefab = prefabs.LoadAsset("DPAI_MainWindow") as GameObject;
+        const string AssetBundleFilename = "dpai";
+        string path = System.IO.Path.Combine(new string[] {
+            KSPUtil.ApplicationRootPath, "GameData", "NavyFish", "AssetBundles", AssetBundleFilename
+        });
+        AssetBundle prefabs = AssetBundle.LoadFromFile(path);
+        m_panelPrefab = prefabs?.LoadAsset("DPAI_MainWindow") as GameObject;
     }
 }
 
@@ -131,21 +134,46 @@ public class DPAI_Panel : MonoBehaviour, IDockingPortAlignmentIndicatorPanel
         m_instance = this;
         m_version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+        #if true
         // Load the Unity window from the prefab
-        if (m_window == null && DPAI_Panel_Loader.PanelPrefab != null) {
+        // TODO: figure out how to access the prefab if KSP auto-loads the asset bundle
+        if (m_window == null && DPAI_Panel_Loader.PanelPrefab != null)
+        {
             GameObject obj = Instantiate(DPAI_Panel_Loader.PanelPrefab) as GameObject;
-            if (obj == null) {
-                LogE("ERROR - could not instantiate the DPAI Panel prefab.");
-            } else {
-                obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform);
-                m_window = obj.GetComponent<Unity.DockingPortAlignmentIndicator_MainWindow>();
-                if (m_window == null) {
-                    LogE("ERROR - could not access the script object on the panel object");
-                }
-                m_window?.Initialize(Instance);
+            if (obj == null)
+            {
+                LogE("DPAI_Panel.Awake() - could not instantiate the DPAI Panel prefab.");
+                return;
             }
+            obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform);
+            m_window = obj.GetComponent<Unity.DockingPortAlignmentIndicator_MainWindow>();
+            if (m_window == null)
+            {
+                LogE("DPAI_Panel.Awake() - could not access the script object on the panel object");
+                return;
+            }
+            m_window.Initialize(Instance);
         }
-        m_window?.gameObject.SetActive(false);
+        #else
+        // Load the Unity window from the prefab
+        if (m_window == null)
+        {
+            var prefab = AssetBase.GetPrefab("DPAI_MainWindow");
+            if (prefab == null)
+            {
+                LogE("DPAI_Panel.Awake() - could not load \"DPAI_MainWindow\" asset.");
+                return;
+            }
+            prefab.transform.SetParent(MainCanvasUtil.MainCanvas.transform);
+            m_window = prefab.GetComponent<Unity.DockingPortAlignmentIndicator_MainWindow>();
+            if (m_window == null) {
+                LogE("DPAI_Panel.Awake() - could not access the script object on the panel object");
+                return;
+            }
+            m_window.Initialize(Instance);
+        }
+        #endif
+        m_window.gameObject.SetActive(false);
         m_settingsWindow?.Close();
     }
 
